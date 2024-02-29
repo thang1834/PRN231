@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using PRN231_Project.Models;
+
 namespace PRN231_Project
 {
     public class Program
@@ -7,6 +10,8 @@ namespace PRN231_Project
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddDbContext<HouseRentalContext>(options => options.UseSqlServer(connectionString));
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
