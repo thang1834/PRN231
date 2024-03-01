@@ -27,7 +27,6 @@ namespace PRN231_Project.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-           
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -255,10 +254,18 @@ namespace PRN231_Project.Models
                     .HasMaxLength(255)
                     .HasColumnName("lastName");
 
+                entity.Property(e => e.Password)
+                    .HasMaxLength(50)
+                    .HasColumnName("password");
+
                 entity.Property(e => e.PhoneNumber)
                     .HasMaxLength(255)
                     .IsUnicode(false)
                     .HasColumnName("phoneNumber");
+
+                entity.Property(e => e.Username)
+                    .HasMaxLength(50)
+                    .HasColumnName("username");
 
                 entity.HasMany(d => d.Roles)
                     .WithMany(p => p.Users)

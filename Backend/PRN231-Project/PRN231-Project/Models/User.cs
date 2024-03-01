@@ -22,6 +22,8 @@ namespace PRN231_Project.Models
         public DateTime Dob { get; set; }
         public string IdentificationNumber { get; set; } = null!;
         public bool IsActive { get; set; }
+        public string? Password { get; set; }
+        public string? Username { get; set; }
 
         public virtual ICollection<Contract> Contracts { get; set; }
         public virtual ICollection<House> Houses { get; set; }
