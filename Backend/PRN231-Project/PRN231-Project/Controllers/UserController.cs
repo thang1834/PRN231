@@ -1,9 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using PRN231_Project.Services;
+using PRN231_Project.Dto.Authentication;
 
 namespace PRN231_Project.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class UserController : Controller
     {
         private readonly IUserService _userService;
@@ -13,9 +18,9 @@ namespace PRN231_Project.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var token = await _userService.Authenticate(model.Username, model.Password);
+            var token = await _userService.Authenticate(model);
 
             if (token == null)
             {
@@ -24,11 +29,20 @@ namespace PRN231_Project.Controllers
             return Ok(new { token });
         }
 
-    }
-
-    public class LoginViewModel
-    {
-        public string Username { get; set; } = null!;
-        public string Password { get; set; } = null!;
+        [HttpPost]
+        [Route("refresh-token")]
+        public async Task<IActionResult> RefreshToken(TokenModel tokenModel)
+        {
+            if (tokenModel is null)
+            {
+                return BadRequest("Invalid client request");
+            }
+            var token = await _userService.RefreshToken(tokenModel);
+            if (token == null)
+            {
+                return BadRequest("Error");
+            }
+            return Ok(new {token});
+        }
     }
 }

@@ -1,86 +1,145 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import './Login.scss';
 import {
-  CButton,
-  CCard,
-  CCardBody,
-  CCardGroup,
-  CCol,
-  CContainer,
-  CForm,
-  CFormInput,
-  CInputGroup,
-  CInputGroupText,
-  CRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
+    CButton,
+    CCard,
+    CCardBody,
+    CCardGroup,
+    CCol,
+    CContainer,
+    CForm,
+    CFormInput,
+    CImage,
+    CInputGroup,
+    CInputGroupText,
+    CRow,
+} from '@coreui/react';
+import CIcon from '@coreui/icons-react';
+import { cilLockLocked, cilUser } from '@coreui/icons';
+import img1 from 'src/assets/images/login-building.jpg';
+import img2 from 'src/assets/images/background-login.jpg';
+import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
-  return (
-    <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
-      <CContainer>
-        <CRow className="justify-content-center">
-          <CCol md={8}>
-            <CCardGroup>
-              <CCard className="p-4">
-                <CCardBody>
-                  <CForm>
-                    <h1>Login</h1>
-                    <p className="text-medium-emphasis">Sign In to your account</p>
-                    <CInputGroup className="mb-3">
-                      <CInputGroupText>
-                        <CIcon icon={cilUser} />
-                      </CInputGroupText>
-                      <CFormInput placeholder="Username" autoComplete="username" />
-                    </CInputGroup>
-                    <CInputGroup className="mb-4">
-                      <CInputGroupText>
-                        <CIcon icon={cilLockLocked} />
-                      </CInputGroupText>
-                      <CFormInput
-                        type="password"
-                        placeholder="Password"
-                        autoComplete="current-password"
-                      />
-                    </CInputGroup>
-                    <CRow>
-                      <CCol xs={6}>
-                        <CButton color="primary" className="px-4">
-                          Login
-                        </CButton>
-                      </CCol>
-                      <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
-                          Forgot password?
-                        </CButton>
-                      </CCol>
-                    </CRow>
-                  </CForm>
-                </CCardBody>
-              </CCard>
-              <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
-                <CCardBody className="text-center">
-                  <div>
-                    <h2>Sign up</h2>
-                    <p>
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                      tempor incididunt ut labore et dolore magna aliqua.
-                    </p>
-                    <Link to="/register">
-                      <CButton color="primary" className="mt-3" active tabIndex={-1}>
-                        Register Now!
-                      </CButton>
-                    </Link>
-                  </div>
-                </CCardBody>
-              </CCard>
-            </CCardGroup>
-          </CCol>
-        </CRow>
-      </CContainer>
-    </div>
-  )
-}
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [decodedToken, setDecodedToken] = useState(null);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [accessToken, setAccessToken] = useState('');
+    const navigate = useNavigate();
 
-export default Login
+    useEffect(() => {
+        if (accessToken) {
+            const userRole = decodedToken.role;
+            if (userRole === 'Admin') {
+                navigate('/dashboard');
+            } else if (userRole === 'User') {
+                navigate('/login');
+            } else {
+                console.log('Unknown role:', userRole);
+            }
+        }
+    }, [accessToken, navigate]);
+
+    const setParams = (event) => {
+        const { name, value } = event.target;
+        if (name === 'username') {
+            setUsername(value);
+        } else if (name === 'password') {
+            setPassword(value);
+        }
+    };
+
+    const handleDecode = (jwtToken) => {
+        try {
+            const decoded = jwtDecode(jwtToken);
+            console.log(decoded);
+            setDecodedToken(decoded);
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            setDecodedToken(null);
+        }
+    };
+
+    const login = () => {
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: username, password: password }),
+        };
+        fetch('https://localhost:7080/api/User/login', requestOptions)
+            .then((response) => {
+                console.log(response);
+                return response.json();
+            })
+            .then((result) => {
+                console.log(result.token.accessToken);
+                localStorage.setItem('token', result.token);
+                setAccessToken(result.token.accessToken);
+                handleDecode(result.token.accessToken);
+            })
+            .catch((error) => {
+                setErrorMessage('Invalid username or password');
+            });
+    };
+    return (
+        <>
+            <CImage className="background-image" rounded src={img2} width={450} height={450}></CImage>
+            <div className="min-vh-100 d-flex flex-row align-items-center login-body">
+                <CContainer>
+                    <CRow className="justify-content-center">
+                        <CCol md={8}>
+                            {errorMessage && <div style={{ color: 'red', fontSize: 20 }}>{errorMessage}</div>}
+                            <CCardGroup>
+                                <CCard>
+                                    <CImage rounded src={img1} width={450} height={450}></CImage>
+                                </CCard>
+                                <CCard className="p-4 login-form">
+                                    <CCardBody>
+                                        <CForm className="p-5">
+                                            <h1>Login</h1>
+                                            <p className="text-medium-emphasis">Sign In to your account</p>
+                                            <CInputGroup className="mb-3">
+                                                <CInputGroupText>
+                                                    <CIcon icon={cilUser} />
+                                                </CInputGroupText>
+                                                <CFormInput
+                                                    placeholder="Username"
+                                                    autoComplete="username"
+                                                    name="username"
+                                                    onChange={setParams}
+                                                />
+                                            </CInputGroup>
+                                            <CInputGroup className="mb-4">
+                                                <CInputGroupText>
+                                                    <CIcon icon={cilLockLocked} />
+                                                </CInputGroupText>
+                                                <CFormInput
+                                                    type="password"
+                                                    placeholder="Password"
+                                                    autoComplete="current-password"
+                                                    name="password"
+                                                    onChange={setParams}
+                                                />
+                                            </CInputGroup>
+                                            <CRow className="justify-content-center">
+                                                <CCol md={5}>
+                                                    <CButton color="primary" className="px-4" onClick={login}>
+                                                        Login
+                                                    </CButton>
+                                                </CCol>
+                                            </CRow>
+                                        </CForm>
+                                    </CCardBody>
+                                </CCard>
+                            </CCardGroup>
+                        </CCol>
+                    </CRow>
+                </CContainer>
+            </div>
+        </>
+    );
+};
+
+export default Login;
