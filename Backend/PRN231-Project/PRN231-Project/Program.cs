@@ -51,6 +51,11 @@ namespace PRN231_Project
                 };
             });
 
+
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            builder.Services.AddScoped<IContractRepository, ContractRepository>();
+            builder.Services.AddScoped<IContractService, ContractService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -59,6 +64,8 @@ namespace PRN231_Project
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+
 
             app.UseCors(policy => policy.AllowAnyHeader()
                             .AllowAnyMethod()

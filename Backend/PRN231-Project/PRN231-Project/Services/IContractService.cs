@@ -1,4 +1,5 @@
 ﻿using PRN231_Project.Dto.Contract;
+using PRN231_Project.Models;
 
 namespace PRN231_Project.Services
 {
@@ -10,8 +11,8 @@ namespace PRN231_Project.Services
         Task<IEnumerable<ContractDto>> GetContractsByHouseIdAsync(int houseId);
         Task<IEnumerable<ContractDto>> GetContractsInDateRangeAsync(DateTime startDate, DateTime endDate);
 
-        Task CreateContractAsync(ContractCreateDto contractDto);
-        Task UpdateContractAsync(int contractId, ContractUpdateDto contractDto);
-        Task RemoveContractAsync(int contractId);
+        Task<Contract> CreateContractAsync(ContractCreateDto contractDto);
+        Task<Contract> UpdateContractAsync(int contractId, ContractUpdateDto contractDto);
+        Task<Contract> RemoveContractAsync(int contractId);
     }
 }
