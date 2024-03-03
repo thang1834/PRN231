@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import './Login.scss';
 import {
     CButton,
     CCard,
@@ -17,13 +18,29 @@ import {
 import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
 import img1 from 'src/assets/images/login-building.jpg';
+import img2 from 'src/assets/images/background-login.jpg';
 import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [decodedToken, setDecodedToken] = useState(null);
-    const [error, setError] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [accessToken, setAccessToken] = useState('');
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (accessToken) {
+            const userRole = decodedToken.role;
+            if (userRole === 'Admin') {
+                navigate('/dashboard');
+            } else if (userRole === 'User') {
+                navigate('/login');
+            } else {
+                console.log('Unknown role:', userRole);
+            }
+        }
+    }, [accessToken, navigate]);
 
     const setParams = (event) => {
         const { name, value } = event.target;
@@ -37,6 +54,7 @@ const Login = () => {
     const handleDecode = (jwtToken) => {
         try {
             const decoded = jwtDecode(jwtToken);
+            console.log(decoded);
             setDecodedToken(decoded);
         } catch (error) {
             console.error('Error decoding token:', error);
@@ -56,66 +74,71 @@ const Login = () => {
                 return response.json();
             })
             .then((result) => {
-                console.log(result.token);
-                localStorage.setItem('accessToken', result.token);
-                handleDecode(result.token);
+                console.log(result.token.accessToken);
+                localStorage.setItem('token', result.token);
+                setAccessToken(result.token.accessToken);
+                handleDecode(result.token.accessToken);
             })
             .catch((error) => {
-                setError('Invalid username or password');
+                setErrorMessage('Invalid username or password');
             });
     };
     return (
-        <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
-            <CContainer>
-                <CRow className="justify-content-center">
-                    <CCol md={8}>
-                        <CCardGroup>
-                            <CCard>
-                                <CImage rounded src={img1} width={450} height={450}></CImage>
-                            </CCard>
-                            <CCard className="p-4 login-form">
-                                <CCardBody>
-                                    <CForm className="p-5">
-                                        <h1>Login</h1>
-                                        <p className="text-medium-emphasis">Sign In to your account</p>
-                                        <CInputGroup className="mb-3">
-                                            <CInputGroupText>
-                                                <CIcon icon={cilUser} />
-                                            </CInputGroupText>
-                                            <CFormInput
-                                                placeholder="Username"
-                                                autoComplete="username"
-                                                name="username"
-                                                onChange={setParams}
-                                            />
-                                        </CInputGroup>
-                                        <CInputGroup className="mb-4">
-                                            <CInputGroupText>
-                                                <CIcon icon={cilLockLocked} />
-                                            </CInputGroupText>
-                                            <CFormInput
-                                                type="password"
-                                                placeholder="Password"
-                                                autoComplete="current-password"
-                                                name="password"
-                                                onChange={setParams}
-                                            />
-                                        </CInputGroup>
-                                        <CRow className="justify-content-center">
-                                            <CCol md={5}>
-                                                <CButton color="primary" className="px-4" onClick={login}>
-                                                    Login
-                                                </CButton>
-                                            </CCol>
-                                        </CRow>
-                                    </CForm>
-                                </CCardBody>
-                            </CCard>
-                        </CCardGroup>
-                    </CCol>
-                </CRow>
-            </CContainer>
-        </div>
+        <>
+            <CImage className="background-image" rounded src={img2} width={450} height={450}></CImage>
+            <div className="min-vh-100 d-flex flex-row align-items-center login-body">
+                <CContainer>
+                    <CRow className="justify-content-center">
+                        <CCol md={8}>
+                            {errorMessage && <div style={{ color: 'red', fontSize: 20 }}>{errorMessage}</div>}
+                            <CCardGroup>
+                                <CCard>
+                                    <CImage rounded src={img1} width={450} height={450}></CImage>
+                                </CCard>
+                                <CCard className="p-4 login-form">
+                                    <CCardBody>
+                                        <CForm className="p-5">
+                                            <h1>Login</h1>
+                                            <p className="text-medium-emphasis">Sign In to your account</p>
+                                            <CInputGroup className="mb-3">
+                                                <CInputGroupText>
+                                                    <CIcon icon={cilUser} />
+                                                </CInputGroupText>
+                                                <CFormInput
+                                                    placeholder="Username"
+                                                    autoComplete="username"
+                                                    name="username"
+                                                    onChange={setParams}
+                                                />
+                                            </CInputGroup>
+                                            <CInputGroup className="mb-4">
+                                                <CInputGroupText>
+                                                    <CIcon icon={cilLockLocked} />
+                                                </CInputGroupText>
+                                                <CFormInput
+                                                    type="password"
+                                                    placeholder="Password"
+                                                    autoComplete="current-password"
+                                                    name="password"
+                                                    onChange={setParams}
+                                                />
+                                            </CInputGroup>
+                                            <CRow className="justify-content-center">
+                                                <CCol md={5}>
+                                                    <CButton color="primary" className="px-4" onClick={login}>
+                                                        Login
+                                                    </CButton>
+                                                </CCol>
+                                            </CRow>
+                                        </CForm>
+                                    </CCardBody>
+                                </CCard>
+                            </CCardGroup>
+                        </CCol>
+                    </CRow>
+                </CContainer>
+            </div>
+        </>
     );
 };
 
