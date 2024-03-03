@@ -1,4 +1,4 @@
-﻿namespace PRN231_Project.NormalModels
+﻿namespace PRN231_Project.Dto.Authentication
 {
     public class LoginModel
     {

@@ -3,7 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using PRN231_Project.Services;
-using PRN231_Project.NormalModels;
+using PRN231_Project.Dto.Authentication;
 
 namespace PRN231_Project.Controllers
 {

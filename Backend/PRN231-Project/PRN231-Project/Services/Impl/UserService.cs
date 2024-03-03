@@ -5,8 +5,8 @@ using System.Text;
 using PRN231_Project.Models;
 using PRN231_Project.Repositories;
 using System.Security.Cryptography;
-using PRN231_Project.NormalModels;
 using Microsoft.AspNetCore.Identity;
+using PRN231_Project.Dto.Authentication;
 
 namespace PRN231_Project.Services.Impl
 {
