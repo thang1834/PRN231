@@ -85,8 +85,7 @@ const Login = () => {
     };
     return (
         <>
-            <CImage className="background-image" rounded src={img2} width={450} height={450}></CImage>
-            <div className="min-vh-100 d-flex flex-row align-items-center login-body">
+            <div className="bg-light min-vh-100 d-flex flex-row align-items-center login-body">
                 <CContainer>
                     <CRow className="justify-content-center">
                         <CCol md={8}>
