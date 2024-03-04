@@ -70,7 +70,6 @@ namespace PRN231_Project.Controllers
                 return BadRequest(ex.Message);
             }
             
-            
         }
 
         [HttpPut("{contractId}")]
@@ -79,11 +78,11 @@ namespace PRN231_Project.Controllers
             try
             {
                 await _contractService.UpdateContractAsync(contractId, contractDto);
-                return Ok();
+                return Ok("Update successfully");
             }
             catch (Exception ex)
             {
-                return NotFound();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -93,11 +92,11 @@ namespace PRN231_Project.Controllers
             try
             {
                 await _contractService.RemoveContractAsync(contractId);
-                return NoContent();
+                return Ok("Delete successfully");
             }
             catch (Exception ex)
             {
-                return NotFound();
+                return BadRequest(ex.Message);
             }
         }
     }
