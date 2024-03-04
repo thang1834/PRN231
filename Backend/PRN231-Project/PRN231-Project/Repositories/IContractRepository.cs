@@ -10,8 +10,8 @@ namespace PRN231_Project.Repositories
         Task<IEnumerable<Contract>> GetContractsByHouseIdAsync(int houseId);
         Task<IEnumerable<Contract>> GetContractsInDateRangeAsync(DateTime startDate, DateTime endDate);
 
-        Task AddContractAsync(Contract contract);
-        Task UpdateContractAsync(Contract contract);
-        Task RemoveContractAsync(int contractId);
+        Task <Contract> AddContractAsync(Contract contract);
+        Task <Contract> UpdateContractAsync(Contract contract);
+        Task <Contract> RemoveContractAsync(int contractId);
     }
 }
