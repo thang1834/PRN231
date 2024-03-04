@@ -5,5 +5,6 @@ namespace PRN231_Project.Repositories
     public interface IUserRepository
     {
         Task<User> GetByUsernameAsync(string username);
+        Task UpdateAsync(User user);
     }
 }

@@ -264,6 +264,14 @@ namespace PRN231_Project.Models
                     .IsUnicode(false)
                     .HasColumnName("phoneNumber");
 
+                entity.Property(e => e.RefreshToken)
+                    .HasMaxLength(100)
+                    .HasColumnName("refreshToken");
+
+                entity.Property(e => e.RefreshTokenExpiryTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("refreshTokenExpiryTime");
+
                 entity.Property(e => e.Username)
                     .HasMaxLength(50)
                     .HasColumnName("username");

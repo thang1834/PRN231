@@ -24,6 +24,8 @@ namespace PRN231_Project.Models
         public bool IsActive { get; set; }
         public string Password { get; set; } = null!;
         public string Username { get; set; } = null!;
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
 
         public virtual ICollection<Contract> Contracts { get; set; }
         public virtual ICollection<House> Houses { get; set; }
