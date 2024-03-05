@@ -26,13 +26,11 @@ import {
 import CIcon from '@coreui/icons-react';
 import { cilSearch } from '@coreui/icons';
 
-import WidgetsBrand from '../widgets/WidgetsBrand';
-import WidgetsDropdown from '../widgets/WidgetsDropdown';
-
 const Contract = () => {
     const [selectedContract, setSelectedContract] = useState(null);
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [statusModal, setStatusModal] = useState('');
 
     const numberPerPage = 10;
 
@@ -91,20 +89,33 @@ const Contract = () => {
             setCurrentPage(currentPage + 1);
         }
     };
+    const handleCreateNew = () => {
+        setVisible(true);
+        setSelectedContract({});
+    };
 
     const handleCloseModal = () => {
         setVisible(false);
         setSelectedContract(null);
+        setStatusModal('');
     };
 
     const handleInputChange = (event, val, pros) => {
-        const contract = contracts.find((item) => item.id == val);
+        const contract = Object.assign({}, selectedContract);
         contract[pros] = event.target.value;
         setSelectedContract(contract);
     };
 
+    const handleCreateOrUpdate = () => {};
+
     return (
         <>
+            <div style={{ display: 'flex', justifyContent: 'end', marginBottom: '10px' }}>
+                <CButton onClick={handleCreateNew} className="btn-create" color="secondary">
+                    Create new
+                </CButton>
+            </div>
+
             <CTable striped>
                 <CTableHead>
                     <CTableRow>
@@ -143,6 +154,7 @@ const Contract = () => {
                                     onClick={() => {
                                         setSelectedContract(contract);
                                         setVisible(true);
+                                        setStatusModal('update');
                                     }}
                                 ></CIcon>
                             </CTableDataCell>
@@ -177,25 +189,6 @@ const Contract = () => {
                     {selectedContract && (
                         <>
                             <CForm className="row g-3">
-                                <CCol md={2}>
-                                    <CFormInput
-                                        type="text"
-                                        id="contract_id"
-                                        label="ID"
-                                        disabled
-                                        value={selectedContract.id}
-                                    />
-                                </CCol>
-
-                                <CCol md={2}>
-                                    <CFormInput
-                                        type="text"
-                                        id="contract_type"
-                                        label="Type"
-                                        value={selectedContract.type}
-                                        onChange={(event) => handleInputChange(event, selectedContract.id, 'type')}
-                                    />
-                                </CCol>
                                 <CCol md={2}>
                                     <CFormInput
                                         type="number"
@@ -291,7 +284,9 @@ const Contract = () => {
                     <CButton color="secondary" onClick={handleCloseModal}>
                         Close
                     </CButton>
-                    <CButton color="primary">Save changes</CButton>
+                    <CButton onClick={handleCreateOrUpdate} color="primary">
+                        Save
+                    </CButton>
                 </CModalFooter>
             </CModal>
         </>
