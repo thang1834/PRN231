@@ -7,6 +7,10 @@ using PRN231_Project.Repositories;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
 using PRN231_Project.Dto.Authentication;
+using PRN231_Project.Dto.User;
+using PRN231_Project.Dto.Contract;
+using System.Diagnostics.Contracts;
+using AutoMapper;
 
 namespace PRN231_Project.Services.Impl
 {
@@ -14,11 +18,13 @@ namespace PRN231_Project.Services.Impl
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IConfiguration configuration)
+        public UserService(IUserRepository userRepository, IConfiguration configuration, IMapper mapper)
         {
             _userRepository = userRepository;
             _configuration = configuration; 
+            _mapper = mapper;
         }
 
         public async Task<TokenModel> Authenticate(LoginModel loginModel)
@@ -34,7 +40,7 @@ namespace PRN231_Project.Services.Impl
                 user.RefreshToken = refreshToken;
                 user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
 
-                await _userRepository.UpdateAsync(user);
+                await _userRepository.UpdateUserAsync(user);
 
                 return new TokenModel
                 {
@@ -68,7 +74,7 @@ namespace PRN231_Project.Services.Impl
             var newRefreshToken = GenerateRefreshToken();
 
             user.RefreshToken = newRefreshToken;
-            await _userRepository.UpdateAsync(user);
+            await _userRepository.UpdateUserAsync(user);
             return new TokenModel {
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken,
@@ -86,7 +92,8 @@ namespace PRN231_Project.Services.Impl
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
             var authClaims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, user.Username)
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.Username),
                 };
             foreach (var userRole in user.Roles)
             {
@@ -96,6 +103,9 @@ namespace PRN231_Project.Services.Impl
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(authClaims),
+                IssuedAt = DateTime.UtcNow,
+                Issuer = _configuration["JWT:Issuer"],
+                Audience = _configuration["JWT:ValidAudience"],
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -129,6 +139,47 @@ namespace PRN231_Project.Services.Impl
 
             return principal;
 
+        }
+
+        public async Task<IEnumerable<UserDto>> GetAllUserAsync()
+        {
+            var users = await _userRepository.GetAllUsersAsync();
+            return _mapper.Map<IEnumerable<UserDto>>(users);
+        }
+
+        public async Task<User> CreateUserAsync(UserCreateDto userDto)
+        {
+            try
+            {
+                var user = _mapper.Map<User>(userDto);
+                return await _userRepository.AddUserAsync(user);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<User> UpdateUserAsync(int userId, UserUpdateDto userDto)
+        {
+            var existingUser = await _userRepository.GetUserByIdAsync(userId);
+            if (existingUser == null)
+            {
+                throw new Exception("User not found");
+            }
+            _mapper.Map(userDto, existingUser);
+            return await _userRepository.UpdateUserAsync(existingUser);
+        }
+
+        public async Task<User> RemoveUserAsync(int userId)
+        {
+            return await _userRepository.RemoveUserAsync(userId);
+        }
+
+        public async Task<UserDto> GetUserByIdAsync(int userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            return _mapper.Map<UserDto>(user);
         }
     }
 }

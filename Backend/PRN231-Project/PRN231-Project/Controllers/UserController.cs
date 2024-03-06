@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using PRN231_Project.Services;
 using PRN231_Project.Dto.Authentication;
+using PRN231_Project.Services.Impl;
+using PRN231_Project.Dto.Contract;
+using PRN231_Project.Dto.User;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PRN231_Project.Controllers
 {
@@ -43,6 +47,73 @@ namespace PRN231_Project.Controllers
                 return BadRequest("Error");
             }
             return Ok(new {token});
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsersAsync()
+        {
+            var users = await _userService.GetAllUserAsync();
+            return Ok(users);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetUserByIdAsync(int userId)
+        {
+            var user = await _userService.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> CreateUserAsync([FromBody] UserCreateDto userDto)
+        {
+            try
+            {
+                var user = await _userService.CreateUserAsync(userDto);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> UpdateUserAsync(int userId, [FromBody] UserUpdateDto userDto)
+        {
+            try
+            {
+                await _userService.UpdateUserAsync(userId, userDto);
+                return Ok("Update successfully");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(Roles = "Admin")] 
+        [HttpDelete("{userId}")]
+        public async Task<IActionResult> RemoveUserAsync(int userId)
+        {
+            try
+            {
+                await _userService.RemoveUserAsync(userId);
+                return Ok("Delete successfully");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

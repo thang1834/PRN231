@@ -18,7 +18,6 @@ import {
 import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
 import img1 from 'src/assets/images/login-building.jpg';
-import img2 from 'src/assets/images/background-login.jpg';
 import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
@@ -74,8 +73,8 @@ const Login = () => {
                 return response.json();
             })
             .then((result) => {
-                console.log(result.token.accessToken);
-                localStorage.setItem('token', result.token);
+                localStorage.setItem('accessToken', result.token.accessToken);
+                localStorage.setItem('refreshToken', result.token.refreshToken);
                 setAccessToken(result.token.accessToken);
                 handleDecode(result.token.accessToken);
             })
@@ -85,8 +84,7 @@ const Login = () => {
     };
     return (
         <>
-            <CImage className="background-image" rounded src={img2} width={450} height={450}></CImage>
-            <div className="min-vh-100 d-flex flex-row align-items-center login-body">
+            <div className="bg-light min-vh-100 d-flex flex-row align-items-center login-body">
                 <CContainer>
                     <CRow className="justify-content-center">
                         <CCol md={8}>
