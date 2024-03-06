@@ -5,7 +5,7 @@ import * as request from '../request';
 export const loadContracts = async () => {
     try {
         const res = await request.get('Contract');
-        return res.data;
+        return res;
     } catch (error) {
         console.log(error);
     }

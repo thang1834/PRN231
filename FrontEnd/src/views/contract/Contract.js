@@ -1,5 +1,8 @@
 import React from 'react';
-import { useState } from 'react';
+import { format } from 'date-fns';
+import { useState, useEffect } from 'react';
+import * as loadService from '../../ultils/apiServices/loadServices';
+import * as postService from '../../ultils/apiServices/postServices';
 import './Contract.scss';
 import {
     CRow,
@@ -27,7 +30,8 @@ import CIcon from '@coreui/icons-react';
 import { cilSearch } from '@coreui/icons';
 
 const Contract = () => {
-    const [selectedContract, setSelectedContract] = useState(null);
+    const [contracts, setContracts] = useState([]);
+    const [selectedContract, setSelectedContract] = useState({});
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [statusModal, setStatusModal] = useState('');
@@ -35,49 +39,70 @@ const Contract = () => {
 
     const numberPerPage = 10;
 
-    const contracts = [
-        {
-            id: 1,
-            type: 'Lease',
-            description: 'Apartment rental agreement',
-            startDate: '2024-03-01',
-            endDate: '2025-02-28',
-            price: 1200.5,
-            filePath: '/contracts/lease_contract_1.pdf',
-            userId: 101,
-            paymentId: 201,
-            houseId: 301,
-        },
-        {
-            id: 2,
-            type: 'Sale',
-            description: 'House sale agreement',
-            startDate: '2024-04-15',
-            endDate: '2025-04-14',
-            price: 250000.0,
-            filePath: '/contracts/sale_contract_1.pdf',
-            userId: 102,
-            paymentId: 202,
-            houseId: 302,
-        },
-        {
-            id: 3,
-            type: 'Lease',
-            description: 'Commercial space rental agreement',
-            startDate: '2024-06-01',
-            endDate: '2025-05-31',
-            price: 1800.75,
-            filePath: '/contracts/lease_contract_2.pdf',
-            userId: 103,
-            paymentId: 203,
-            houseId: 303,
-        },
-    ];
+    useEffect(() => {
+        const fetchApi = async () => {
+            const result = await loadService.loadContracts();
+            if (result) {
+                result.map((item) => {
+                    item.startDate = formatDateString(item.startDate);
+                    item.endDate = formatDateString(item.endDate);
+                    return item;
+                });
+                //console.log(result);
+                setContracts(result);
+            }
+        };
+        fetchApi();
+    }, []);
+    // const contracts = [
+    //     {
+    //         id: 1,
+    //         type: 'Lease',
+    //         description: 'Apartment rental agreement',
+    //         startDate: '2024-03-01',
+    //         endDate: '2025-02-28',
+    //         price: 1200.5,
+    //         filePath: '/contracts/lease_contract_1.pdf',
+    //         userId: 101,
+    //         paymentId: 201,
+    //         houseId: 301,
+    //     },
+    //     {
+    //         id: 2,
+    //         type: 'Sale',
+    //         description: 'House sale agreement',
+    //         startDate: '2024-04-15',
+    //         endDate: '2025-04-14',
+    //         price: 250000.0,
+    //         filePath: '/contracts/sale_contract_1.pdf',
+    //         userId: 102,
+    //         paymentId: 202,
+    //         houseId: 302,
+    //     },
+    //     {
+    //         id: 3,
+    //         type: 'Lease',
+    //         description: 'Commercial space rental agreement',
+    //         startDate: '2024-06-01',
+    //         endDate: '2025-05-31',
+    //         price: 1800.75,
+    //         filePath: '/contracts/lease_contract_2.pdf',
+    //         userId: 103,
+    //         paymentId: 203,
+    //         houseId: 303,
+    //     },
+    // ];
 
     const numberOfPages = Math.ceil(contracts.length / numberPerPage);
     const startIndex = (currentPage - 1) * numberPerPage;
     const endIndex = startIndex + numberPerPage;
     const displayedContracts = contracts.slice(startIndex, endIndex);
+
+    function formatDateString(inputDateString) {
+        const inputDate = new Date(inputDateString);
+        const formattedDate = format(inputDate, 'yyyy-MM-dd');
+        return formattedDate;
+    }
     const handlePrevPage = () => {
         if (currentPage > 1) {
             setCurrentPage(currentPage - 1);
@@ -93,11 +118,12 @@ const Contract = () => {
     const handleCreateNew = () => {
         setVisible(true);
         setSelectedContract({});
+        setStatusModal('create');
     };
 
     const handleCloseModal = () => {
         setVisible(false);
-        setSelectedContract(null);
+        setSelectedContract({});
         setStatusModal('');
         setError({});
     };
@@ -107,7 +133,6 @@ const Contract = () => {
         const err = Object.assign({}, error);
         contract[pros] = event.target.value;
         setSelectedContract(contract);
-        //   console.log(selectedContract);
         switch (pros) {
             case 'price': {
                 const inputValue = parseFloat(event.target.value);
@@ -136,8 +161,38 @@ const Contract = () => {
         }
     };
 
-    const handleCreateOrUpdate = () => {
-        console.log(error);
+    const handleCreateOrUpdate = async () => {
+        if (Object.keys(error).length !== 0) return;
+
+        if (statusModal === 'create') {
+            var contract = {
+                type: selectedContract.type,
+                description: selectedContract.description,
+                startDate: selectedContract.startDate,
+                endDate: selectedContract.endDate,
+                price: selectedContract.price,
+                filePath: selectedContract.filePath,
+                userId: selectedContract.userId,
+                paymentId: selectedContract.paymentId,
+                houseId: selectedContract.houseId,
+            };
+            const res = await postService.postContract(contract);
+            handleCloseModal();
+        } else if (statusModal === 'update') {
+            var contract = {
+                type: selectedContract.type,
+                description: selectedContract.description,
+                startDate: selectedContract.startDate,
+                endDate: selectedContract.endDate,
+                price: selectedContract.price,
+                filePath: selectedContract.filePath,
+                userId: selectedContract.userId,
+                paymentId: selectedContract.paymentId,
+                houseId: selectedContract.houseId,
+            };
+            const res = await postService.updateContract(selectedContract.id, contract);
+            handleCloseModal();
+        }
     };
 
     return (
@@ -187,6 +242,7 @@ const Contract = () => {
                                         setSelectedContract(contract);
                                         setVisible(true);
                                         setStatusModal('update');
+                                        setError({});
                                     }}
                                 ></CIcon>
                             </CTableDataCell>
@@ -221,7 +277,16 @@ const Contract = () => {
                     {selectedContract && (
                         <>
                             <CForm id="1" className="row g-3">
-                                <CCol md={4}>
+                                <CCol md={3}>
+                                    <CFormInput
+                                        type="text"
+                                        id="contract_type"
+                                        label="Type"
+                                        value={selectedContract.type}
+                                        onChange={(event) => handleInputChange(event, selectedContract.id, 'type')}
+                                    />
+                                </CCol>
+                                <CCol md={3}>
                                     <CFormInput
                                         type="number"
                                         id="contract_price"
@@ -232,7 +297,7 @@ const Contract = () => {
                                     />
                                     <span className="error-message">{error.price}</span>
                                 </CCol>
-                                <CCol md={4}>
+                                <CCol md={3}>
                                     <CFormInput
                                         id="contract_userId"
                                         label="User"
@@ -241,7 +306,7 @@ const Contract = () => {
                                     />
                                     <span className="error-message">{error.userId}</span>
                                 </CCol>
-                                <CCol md={4}>
+                                <CCol md={3}>
                                     <CFormInput
                                         id="contract_paymentId"
                                         label="Payment ID"
