@@ -1,10 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import {
-    CRow,
     CForm,
-    CFormSelect,
-    CFormCheck,
     CCol,
     CFormInput,
     CModal,
@@ -31,7 +28,7 @@ const User = () => {
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [users, setUsers] = useState([]);
-    const [token, setToken] = useState({});
+    const [accessToken, setAccessToken] = useState('');
     const [loading, setLoading] = useState(true);
 
     const numberPerPage = 10;
@@ -39,45 +36,36 @@ const User = () => {
     const numberOfPages = Math.ceil(users.length / numberPerPage);
     const startIndex = (currentPage - 1) * numberPerPage;
     const endIndex = startIndex + numberPerPage;
-    const displayedUsers = users.slice(startIndex, endIndex);
+    // const displayedUsers = users.slice(startIndex, endIndex);
+    const displayedUsers = [];
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            setToken(token);
+        const availableToken = localStorage.getItem('accessToken');
+        if (availableToken) {
+            setAccessToken(availableToken);
         }
 
-        fetchUser();
+        if (accessToken) {
+            fetchUser();
+        }
 
         setLoading(false);
-    }, []);
+    }, [accessToken]);
 
     const fetchUser = async () => {
+        await refreshToken();
         try {
-            // Check if access token is expired
-            if (isTokenExpired(token.accessToken)) {
-                // If expired, refresh the token
-                await refreshToken();
-            }
-            // Now that we have a valid access token, make the fetch request
-            const response = await fetch('https://your-api-url.com/user', {
+            const response = await fetch('https://localhost:7080/api/User', {
                 method: 'GET',
                 headers: {
-                    Authorization: `Bearer ${token.accessToken}`,
+                    Authorization: `Bearer ${accessToken}`,
                 },
             });
-            setUsers();
-            console.log('User:', user);
+            const object = await response.json();
+            console.log('User:', object);
         } catch (error) {
             console.error('Error fetching user:', error);
         }
-    };
-
-    const isTokenExpired = (token) => {
-        // Implement your token expiration check logic here
-        // You can compare the token's expiration time with the current time
-        // Return true if the token is expired, false otherwise
-        return false; // Placeholder, replace with your actual logic
     };
 
     const handlePrevPage = () => {
