@@ -31,6 +31,7 @@ const Contract = () => {
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [statusModal, setStatusModal] = useState('');
+    const [error, setError] = useState({});
 
     const numberPerPage = 10;
 
@@ -98,15 +99,46 @@ const Contract = () => {
         setVisible(false);
         setSelectedContract(null);
         setStatusModal('');
+        setError({});
     };
 
     const handleInputChange = (event, val, pros) => {
         const contract = Object.assign({}, selectedContract);
+        const err = Object.assign({}, error);
         contract[pros] = event.target.value;
         setSelectedContract(contract);
+        //   console.log(selectedContract);
+        switch (pros) {
+            case 'price': {
+                const inputValue = parseFloat(event.target.value);
+                if (isNaN(inputValue)) {
+                    err[pros] = `Please enter a valid number for ${pros}`;
+                    setError(err);
+                } else if (inputValue < 0) {
+                    err[pros] = `The ${pros} must not be negative`;
+                    setError(err);
+                } else {
+                    const { [pros]: deletedError, ...restErrors } = err;
+                    setError(restErrors);
+                }
+                console.log(error);
+                break;
+            }
+            default: {
+                if (event.target.value.trim() === '') {
+                    err[pros] = `This field cannot be empty`;
+                    setError(err);
+                } else {
+                    const { [pros]: deletedError, ...restErrors } = err;
+                    setError(restErrors);
+                }
+            }
+        }
     };
 
-    const handleCreateOrUpdate = () => {};
+    const handleCreateOrUpdate = () => {
+        console.log(error);
+    };
 
     return (
         <>
@@ -188,31 +220,35 @@ const Contract = () => {
                 <CModalBody>
                     {selectedContract && (
                         <>
-                            <CForm className="row g-3">
-                                <CCol md={2}>
+                            <CForm id="1" className="row g-3">
+                                <CCol md={4}>
                                     <CFormInput
                                         type="number"
                                         id="contract_price"
                                         label="Price"
                                         value={selectedContract.price}
                                         onChange={(event) => handleInputChange(event, selectedContract.id, 'price')}
+                                        required
                                     />
+                                    <span className="error-message">{error.price}</span>
                                 </CCol>
-                                <CCol xs={3}>
+                                <CCol md={4}>
                                     <CFormInput
                                         id="contract_userId"
                                         label="User"
                                         value={selectedContract.userId}
                                         onChange={(event) => handleInputChange(event, selectedContract.id, 'userId')}
                                     />
+                                    <span className="error-message">{error.userId}</span>
                                 </CCol>
-                                <CCol xs={3}>
+                                <CCol md={4}>
                                     <CFormInput
                                         id="contract_paymentId"
                                         label="Payment ID"
                                         value={selectedContract.paymentId}
                                         onChange={(event) => handleInputChange(event, selectedContract.id, 'paymentId')}
                                     />
+                                    <span className="error-message">{error.paymentId}</span>
                                 </CCol>
                                 <CCol md={6}>
                                     <CFormInput
@@ -222,6 +258,7 @@ const Contract = () => {
                                         value={selectedContract.startDate}
                                         onChange={(event) => handleInputChange(event, selectedContract.id, 'startDate')}
                                     />
+                                    <span className="error-message">{error.startDate}</span>
                                 </CCol>
                                 <CCol md={6}>
                                     <CFormInput
@@ -231,6 +268,7 @@ const Contract = () => {
                                         value={selectedContract.endDate}
                                         onChange={(event) => handleInputChange(event, selectedContract.id, 'endDate')}
                                     />
+                                    <span className="error-message">{error.endDate}</span>
                                 </CCol>
                                 <CCol md={2}>
                                     <CFormInput
@@ -240,6 +278,7 @@ const Contract = () => {
                                         value={selectedContract.houseId}
                                         onChange={(event) => handleInputChange(event, selectedContract.id, 'houseId')}
                                     />
+                                    <span className="error-message">{error.houseId}</span>
                                 </CCol>
                                 <CCol md={10}>
                                     <CFormInput
@@ -249,6 +288,7 @@ const Contract = () => {
                                         value={selectedContract.filePath}
                                         onChange={(event) => handleInputChange(event, selectedContract.id, 'filePath')}
                                     />
+                                    <span className="error-message">{error.filePath}</span>
                                 </CCol>
                                 <CCol md={12}>
                                     <CFormInput
@@ -260,6 +300,7 @@ const Contract = () => {
                                             handleInputChange(event, selectedContract.id, 'description')
                                         }
                                     />
+                                    <span className="error-message">{error.description}</span>
                                 </CCol>
                                 {/* <CCol md={4}>
                                     <CFormSelect id="inputState" label="State">
@@ -272,8 +313,8 @@ const Contract = () => {
                                 </CCol>
                                 <CCol xs={12}>
                                     <CFormCheck type="checkbox" id="gridCheck" label="Check me out" />
-                                </CCol>
-                                <CCol xs={12}>
+                                </CCol> */}
+                                {/* <CCol xs={12}>
                                     <CButton type="submit">Sign in</CButton>
                                 </CCol> */}
                             </CForm>
