@@ -6,7 +6,7 @@ export const refreshToken = async () => {
 
     if (isTokenExpired(accessToken)) {
         try {
-            const response = await fetch('https://localhost:7080/api/User/refresh-token', {
+            const response = await fetch('https://localhost:7080/User/refresh-token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -15,6 +15,7 @@ export const refreshToken = async () => {
             });
             const data = await response.json();
             const newToken = data.token;
+            console.log('refresh successfully');
             localStorage.setItem('accessToken', newToken.accessToken);
             localStorage.setItem('refreshToken', newToken.refreshToken);
         } catch (error) {
@@ -39,3 +40,5 @@ const isTokenExpired = (token) => {
         return true;
     }
 };
+
+export const isAuthenticated = localStorage.getItem('accessToken') !== null;

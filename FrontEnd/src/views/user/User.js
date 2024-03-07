@@ -1,5 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
+import * as loadService from '../../ultils/apiServices/loadServices';
+import * as postService from '../../ultils/apiServices/postServices';
 import {
     CForm,
     CCol,
@@ -18,11 +20,11 @@ import {
     CTableRow,
     CPagination,
     CPaginationItem,
+    CFormCheck,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilSearch } from '@coreui/icons';
-import { refreshToken } from 'src/Authentication';
-import { useNavigate } from 'react-router-dom';
+import { refreshToken } from 'src/ultils/Authentication';
 
 const User = () => {
     const [selectedUser, setSelectedUser] = useState(null);
@@ -31,9 +33,8 @@ const User = () => {
     const [users, setUsers] = useState([]);
     const [accessToken, setAccessToken] = useState('');
     const [loading, setLoading] = useState(true);
+    const [statusModal, setStatusModal] = useState('');
     const [error, setError] = useState({});
-
-    const navigate = useNavigate();
 
     const numberPerPage = 10;
 
@@ -44,9 +45,7 @@ const User = () => {
 
     useEffect(() => {
         const availableToken = localStorage.getItem('accessToken');
-        if (!availableToken) {
-            navigate('/login');
-        } else {
+        if (availableToken) {
             setAccessToken(availableToken);
         }
 
@@ -55,21 +54,17 @@ const User = () => {
         }
 
         setLoading(false);
-    }, [accessToken]);
+    }, [accessToken, loading]);
 
     const fetchUser = async () => {
-        refreshToken();
-        try {
-            const response = await fetch('https://localhost:7080/api/User', {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-            const object = await response.json();
-            setUsers(object);
-        } catch (error) {
-            console.error('Error fetching user:', error);
+        await refreshToken();
+        const list = await loadService.loadUsers({
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        if (list) {
+            setUsers(list);
         }
     };
 
@@ -89,11 +84,14 @@ const User = () => {
     const handleCreateNew = () => {
         setVisible(true);
         setSelectedUser({});
+        setStatusModal('create');
     };
 
     const handleCloseModal = () => {
         setVisible(false);
         setSelectedUser(null);
+        setStatusModal('');
+        setError({});
     };
 
     const handleInputChange = (event, val, pros) => {
@@ -130,13 +128,53 @@ const User = () => {
         }
     };
 
+    const handleCreateOrUpdate = async () => {
+        if (Object.keys(error).length !== 0) return;
+
+        if (statusModal === 'create') {
+            var user = {
+                firstName: selectedUser.firstName,
+                lastName: selectedUser.lastName,
+                email: selectedUser.email,
+                phoneNumber: selectedUser.phoneNumber,
+                dob: selectedUser.dob,
+                identificationNumber: selectedUser.identificationNumber,
+                isActive: selectedUser.isActive,
+                username: selectedUser.username,
+                password: selectedUser.password,
+            };
+            const res = await postService.postUser(user, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            setLoading(true);
+            handleCloseModal();
+        } else if (statusModal === 'update') {
+            var user = {
+                firstName: selectedUser.firstName,
+                lastName: selectedUser.lastName,
+                email: selectedUser.email,
+                phoneNumber: selectedUser.phoneNumber,
+                dob: selectedUser.dob,
+                identificationNumber: selectedUser.identificationNumber,
+                isActive: selectedUser.isActive,
+                username: selectedUser.username,
+                password: selectedUser.password,
+            };
+            const res = await postService.updateUser(selectedUser.id, user, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            setLoading(true);
+            handleCloseModal();
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
-
-    const handleCreateOrUpdate = () => {
-        console.log(error);
-    };
 
     return (
         <>
@@ -183,6 +221,8 @@ const User = () => {
                                     onClick={() => {
                                         setSelectedUser(user);
                                         setVisible(true);
+                                        setStatusModal('update');
+                                        setError({});
                                     }}
                                 ></CIcon>
                             </CTableDataCell>
@@ -240,7 +280,7 @@ const User = () => {
                                         onChange={(event) => handleInputChange(event, selectedUser.id, 'lastName')}
                                     />
                                 </CCol>
-                                <CCol md={5}>
+                                <CCol md={6}>
                                     <CFormInput
                                         type="email"
                                         id="email"
@@ -249,7 +289,7 @@ const User = () => {
                                         onChange={(event) => handleInputChange(event, selectedUser.id, 'email')}
                                     />
                                 </CCol>
-                                <CCol md={5}>
+                                <CCol md={6}>
                                     <CFormInput
                                         type="text"
                                         id="phoneNumber"
@@ -258,25 +298,16 @@ const User = () => {
                                         onChange={(event) => handleInputChange(event, selectedUser.id, 'phoneNumber')}
                                     />
                                 </CCol>
-                                <CCol md={5}>
+                                <CCol md={6}>
                                     <CFormInput
-                                        type="date"
+                                        type="datetime"
                                         id="dob"
                                         label="Date Of Birth"
                                         value={selectedUser.dob}
                                         onChange={(event) => handleInputChange(event, selectedUser.id, 'dob')}
                                     />
                                 </CCol>
-                                <CCol md={5}>
-                                    <CFormInput
-                                        type="date"
-                                        id="dob"
-                                        label="Date Of Birth"
-                                        value={selectedUser.dob}
-                                        onChange={(event) => handleInputChange(event, selectedUser.id, 'dob')}
-                                    />
-                                </CCol>
-                                <CCol md={5}>
+                                <CCol md={6}>
                                     <CFormInput
                                         type="text"
                                         id="identificationNumber"
@@ -287,16 +318,40 @@ const User = () => {
                                         }
                                     />
                                 </CCol>
-                                <CCol md={5}>
-                                    <CFormInput
-                                        type="text"
-                                        id="isActive"
-                                        label="Is Active"
-                                        value={selectedUser.isActive}
-                                        onChange={(event) => handleInputChange(event, selectedUser.id, 'isActive')}
-                                    />
+                                <CCol md={12}>
+                                    <label style={{ marginBottom: 10 }}>Is Active</label>
+                                    <div>
+                                        <CFormCheck
+                                            inline
+                                            type="radio"
+                                            name="isActive"
+                                            id="isActive"
+                                            value="true"
+                                            label="Yes"
+                                            checked={selectedUser.isActive === true}
+                                            onChange={() => {
+                                                const user = Object.assign({}, selectedUser);
+                                                user.isActive = true;
+                                                setSelectedUser(user);
+                                            }}
+                                        />
+                                        <CFormCheck
+                                            inline
+                                            type="radio"
+                                            name="isActive"
+                                            id="isActive"
+                                            value="false"
+                                            label="No"
+                                            checked={selectedUser.isActive === false}
+                                            onChange={() => {
+                                                const user = Object.assign({}, selectedUser);
+                                                user.isActive = false;
+                                                setSelectedUser(user);
+                                            }}
+                                        />
+                                    </div>
                                 </CCol>
-                                <CCol md={5}>
+                                <CCol md={6}>
                                     <CFormInput
                                         type="text"
                                         id="password"
@@ -305,7 +360,7 @@ const User = () => {
                                         onChange={(event) => handleInputChange(event, selectedUser.id, 'password')}
                                     />
                                 </CCol>
-                                <CCol md={5}>
+                                <CCol md={6}>
                                     <CFormInput
                                         type="text"
                                         id="username"
@@ -322,7 +377,9 @@ const User = () => {
                     <CButton color="secondary" onClick={handleCloseModal}>
                         Close
                     </CButton>
-                    <CButton color="primary">Save changes</CButton>
+                    <CButton color="primary" onClick={handleCreateOrUpdate}>
+                        Save changes
+                    </CButton>
                 </CModalFooter>
             </CModal>
         </>
