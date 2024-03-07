@@ -1,5 +1,4 @@
 import { jwtDecode } from 'jwt-decode';
-import { useNavigate } from 'react-router-dom';
 
 export const refreshToken = async () => {
     const accessToken = localStorage.getItem('accessToken');
@@ -7,7 +6,7 @@ export const refreshToken = async () => {
 
     if (isTokenExpired(accessToken)) {
         try {
-            const response = await fetch('https://localhost:7080/api/User/refresh-token', {
+            const response = await fetch('https://localhost:7080/User/refresh-token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -16,6 +15,7 @@ export const refreshToken = async () => {
             });
             const data = await response.json();
             const newToken = data.token;
+            console.log('refresh successfully');
             localStorage.setItem('accessToken', newToken.accessToken);
             localStorage.setItem('refreshToken', newToken.refreshToken);
         } catch (error) {
@@ -27,7 +27,7 @@ export const refreshToken = async () => {
 const isTokenExpired = (token) => {
     if (!token) {
         // Token doesn't exist or is invalid
-        navigate('/login');
+        return true;
     }
     try {
         // Decode the token to extract expiration time
@@ -40,3 +40,5 @@ const isTokenExpired = (token) => {
         return true;
     }
 };
+
+export const isAuthenticated = localStorage.getItem('accessToken') !== null;
