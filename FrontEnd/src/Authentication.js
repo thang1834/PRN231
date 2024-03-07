@@ -1,5 +1,4 @@
 import { jwtDecode } from 'jwt-decode';
-import { useNavigate } from 'react-router-dom';
 
 export const refreshToken = async () => {
     const accessToken = localStorage.getItem('accessToken');
@@ -27,7 +26,7 @@ export const refreshToken = async () => {
 const isTokenExpired = (token) => {
     if (!token) {
         // Token doesn't exist or is invalid
-        navigate('/login');
+        return true;
     }
     try {
         // Decode the token to extract expiration time
