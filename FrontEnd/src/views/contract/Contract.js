@@ -117,7 +117,12 @@ const Contract = () => {
     };
     const handleCreateNew = () => {
         setVisible(true);
-        setSelectedContract({});
+        const today = new Date();
+        var contract = {
+            startDate: formatDateString(today),
+            endDate: formatDateString(today),
+        };
+        setSelectedContract(contract);
         setStatusModal('create');
     };
 
@@ -128,7 +133,7 @@ const Contract = () => {
         setError({});
     };
 
-    const handleInputChange = (event, val, pros) => {
+    const handleInputChange = (event, pros) => {
         const contract = Object.assign({}, selectedContract);
         const err = Object.assign({}, error);
         contract[pros] = event.target.value;
@@ -146,7 +151,6 @@ const Contract = () => {
                     const { [pros]: deletedError, ...restErrors } = err;
                     setError(restErrors);
                 }
-                console.log(error);
                 break;
             }
             default: {
@@ -162,35 +166,61 @@ const Contract = () => {
     };
 
     const handleCreateOrUpdate = async () => {
+        var contract = {
+            type: selectedContract.type,
+            description: selectedContract.description,
+            startDate: selectedContract.startDate,
+            endDate: selectedContract.endDate,
+            price: selectedContract.price,
+            filePath: selectedContract.filePath,
+            userId: selectedContract.userId,
+            paymentId: selectedContract.paymentId,
+            houseId: selectedContract.houseId,
+        };
+        const err = Object.assign({}, error);
+
+        for (var key in contract) {
+            const val = contract[key] || '';
+            switch (key) {
+                case 'price': {
+                    const inputValue = parseFloat(val);
+                    if (isNaN(inputValue)) {
+                        err[key] = `Please enter a valid number for ${key}`;
+                        setError(err);
+                    } else if (inputValue < 0) {
+                        err[key] = `The ${key} must not be negative`;
+                        setError(err);
+                    } else {
+                        const { [key]: deletedError, ...restErrors } = err;
+                        setError(restErrors);
+                    }
+                    break;
+                }
+                default: {
+                    if (val.trim() === '') {
+                        err[key] = `This field cannot be empty`;
+                        setError(err);
+                    } else {
+                        const { [key]: deletedError, ...restErrors } = err;
+                        setError(restErrors);
+                    }
+                }
+            }
+        }
+
         if (Object.keys(error).length !== 0) return;
 
         if (statusModal === 'create') {
-            var contract = {
-                type: selectedContract.type,
-                description: selectedContract.description,
-                startDate: selectedContract.startDate,
-                endDate: selectedContract.endDate,
-                price: selectedContract.price,
-                filePath: selectedContract.filePath,
-                userId: selectedContract.userId,
-                paymentId: selectedContract.paymentId,
-                houseId: selectedContract.houseId,
-            };
             const res = await postService.postContract(contract);
+            const { user: usernull, payment: paymentnull, house: housenull, ...rest } = res;
+            setContracts([...contracts, rest]);
             handleCloseModal();
         } else if (statusModal === 'update') {
-            var contract = {
-                type: selectedContract.type,
-                description: selectedContract.description,
-                startDate: selectedContract.startDate,
-                endDate: selectedContract.endDate,
-                price: selectedContract.price,
-                filePath: selectedContract.filePath,
-                userId: selectedContract.userId,
-                paymentId: selectedContract.paymentId,
-                houseId: selectedContract.houseId,
-            };
             const res = await postService.updateContract(selectedContract.id, contract);
+            const updatedContract = await loadService.loadContractById(selectedContract.id);
+            const indexUpdate = contracts.findIndex((item) => selectedContract.id == item.id);
+            contracts[indexUpdate] = updatedContract;
+            setContracts(contracts);
             handleCloseModal();
         }
     };
@@ -220,9 +250,9 @@ const Contract = () => {
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                    {displayedContracts.map((contract) => (
+                    {displayedContracts.map((contract, index) => (
                         <CTableRow key={contract.id}>
-                            <CTableHeaderCell scope="row">{contract.id}</CTableHeaderCell>
+                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                             <CTableDataCell>{contract.type}</CTableDataCell>
                             <CTableDataCell>{contract.price}</CTableDataCell>
                             <CTableDataCell>{contract.startDate}</CTableDataCell>
@@ -283,8 +313,9 @@ const Contract = () => {
                                         id="contract_type"
                                         label="Type"
                                         value={selectedContract.type}
-                                        onChange={(event) => handleInputChange(event, selectedContract.id, 'type')}
+                                        onChange={(event) => handleInputChange(event, 'type')}
                                     />
+                                    <span className="error-message">{error.type}</span>
                                 </CCol>
                                 <CCol md={3}>
                                     <CFormInput
@@ -292,7 +323,7 @@ const Contract = () => {
                                         id="contract_price"
                                         label="Price"
                                         value={selectedContract.price}
-                                        onChange={(event) => handleInputChange(event, selectedContract.id, 'price')}
+                                        onChange={(event) => handleInputChange(event, 'price')}
                                         required
                                     />
                                     <span className="error-message">{error.price}</span>
@@ -302,7 +333,7 @@ const Contract = () => {
                                         id="contract_userId"
                                         label="User"
                                         value={selectedContract.userId}
-                                        onChange={(event) => handleInputChange(event, selectedContract.id, 'userId')}
+                                        onChange={(event) => handleInputChange(event, 'userId')}
                                     />
                                     <span className="error-message">{error.userId}</span>
                                 </CCol>
@@ -311,7 +342,7 @@ const Contract = () => {
                                         id="contract_paymentId"
                                         label="Payment ID"
                                         value={selectedContract.paymentId}
-                                        onChange={(event) => handleInputChange(event, selectedContract.id, 'paymentId')}
+                                        onChange={(event) => handleInputChange(event, 'paymentId')}
                                     />
                                     <span className="error-message">{error.paymentId}</span>
                                 </CCol>
@@ -321,7 +352,7 @@ const Contract = () => {
                                         id="contract_start_date"
                                         label="Start Date"
                                         value={selectedContract.startDate}
-                                        onChange={(event) => handleInputChange(event, selectedContract.id, 'startDate')}
+                                        onChange={(event) => handleInputChange(event, 'startDate')}
                                     />
                                     <span className="error-message">{error.startDate}</span>
                                 </CCol>
@@ -331,7 +362,7 @@ const Contract = () => {
                                         id="contract_end_date"
                                         label="End Date"
                                         value={selectedContract.endDate}
-                                        onChange={(event) => handleInputChange(event, selectedContract.id, 'endDate')}
+                                        onChange={(event) => handleInputChange(event, 'endDate')}
                                     />
                                     <span className="error-message">{error.endDate}</span>
                                 </CCol>
@@ -341,7 +372,7 @@ const Contract = () => {
                                         id="contract_houseId"
                                         label="House ID"
                                         value={selectedContract.houseId}
-                                        onChange={(event) => handleInputChange(event, selectedContract.id, 'houseId')}
+                                        onChange={(event) => handleInputChange(event, 'houseId')}
                                     />
                                     <span className="error-message">{error.houseId}</span>
                                 </CCol>
@@ -351,7 +382,7 @@ const Contract = () => {
                                         id="contract_filePath"
                                         label="File Path"
                                         value={selectedContract.filePath}
-                                        onChange={(event) => handleInputChange(event, selectedContract.id, 'filePath')}
+                                        onChange={(event) => handleInputChange(event, 'filePath')}
                                     />
                                     <span className="error-message">{error.filePath}</span>
                                 </CCol>
@@ -361,9 +392,7 @@ const Contract = () => {
                                         id="contract_description"
                                         label="Description"
                                         value={selectedContract.description}
-                                        onChange={(event) =>
-                                            handleInputChange(event, selectedContract.id, 'description')
-                                        }
+                                        onChange={(event) => handleInputChange(event, 'description')}
                                     />
                                     <span className="error-message">{error.description}</span>
                                 </CCol>
