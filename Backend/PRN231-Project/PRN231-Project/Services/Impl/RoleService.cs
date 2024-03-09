@@ -57,7 +57,7 @@ namespace PRN231_Project.Services.Impl
                 throw new Exception("Role not found");
             }
             _mapper.Map(roleDto, existingRole);
-            return await _roleRepository.RemoveRoleAsync(roleId);
+            return await _roleRepository.UpdateRoleAsync(existingRole);
         }
     }
 }
