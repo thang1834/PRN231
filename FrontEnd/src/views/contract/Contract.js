@@ -3,8 +3,10 @@ import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
 import * as loadService from '../../ultils/apiServices/loadServices';
 import * as postService from '../../ultils/apiServices/postServices';
+import * as getLinkImage from '../../ultils/getLinkImage';
 import './Contract.scss';
 import {
+    CSpinner,
     CRow,
     CForm,
     CFormSelect,
@@ -25,6 +27,7 @@ import {
     CTableRow,
     CPagination,
     CPaginationItem,
+    CImage,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilSearch } from '@coreui/icons';
@@ -32,6 +35,7 @@ import { cilSearch } from '@coreui/icons';
 const Contract = () => {
     const [contracts, setContracts] = useState([]);
     const [selectedContract, setSelectedContract] = useState({});
+    const [selectedFile, setSelectedFile] = useState();
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [statusModal, setStatusModal] = useState('');
@@ -48,7 +52,6 @@ const Contract = () => {
                     item.endDate = formatDateString(item.endDate);
                     return item;
                 });
-                //console.log(result);
                 setContracts(result);
             }
         };
@@ -136,7 +139,7 @@ const Contract = () => {
     const handleInputChange = (event, pros) => {
         const contract = Object.assign({}, selectedContract);
         const err = Object.assign({}, error);
-        contract[pros] = event.target.value;
+        if (pros != 'filePath') contract[pros] = event.target.value;
         setSelectedContract(contract);
         switch (pros) {
             case 'price': {
@@ -153,6 +156,28 @@ const Contract = () => {
                 }
                 break;
             }
+
+            case 'filePath':
+                const file = event.target.files[0]; // Get the first selected file
+                setSelectedFile(file);
+                if (!file) {
+                    if (statusModal == 'create') {
+                        err[pros] = 'Please choose a file';
+                        setError(err);
+                    }
+                } else {
+                    const allowedExtensions = ['jpg', 'jpeg', 'png'];
+                    const fileExtension = file.name.split('.').pop().toLowerCase();
+
+                    if (!allowedExtensions.includes(fileExtension)) {
+                        err[pros] = 'Please choose a file with a valid extension (jpg, jpeg, png)';
+                        setError(err);
+                    } else {
+                        const { [pros]: deletedError, ...restErrors } = err;
+                        setError(restErrors);
+                    }
+                }
+                break;
             default: {
                 if (event.target.value.trim() === '') {
                     err[pros] = `This field cannot be empty`;
@@ -180,7 +205,12 @@ const Contract = () => {
         const err = Object.assign({}, error);
 
         for (var key in contract) {
-            const val = contract[key] || '';
+            let val = contract[key];
+
+            // Convert non-string values to string
+            if (typeof val !== 'string') {
+                val = String(val);
+            }
             switch (key) {
                 case 'price': {
                     const inputValue = parseFloat(val);
@@ -196,7 +226,28 @@ const Contract = () => {
                     }
                     break;
                 }
+                case 'filePath':
+                    const file = selectedFile; // Get the first selected file
+                    if (!file) {
+                        if (statusModal == 'create') {
+                            err[key] = 'Please choose a file';
+                            setError(err);
+                        }
+                    } else {
+                        const allowedExtensions = ['jpg', 'jpeg', 'png'];
+                        const fileExtension = file.name.split('.').pop().toLowerCase();
+
+                        if (!allowedExtensions.includes(fileExtension)) {
+                            err[key] = 'Please choose a file with a valid extension (jpg, jpeg, png)';
+                            setError(err);
+                        } else {
+                            const { [key]: deletedError, ...restErrors } = err;
+                            setError(restErrors);
+                        }
+                    }
+                    break;
                 default: {
+                    //console.log(typeof val);
                     if (val.trim() === '') {
                         err[key] = `This field cannot be empty`;
                         setError(err);
@@ -211,12 +262,31 @@ const Contract = () => {
         if (Object.keys(error).length !== 0) return;
 
         if (statusModal === 'create') {
-            const res = await postService.postContract(contract);
+            const formData = new FormData();
+            for (var key in contract) {
+                if (key != 'filePath') formData.append(key, contract[key]);
+            }
+            formData.append('ImageUpload', selectedFile);
+            const res = await postService.postContract(formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             const { user: usernull, payment: paymentnull, house: housenull, ...rest } = res;
             setContracts([...contracts, rest]);
             handleCloseModal();
         } else if (statusModal === 'update') {
-            const res = await postService.updateContract(selectedContract.id, contract);
+            const formData = new FormData();
+            for (var key in contract) {
+                formData.append(key, contract[key]);
+            }
+            formData.append('imageUpload', selectedFile);
+            const res = await postService.updateContract(selectedContract.id, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
             const updatedContract = await loadService.loadContractById(selectedContract.id);
             const indexUpdate = contracts.findIndex((item) => selectedContract.id == item.id);
             contracts[indexUpdate] = updatedContract;
@@ -260,7 +330,12 @@ const Contract = () => {
                             <CTableDataCell>{contract.userId}</CTableDataCell>
                             <CTableDataCell>{contract.paymentId}</CTableDataCell>
                             <CTableDataCell>{contract.houseId}</CTableDataCell>
-                            <CTableDataCell>{contract.filePath}</CTableDataCell>
+                            <CTableDataCell>
+                                <CImage
+                                    className="img_contract"
+                                    src={getLinkImage.getLinkImage(contract.filePath)}
+                                ></CImage>
+                            </CTableDataCell>
                             <CTableDataCell>{contract.description}</CTableDataCell>
                             <CTableDataCell>
                                 <CIcon
@@ -307,7 +382,7 @@ const Contract = () => {
                     {selectedContract && (
                         <>
                             <CForm id="1" className="row g-3">
-                                <CCol md={3}>
+                                <CCol md={2}>
                                     <CFormInput
                                         type="text"
                                         id="contract_type"
@@ -317,7 +392,7 @@ const Contract = () => {
                                     />
                                     <span className="error-message">{error.type}</span>
                                 </CCol>
-                                <CCol md={3}>
+                                <CCol md={2}>
                                     <CFormInput
                                         type="number"
                                         id="contract_price"
@@ -346,6 +421,16 @@ const Contract = () => {
                                     />
                                     <span className="error-message">{error.paymentId}</span>
                                 </CCol>
+                                <CCol md={2}>
+                                    <CFormInput
+                                        type="text"
+                                        id="contract_houseId"
+                                        label="House ID"
+                                        value={selectedContract.houseId}
+                                        onChange={(event) => handleInputChange(event, 'houseId')}
+                                    />
+                                    <span className="error-message">{error.houseId}</span>
+                                </CCol>
                                 <CCol md={6}>
                                     <CFormInput
                                         type="date"
@@ -366,26 +451,27 @@ const Contract = () => {
                                     />
                                     <span className="error-message">{error.endDate}</span>
                                 </CCol>
-                                <CCol md={2}>
+                                {statusModal === 'update' ? (
+                                    <CCol md={2}>
+                                        <CImage
+                                            height={40}
+                                            src={getLinkImage.getLinkImage(selectedContract.filePath)}
+                                        ></CImage>
+                                    </CCol>
+                                ) : (
+                                    <></>
+                                )}
+                                <CCol md={4}>
                                     <CFormInput
-                                        type="text"
-                                        id="contract_houseId"
-                                        label="House ID"
-                                        value={selectedContract.houseId}
-                                        onChange={(event) => handleInputChange(event, 'houseId')}
-                                    />
-                                    <span className="error-message">{error.houseId}</span>
-                                </CCol>
-                                <CCol md={10}>
-                                    <CFormInput
-                                        type="text"
+                                        type="file"
                                         id="contract_filePath"
                                         label="File Path"
-                                        value={selectedContract.filePath}
+                                        // value={selectedContract.filePath}
                                         onChange={(event) => handleInputChange(event, 'filePath')}
                                     />
                                     <span className="error-message">{error.filePath}</span>
                                 </CCol>
+
                                 <CCol md={12}>
                                     <CFormInput
                                         type="text"

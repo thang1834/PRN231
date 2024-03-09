@@ -10,3 +10,12 @@ export const loadContracts = async () => {
         console.log(error);
     }
 };
+
+export const loadContractById = async (id) => {
+    try {
+        const res = await request.get(`Contract/${id}`);
+        return res;
+    } catch (error) {
+        console.log(error);
+    }
+};

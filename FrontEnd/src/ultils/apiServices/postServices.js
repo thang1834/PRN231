@@ -2,9 +2,9 @@ import * as request from '../request';
 
 // create Contract
 
-export const postContract = async (options) => {
+export const postContract = async (body, options) => {
     try {
-        const res = await request.post('Contract', options);
+        const res = await request.post('Contract', body, options);
         //console.log(res);
         return res;
     } catch (error) {
@@ -14,9 +14,9 @@ export const postContract = async (options) => {
 };
 
 // update contract
-export const updateContract = async (id, options) => {
+export const updateContract = async (id, body, options) => {
     try {
-        const res = await request.put(`Contract/${id}`, options);
+        const res = await request.put(`Contract/${id}`, body, options);
         console.log(res);
         return res;
     } catch (error) {

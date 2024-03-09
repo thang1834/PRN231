@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Hosting;
 using PRN231_Project.Dto.Contract;
 using PRN231_Project.Models;
 using PRN231_Project.Repositories;
@@ -12,11 +13,12 @@ namespace PRN231_Project.Services.Impl
     {
         private readonly IContractRepository _repository;
         private readonly IMapper _mapper;
-
-        public ContractService(IContractRepository repository, IMapper mapper)
+        private readonly IWebHostEnvironment _environment;
+        public ContractService(IContractRepository repository, IMapper mapper, IWebHostEnvironment environment)
         {
             _repository = repository;
             _mapper = mapper;
+            _environment = environment;
         }
 
         public async Task<IEnumerable<ContractDto>> GetAllContractsAsync()
@@ -51,13 +53,31 @@ namespace PRN231_Project.Services.Impl
 
         public async Task<Contract> CreateContractAsync(ContractCreateDto contractDto)
         {
+            string fileImage = "";
             try
-            {
+            {               
+                string fileName = $"{DateTime.Now.Ticks}_{contractDto.ImageUpload.FileName}";
+                fileImage = fileName;
+                string filePath = Path.Combine(_environment.WebRootPath, "uploads" , "images", fileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await contractDto.ImageUpload.CopyToAsync(fileStream);
+                }
                 var contract = _mapper.Map<Contract>(contractDto);
+                contract.FilePath = Path.Combine("uploads", "images", fileName);
                 return await _repository.AddContractAsync(contract);
             }
             catch (Exception ex)
             {
+                if (!string.IsNullOrEmpty(fileImage))
+                {
+                    string filePath = Path.Combine(_environment.WebRootPath, "uploads" , "images", fileImage);
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
                 throw new Exception(ex.Message);
             }
         }
@@ -67,12 +87,46 @@ namespace PRN231_Project.Services.Impl
             var existingContract = await _repository.GetContractByIdAsync(contractId);
             if (existingContract == null)
             {
-                // Xử lý khi không tìm thấy hợp đồng
-                // Ví dụ: throw new NotFoundException("Contract not found");
+                throw new Exception("Contract not found");
             }
+            string fileImage = "";
+            try
+            {
+                _mapper.Map(contractDto, existingContract);
+                if (contractDto.ImageUpload != null)
+                {
+                    string fileName = $"{DateTime.Now.Ticks}_{contractDto.ImageUpload.FileName}";
+                    fileImage = fileName;
+                    string filePath = Path.Combine(_environment.WebRootPath, "uploads", "images", fileName);
 
-            _mapper.Map(contractDto, existingContract);
-            return await _repository.UpdateContractAsync(existingContract);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await contractDto.ImageUpload.CopyToAsync(fileStream);
+                    }
+
+                    var fileExist = Path.Combine(_environment.WebRootPath, "uploads", "images", existingContract.FilePath);
+                    if (System.IO.File.Exists(fileExist))
+                    {
+                        System.IO.File.Delete(fileExist);
+                    }
+                    existingContract.FilePath = Path.Combine("uploads", "images", fileImage);
+                }
+                
+                return await _repository.UpdateContractAsync(existingContract);
+            }
+            catch (Exception ex)
+            {
+                if (!string.IsNullOrEmpty(fileImage))
+                {
+                    string filePath = Path.Combine(_environment.WebRootPath, "uploads", "images", fileImage);
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+                throw new Exception(ex.Message);
+            }
+            
         }
 
         public async Task<Contract> RemoveContractAsync(int contractId)

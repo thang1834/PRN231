@@ -59,12 +59,17 @@ namespace PRN231_Project.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateContractAsync([FromBody] ContractCreateDto contractDto)
+        public async Task<IActionResult> CreateContractAsync([FromForm] ContractCreateDto contractDto)
         {
             try
             {
-                var contract = await _contractService.CreateContractAsync(contractDto);
-                return Ok(contract);
+                if(ModelState.IsValid)
+                {
+                    var contract = await _contractService.CreateContractAsync(contractDto);
+                    return Ok(contract);
+                }
+                return BadRequest("ModelState is not valid");
+                
             }
             catch (Exception ex) { 
                 return BadRequest(ex.Message);
@@ -73,7 +78,7 @@ namespace PRN231_Project.Controllers
         }
 
         [HttpPut("{contractId}")]
-        public async Task<IActionResult> UpdateContractAsync(int contractId, [FromBody] ContractUpdateDto contractDto)
+        public async Task<IActionResult> UpdateContractAsync(int contractId, [FromForm] ContractUpdateDto contractDto)
         {
             try
             {
