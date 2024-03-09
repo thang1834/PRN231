@@ -7,7 +7,7 @@ using PRN231_Project.Services.Impl;
 
 namespace PRN231_Project.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class RoleController : Controller
     {

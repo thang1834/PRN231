@@ -39,7 +39,7 @@ const Login = () => {
                 console.log('Unknown role:', userRole);
             }
         }
-    }, [accessToken, navigate]);
+    }, [accessToken]);
 
     const setParams = (event) => {
         const { name, value } = event.target;
