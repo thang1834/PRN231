@@ -31,3 +31,14 @@ export const loadRoles = async (headers) => {
         console.log(error);
     }
 };
+
+// House
+
+export const loadHouses = async () => {
+    try {
+        const res = await request.get('House');
+        return res;
+    } catch (error) {
+        console.log(error);
+    }
+};

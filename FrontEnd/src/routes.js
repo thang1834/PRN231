@@ -8,6 +8,10 @@ const Typography = React.lazy(() => import('./views/theme/typography/Typography'
 
 const Contract = React.lazy(() => import('./views/contract/Contract'));
 
+// CRUD house
+
+const House = React.lazy(() => import('./views/house/House'));
+
 // Base
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'));
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'));

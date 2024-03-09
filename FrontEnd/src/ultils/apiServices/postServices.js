@@ -110,3 +110,37 @@ export const deleteRole = async (id, options, headers) => {
         console.log(options);
     }
 };
+
+// Create House
+export const postHouse = async (options) => {
+    try {
+        const res = await request.post('House', options);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+    }
+};
+
+// Update House
+export const updateHouse = async (id, options) => {
+    try {
+        const res = await request.put(`House/${id}`, options);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+    }
+};
+
+// Delete House
+export const deleteHouse = async (id) => {
+    try {
+        const res = await request.del(`House/${id}`);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+    }
+};
