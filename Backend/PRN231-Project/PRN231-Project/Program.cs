@@ -28,9 +28,11 @@ namespace PRN231_Project
 
             //Add scope for reposiory
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
             //Add scope for service
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IRoleService, RoleService>();
 
             //Add Jwt authentication
             builder.Services.AddAuthentication(options =>

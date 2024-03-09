@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace PRN231_Project.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class UserController : Controller
     {

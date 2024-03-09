@@ -39,7 +39,7 @@ const Login = () => {
                 console.log('Unknown role:', userRole);
             }
         }
-    }, [accessToken, navigate]);
+    }, [accessToken]);
 
     const setParams = (event) => {
         const { name, value } = event.target;
@@ -61,13 +61,13 @@ const Login = () => {
         }
     };
 
-    const login = () => {
+    const login = async () => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: username, password: password }),
         };
-        fetch('https://localhost:7080/api/User/login', requestOptions)
+        await fetch('https://localhost:7080/User/login', requestOptions)
             .then((response) => {
                 console.log(response);
                 return response.json();
