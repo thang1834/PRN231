@@ -76,6 +76,7 @@ namespace PRN231_Project
                             .AllowCredentials());
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             // Authentication & Authorization
             app.UseAuthentication();

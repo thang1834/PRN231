@@ -7,6 +7,7 @@
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public double Price { get; set; }
+        public IFormFile ? ImageUpload { get; set; }
         public string FilePath { get; set; } = null!;
         public int UserId { get; set; }
         public int PaymentId { get; set; }
