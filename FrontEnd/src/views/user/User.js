@@ -1,4 +1,5 @@
 import React from 'react';
+import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
 import * as loadService from '../../ultils/apiServices/loadServices';
 import * as postService from '../../ultils/apiServices/postServices';
@@ -24,10 +25,9 @@ import {
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilSearch } from '@coreui/icons';
-import { refreshToken } from 'src/ultils/Authentication';
 
 const User = () => {
-    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedUser, setSelectedUser] = useState({});
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [users, setUsers] = useState([]);
@@ -48,7 +48,6 @@ const User = () => {
         if (availableToken) {
             setAccessToken(availableToken);
         }
-
         if (accessToken) {
             fetchUser();
         }
@@ -56,14 +55,23 @@ const User = () => {
         setLoading(false);
     }, [accessToken, loading]);
 
+    function formatDateString(inputDateString) {
+        const inputDate = new Date(inputDateString);
+        const formattedDate = format(inputDate, 'yyyy-MM-dd');
+        return formattedDate;
+    }
+
     const fetchUser = async () => {
-        await refreshToken();
         const list = await loadService.loadUsers({
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
         });
         if (list) {
+            list.map((item) => {
+                item.dob = formatDateString(item.dob);
+                return item;
+            });
             setUsers(list);
         }
     };
@@ -129,20 +137,19 @@ const User = () => {
     };
 
     const handleCreateOrUpdate = async () => {
-        if (Object.keys(error).length !== 0) return;
+        var user = {
+            firstName: selectedUser.firstName,
+            lastName: selectedUser.lastName,
+            email: selectedUser.email,
+            phoneNumber: selectedUser.phoneNumber,
+            dob: selectedUser.dob,
+            identificationNumber: selectedUser.identificationNumber,
+            isActive: selectedUser.isActive,
+            username: selectedUser.username,
+            password: selectedUser.password,
+        };
 
         if (statusModal === 'create') {
-            var user = {
-                firstName: selectedUser.firstName,
-                lastName: selectedUser.lastName,
-                email: selectedUser.email,
-                phoneNumber: selectedUser.phoneNumber,
-                dob: selectedUser.dob,
-                identificationNumber: selectedUser.identificationNumber,
-                isActive: selectedUser.isActive,
-                username: selectedUser.username,
-                password: selectedUser.password,
-            };
             const res = await postService.postUser(user, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -151,17 +158,6 @@ const User = () => {
             setLoading(true);
             handleCloseModal();
         } else if (statusModal === 'update') {
-            var user = {
-                firstName: selectedUser.firstName,
-                lastName: selectedUser.lastName,
-                email: selectedUser.email,
-                phoneNumber: selectedUser.phoneNumber,
-                dob: selectedUser.dob,
-                identificationNumber: selectedUser.identificationNumber,
-                isActive: selectedUser.isActive,
-                username: selectedUser.username,
-                password: selectedUser.password,
-            };
             const res = await postService.updateUser(selectedUser.id, user, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -179,6 +175,9 @@ const User = () => {
     return (
         <>
             <div style={{ display: 'flex', justifyContent: 'end', marginBottom: '10px' }}>
+                <CButton onClick={() => {}} className="btn-add_role" color="secondary" style={{ marginRight: 20 }}>
+                    Add Role
+                </CButton>
                 <CButton onClick={handleCreateNew} className="btn-create" color="secondary">
                     Create new
                 </CButton>
@@ -257,11 +256,7 @@ const User = () => {
                     {selectedUser && (
                         <>
                             <CForm className="row g-3">
-                                <CCol md={2}>
-                                    <CFormInput type="text" id="user_id" label="ID" disabled value={selectedUser.id} />
-                                </CCol>
-
-                                <CCol md={5}>
+                                <CCol md={6}>
                                     <CFormInput
                                         type="text"
                                         id="first_name"
@@ -271,7 +266,7 @@ const User = () => {
                                     />
                                     <span className="error-message">{error.firstName}</span>
                                 </CCol>
-                                <CCol md={5}>
+                                <CCol md={6}>
                                     <CFormInput
                                         type="text"
                                         id="last_name"
@@ -300,7 +295,7 @@ const User = () => {
                                 </CCol>
                                 <CCol md={6}>
                                     <CFormInput
-                                        type="datetime"
+                                        type="date"
                                         id="dob"
                                         label="Date Of Birth"
                                         value={selectedUser.dob}
@@ -332,6 +327,7 @@ const User = () => {
                                             onChange={() => {
                                                 const user = Object.assign({}, selectedUser);
                                                 user.isActive = true;
+                                                console.log(user.isActive);
                                                 setSelectedUser(user);
                                             }}
                                         />
@@ -368,6 +364,38 @@ const User = () => {
                                         value={selectedUser.username}
                                         onChange={(event) => handleInputChange(event, selectedUser.id, 'username')}
                                     />
+                                </CCol>
+                            </CForm>
+                        </>
+                    )}
+                </CModalBody>
+                <CModalFooter>
+                    <CButton color="secondary" onClick={handleCloseModal}>
+                        Close
+                    </CButton>
+                    <CButton color="primary" onClick={handleCreateOrUpdate}>
+                        Save changes
+                    </CButton>
+                </CModalFooter>
+            </CModal>
+
+            <CModal size="lg" visible={visible} onClose={handleCloseModal} aria-labelledby="LiveDemoExampleLabel">
+                <CModalHeader onClose={handleCloseModal}>
+                    <CModalTitle id="LiveDemoExampleLabel">Contract Details</CModalTitle>
+                </CModalHeader>
+                <CModalBody>
+                    {selectedRole && (
+                        <>
+                            <CForm className="row g-3">
+                                <CCol md={12}>
+                                    <CFormInput
+                                        type="text"
+                                        id="name"
+                                        label="Name"
+                                        value={selectedRole.name}
+                                        onChange={(event) => handleInputChange(event, selectedRole.id, 'name')}
+                                    />
+                                    <span className="error-message">{error.name}</span>
                                 </CCol>
                             </CForm>
                         </>
