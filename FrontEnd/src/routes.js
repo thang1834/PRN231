@@ -67,6 +67,7 @@ const Roles = React.lazy(() => import('./views/role/Role'));
 const routes = [
     { path: '/', exact: true, name: 'Home' },
     { path: '/dashboard/contract', name: 'Contract', element: Contract },
+    { path: '/dashboard/house', name: 'House', element: House },
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/theme', name: 'Theme', element: Colors, exact: true },
     { path: '/theme/colors', name: 'Colors', element: Colors },
