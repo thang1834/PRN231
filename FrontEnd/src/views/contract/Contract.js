@@ -5,19 +5,8 @@ import * as loadService from '../../ultils/apiServices/loadServices';
 import * as postService from '../../ultils/apiServices/postServices';
 import * as getLinkImage from '../../ultils/getLinkImage';
 import './Contract.scss';
+import Modal from './Modal';
 import {
-    CSpinner,
-    CRow,
-    CForm,
-    CFormSelect,
-    CFormCheck,
-    CCol,
-    CFormInput,
-    CModal,
-    CModalHeader,
-    CModalTitle,
-    CModalBody,
-    CModalFooter,
     CButton,
     CTable,
     CTableBody,
@@ -30,7 +19,7 @@ import {
     CImage,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilSearch } from '@coreui/icons';
+import { cilSearch, cilDelete } from '@coreui/icons';
 
 const Contract = () => {
     const [contracts, setContracts] = useState([]);
@@ -119,14 +108,15 @@ const Contract = () => {
         }
     };
     const handleCreateNew = () => {
-        setVisible(true);
         const today = new Date();
         var contract = {
             startDate: formatDateString(today),
             endDate: formatDateString(today),
         };
+        setVisible(true);
         setSelectedContract(contract);
         setStatusModal('create');
+        setError({});
     };
 
     const handleCloseModal = () => {
@@ -188,9 +178,19 @@ const Contract = () => {
                 }
             }
         }
+        console.log(error);
     };
 
-    const handleCreateOrUpdate = async () => {
+    const handleCreateOrUpdateOrDelete = async () => {
+        if (statusModal === 'delete') {
+            const res = await postService.deleteContract(selectedContract.id);
+            const indexDelete = contracts.findIndex((item) => selectedContract.id == item.id);
+            const updatedContracts = [...contracts.slice(0, indexDelete), ...contracts.slice(indexDelete + 1)];
+            setContracts(updatedContracts);
+            handleCloseModal();
+            return;
+        }
+
         var contract = {
             type: selectedContract.type,
             description: selectedContract.description,
@@ -208,7 +208,8 @@ const Contract = () => {
             let val = contract[key];
 
             // Convert non-string values to string
-            if (typeof val !== 'string') {
+            val = val || '';
+            if (typeof val === 'number') {
                 val = String(val);
             }
             switch (key) {
@@ -258,10 +259,9 @@ const Contract = () => {
                 }
             }
         }
-
-        if (Object.keys(error).length !== 0) return;
-
+        if (Object.keys(err).length !== 0) return;
         if (statusModal === 'create') {
+            // console.log(err);
             const formData = new FormData();
             for (var key in contract) {
                 if (key != 'filePath') formData.append(key, contract[key]);
@@ -317,6 +317,7 @@ const Contract = () => {
                         <CTableHeaderCell scope="col">File Path</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Description</CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
+                        <CTableHeaderCell scope="col"></CTableHeaderCell>
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
@@ -325,8 +326,8 @@ const Contract = () => {
                             <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                             <CTableDataCell>{contract.type}</CTableDataCell>
                             <CTableDataCell>{contract.price}</CTableDataCell>
-                            <CTableDataCell>{contract.startDate}</CTableDataCell>
-                            <CTableDataCell>{contract.endDate}</CTableDataCell>
+                            <CTableDataCell>{formatDateString(contract.startDate)}</CTableDataCell>
+                            <CTableDataCell>{formatDateString(contract.endDate)}</CTableDataCell>
                             <CTableDataCell>{contract.userId}</CTableDataCell>
                             <CTableDataCell>{contract.paymentId}</CTableDataCell>
                             <CTableDataCell>{contract.houseId}</CTableDataCell>
@@ -347,6 +348,20 @@ const Contract = () => {
                                         setSelectedContract(contract);
                                         setVisible(true);
                                         setStatusModal('update');
+                                        setError({});
+                                    }}
+                                ></CIcon>
+                            </CTableDataCell>
+                            <CTableDataCell>
+                                <CIcon
+                                    className="icon-delete"
+                                    title="Delete"
+                                    icon={cilDelete}
+                                    size="xl"
+                                    onClick={() => {
+                                        setSelectedContract(contract);
+                                        setVisible(true);
+                                        setStatusModal('delete');
                                         setError({});
                                     }}
                                 ></CIcon>
@@ -374,7 +389,7 @@ const Contract = () => {
                 </CPaginationItem>
             </CPagination>
 
-            <CModal size="lg" visible={visible} onClose={handleCloseModal} aria-labelledby="LiveDemoExampleLabel">
+            {/* <CModal size="lg" visible={visible} onClose={handleCloseModal} aria-labelledby="LiveDemoExampleLabel">
                 <CModalHeader onClose={handleCloseModal}>
                     <CModalTitle id="LiveDemoExampleLabel">Contract Details</CModalTitle>
                 </CModalHeader>
@@ -482,21 +497,6 @@ const Contract = () => {
                                     />
                                     <span className="error-message">{error.description}</span>
                                 </CCol>
-                                {/* <CCol md={4}>
-                                    <CFormSelect id="inputState" label="State">
-                                        <option>Choose...</option>
-                                        <option>...</option>
-                                    </CFormSelect>
-                                </CCol>
-                                <CCol md={2}>
-                                    <CFormInput id="inputZip" label="Zip" />
-                                </CCol>
-                                <CCol xs={12}>
-                                    <CFormCheck type="checkbox" id="gridCheck" label="Check me out" />
-                                </CCol> */}
-                                {/* <CCol xs={12}>
-                                    <CButton type="submit">Sign in</CButton>
-                                </CCol> */}
                             </CForm>
                         </>
                     )}
@@ -509,7 +509,16 @@ const Contract = () => {
                         Save
                     </CButton>
                 </CModalFooter>
-            </CModal>
+            </CModal> */}
+            <Modal
+                visible={visible}
+                selectedContract={selectedContract}
+                handleCloseModal={handleCloseModal}
+                error={error}
+                handleConfirmModal={handleCreateOrUpdateOrDelete}
+                handleInputChange={handleInputChange}
+                statusModal={statusModal}
+            />
         </>
     );
 };

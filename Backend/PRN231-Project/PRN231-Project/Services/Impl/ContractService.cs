@@ -104,7 +104,7 @@ namespace PRN231_Project.Services.Impl
                         await contractDto.ImageUpload.CopyToAsync(fileStream);
                     }
 
-                    var fileExist = Path.Combine(_environment.WebRootPath, "uploads", "images", existingContract.FilePath);
+                    var fileExist = Path.Combine(_environment.WebRootPath, existingContract.FilePath);
                     if (System.IO.File.Exists(fileExist))
                     {
                         System.IO.File.Delete(fileExist);
@@ -131,7 +131,20 @@ namespace PRN231_Project.Services.Impl
 
         public async Task<Contract> RemoveContractAsync(int contractId)
         {
-            return await _repository.RemoveContractAsync(contractId);
+            try
+            {
+                var deletedContract = await _repository.RemoveContractAsync(contractId);
+                string filePath = Path.Combine(_environment.WebRootPath, deletedContract.FilePath);
+                if (System.IO.File.Exists(filePath))
+                {
+                    
+                    System.IO.File.Delete(filePath);    
+                }
+                return deletedContract;
+            }
+            catch(Exception ex) {
+                throw new Exception(ex.Message);
+            }         
         }
     }
 }
