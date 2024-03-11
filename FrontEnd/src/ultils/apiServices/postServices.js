@@ -29,7 +29,7 @@ export const updateContract = async (id, body, options) => {
 export const deleteContract = async (id) => {
     try {
         const res = await request.del(`Contract/${id}`);
-        console.log(res);
+        //console.log(res);
         return res;
     } catch (error) {
         console.log(error);
