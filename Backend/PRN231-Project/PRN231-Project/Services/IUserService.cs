@@ -15,5 +15,6 @@ namespace PRN231_Project.Services
         Task<User> CreateUserAsync(UserCreateDto userDto);
         Task<User> UpdateUserAsync(int userId, UserUpdateDto userDto);
         Task<User> RemoveUserAsync(int userId);
+        Task AddRolesForUserAsync(int userId, List<int> roleIds);
     }
 }

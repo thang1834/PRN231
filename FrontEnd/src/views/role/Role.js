@@ -24,6 +24,7 @@ import {
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilSearch } from '@coreui/icons';
+import { refreshToken } from 'src/ultils/Authentication';
 
 const Role = () => {
     const [selectedRole, setSelectedRole] = useState({});
@@ -43,6 +44,7 @@ const Role = () => {
     const displayedRoles = roles.slice(startIndex, endIndex);
 
     useEffect(() => {
+        refreshToken();
         const availableToken = localStorage.getItem('accessToken');
         if (availableToken) {
             setAccessToken(availableToken);

@@ -8,6 +8,7 @@ using PRN231_Project.Services.Impl;
 using PRN231_Project.Dto.Contract;
 using PRN231_Project.Dto.User;
 using Microsoft.AspNetCore.Authorization;
+using PRN231_Project.Dto.UserRole;
 
 namespace PRN231_Project.Controllers
 {
@@ -101,7 +102,7 @@ namespace PRN231_Project.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")] 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{userId}")]
         public async Task<IActionResult> RemoveUserAsync(int userId)
         {
@@ -113,6 +114,21 @@ namespace PRN231_Project.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("addRoles")]
+        public async Task<IActionResult> AddRolesForUser(UserRole userRole)
+        {
+            try
+            {
+                await _userService.AddRolesForUserAsync(userRole.UserId, userRole.RoleIds);
+                return Ok("Roles added successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Failed to add roles: {ex.Message}");
             }
         }
     }

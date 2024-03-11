@@ -181,5 +181,16 @@ namespace PRN231_Project.Services.Impl
             var user = await _userRepository.GetUserByIdAsync(userId);
             return _mapper.Map<UserDto>(user);
         }
+        public async Task AddRolesForUserAsync(int userId, List<int> roleIds)
+        {
+            try
+            {
+                await _userRepository.AddRolesForUserAsync(userId, roleIds);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error adding roles for user: {ex.Message}");
+            }
+        }
     }
 }

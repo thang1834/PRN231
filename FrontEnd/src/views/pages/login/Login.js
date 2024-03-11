@@ -75,6 +75,7 @@ const Login = () => {
             .then((result) => {
                 localStorage.setItem('accessToken', result.token.accessToken);
                 localStorage.setItem('refreshToken', result.token.refreshToken);
+                console.log(result.token.refreshToken);
                 setAccessToken(result.token.accessToken);
                 handleDecode(result.token.accessToken);
             })
