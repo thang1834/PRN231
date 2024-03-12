@@ -35,11 +35,17 @@ const House = () => {
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [statusModal, setStatusModal] = useState('');
-    const [error, setError] = useState({});
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [houseToDelete, setHouseToDelete] = useState(null);
     const [users, setUsers] = useState([]);
     const [accessToken, setAccessToken] = useState('');
+    const [error, setError] = useState({
+        name: '',
+        categoryId: '',
+        price: '',
+        description: '',
+        userId: '',
+    });
 
     const numberPerPage = 10;
 
@@ -122,6 +128,7 @@ const House = () => {
     };
 
     const handleCreateOrUpdate = async () => {
+        if (!validate()) return;
         if (Object.keys(error).length !== 0) return;
 
         if (statusModal === 'create') {
@@ -160,6 +167,39 @@ const House = () => {
         setVisible(true);
         setSelectedHouse(house);
         setStatusModal('update');
+    };
+
+    const validate = () => {
+        let isValid = true;
+        let errors = {};
+
+        if (!selectedHouse.name) {
+            errors.name = 'Name is required';
+            isValid = false;
+        }
+
+        if (!selectedHouse.categoryId) {
+            errors.categoryId = 'Category is required';
+            isValid = false;
+        }
+
+        if (!selectedHouse.price) {
+            errors.price = 'Price is required';
+            isValid = false;
+        }
+
+        if (!selectedHouse.description) {
+            errors.description = 'Description is required';
+            isValid = false;
+        }
+
+        if (!selectedHouse.userId) {
+            errors.userId = 'User is required';
+            isValid = false;
+        }
+
+        setError(errors);
+        return isValid;
     };
 
     // Render Pagination
@@ -241,8 +281,11 @@ const House = () => {
                             value={selectedHouse.name || ''}
                             onChange={(e) => handleInputChange(e, 'name')}
                             placeholder="Name"
+                            style={{ margin: 10 }}
                         />
+                        {error.name && <span className="error-message">{error.name}</span>}
                         <CFormSelect
+                            style={{ margin: 10 }}
                             value={selectedHouse.categoryId || ''}
                             onChange={(e) => handleInputChange(e, 'categoryId')}
                         >
@@ -253,18 +296,24 @@ const House = () => {
                                 </option>
                             ))}
                         </CFormSelect>
+                        {error.categoryId && <span className="error-message">{error.categoryId}</span>}
                         <CFormInput
+                            style={{ margin: 10 }}
                             value={selectedHouse.price || ''}
                             onChange={(e) => handleInputChange(e, 'price')}
                             placeholder="Price"
                             type="number"
                         />
+                        {error.price && <span className="error-message">{error.price}</span>}
                         <CFormInput
+                            style={{ margin: 10 }}
                             value={selectedHouse.description || ''}
                             onChange={(e) => handleInputChange(e, 'description')}
                             placeholder="Description"
                         />
+                        {error.description && <span className="error-message">{error.description}</span>}
                         <CFormSelect
+                            style={{ margin: 10 }}
                             value={selectedHouse.userId || ''}
                             onChange={(e) => handleInputChange(e, 'userId')}
                         >
@@ -275,6 +324,7 @@ const House = () => {
                                 </option>
                             ))}
                         </CFormSelect>
+                        {error.userId && <span className="error-message">{error.userId}</span>}
                     </CForm>
                 </CModalBody>
                 <CModalFooter>
