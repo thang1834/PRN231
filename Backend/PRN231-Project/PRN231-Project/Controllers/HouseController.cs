@@ -41,8 +41,13 @@ namespace PRN231_Project.Controllers
         {
             try
             {
-                var house = await _houseService.CreateHouseAsync(houseDto);
-                return CreatedAtAction(nameof(GetHouseByIdAsync), new { houseId = house.Id }, house); // Assuming your service method returns the created house object with its ID
+                if (ModelState.IsValid)
+                {
+                    var house = await _houseService.CreateHouseAsync(houseDto);
+                    return Ok(house);
+                }
+                return BadRequest("ModelState is not valid");
+
             }
             catch (Exception ex)
             {
