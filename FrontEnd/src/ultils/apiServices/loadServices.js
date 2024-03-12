@@ -50,3 +50,14 @@ export const loadHouses = async () => {
         console.log(error);
     }
 };
+
+// Category
+
+export const loadCategories = async () => {
+    try {
+        const res = await request.get('Category');
+        return res;
+    } catch (error) {
+        console.log(error);
+    }
+};

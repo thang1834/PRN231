@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns'; // Nếu bạn cần format ngày tháng
+import { format } from 'date-fns';
 import * as loadService from '../../ultils/apiServices/loadServices';
 import * as postService from '../../ultils/apiServices/postServices';
 import './House.scss';
@@ -30,6 +30,7 @@ import { cilSearch } from '@coreui/icons';
 
 const House = () => {
     const [houses, setHouses] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [selectedHouse, setSelectedHouse] = useState({});
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -39,14 +40,26 @@ const House = () => {
     const numberPerPage = 10;
 
     useEffect(() => {
-        const fetchHouses = async () => {
-            const result = await loadService.loadHouses();
-            if (result) {
-                setHouses(result);
+        const fetchData = async () => {
+            // Load houses
+            const housesResult = await loadService.loadHouses();
+            if (housesResult) {
+                setHouses(housesResult);
+            }
+
+            // Load categories
+            const categoriesResult = await loadService.loadCategories();
+            if (categoriesResult) {
+                setCategories(categoriesResult);
             }
         };
-        fetchHouses();
+        fetchData();
     }, []);
+
+    const findCategoryName = (categoryId) => {
+        const category = categories.find((c) => c.id === categoryId);
+        return category ? category.name : 'Unknown';
+    };
 
     const numberOfPages = Math.ceil(houses.length / numberPerPage);
     const startIndex = (currentPage - 1) * numberPerPage;
@@ -143,7 +156,7 @@ const House = () => {
                                 <CTableDataCell>{house.id}</CTableDataCell>
                                 <CTableDataCell>{house.name}</CTableDataCell>
                                 <CTableDataCell>{house.price}</CTableDataCell>
-                                <CTableDataCell>{house.categoryId}</CTableDataCell>
+                                <CTableDataCell>{findCategoryName(house.categoryId)}</CTableDataCell>
                                 <CTableDataCell>{house.description}</CTableDataCell>
                                 <CTableDataCell>{house.isTenanted ? 'Yes' : 'No'}</CTableDataCell>
                                 <CTableDataCell>{house.userId}</CTableDataCell>
@@ -171,7 +184,7 @@ const House = () => {
                             value={selectedHouse.price || ''}
                             onChange={(e) => handleInputChange(e, 'price')}
                             placeholder="Price"
-                            type="number" // Đảm bảo rằng giá trị nhập là số
+                            type="number"
                         />
                         <CFormInput
                             value={selectedHouse.description || ''}
