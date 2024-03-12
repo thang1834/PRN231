@@ -30,13 +30,19 @@ const Login = () => {
 
     useEffect(() => {
         if (accessToken) {
-            const userRole = decodedToken.role;
-            if (userRole === 'Admin') {
-                navigate('/dashboard');
-            } else if (userRole === 'User') {
-                navigate('/login');
+            let userRoles = [];
+
+            if (Array.isArray(decodedToken.role)) {
+                userRoles = decodedToken.role;
             } else {
-                console.log('Unknown role:', userRole);
+                userRoles = [decodedToken.role];
+            }
+
+            // Kiểm tra từng role
+            if (userRoles.includes('Admin')) {
+                navigate('/dashboard');
+            } else {
+                navigate('/login');
             }
         }
     }, [accessToken]);

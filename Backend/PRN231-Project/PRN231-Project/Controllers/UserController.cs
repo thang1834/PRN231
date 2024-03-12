@@ -50,6 +50,19 @@ namespace PRN231_Project.Controllers
             return Ok(new {token});
         }
 
+        [HttpPost("changepassword/{userId}")]
+        public async Task<IActionResult> ChangePassword(int userId, [FromBody] ChangePasswordRequest request)
+        {
+            var success = await _userService.ChangePasswordAsync(userId, request);
+            if (!success)
+            {
+                return BadRequest("Failed to change password.");
+            }
+
+            return Ok("Password changed successfully.");
+        }
+
+
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllUsersAsync()
@@ -58,7 +71,6 @@ namespace PRN231_Project.Controllers
             return Ok(users);
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserByIdAsync(int userId)
         {
@@ -87,7 +99,6 @@ namespace PRN231_Project.Controllers
 
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPut("{userId}")]
         public async Task<IActionResult> UpdateUserAsync(int userId, [FromBody] UserUpdateDto userDto)
         {

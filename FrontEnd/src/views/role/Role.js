@@ -25,6 +25,7 @@ import {
 import CIcon from '@coreui/icons-react';
 import { cilSearch } from '@coreui/icons';
 import { refreshToken } from 'src/ultils/Authentication';
+import './Role.scss';
 
 const Role = () => {
     const [selectedRole, setSelectedRole] = useState({});
@@ -44,7 +45,6 @@ const Role = () => {
     const displayedRoles = roles.slice(startIndex, endIndex);
 
     useEffect(() => {
-        refreshToken();
         const availableToken = localStorage.getItem('accessToken');
         if (availableToken) {
             setAccessToken(availableToken);
@@ -99,32 +99,12 @@ const Role = () => {
         const err = Object.assign({}, error);
         role[pros] = event.target.value;
         setSelectedRole(role);
-
-        switch (pros) {
-            case 'price': {
-                const inputValue = parseFloat(event.target.value);
-                if (isNaN(inputValue)) {
-                    err[pros] = `Please enter a valid number for ${pros}`;
-                    setError(err);
-                } else if (inputValue < 0) {
-                    err[pros] = `The ${pros} must not be negative`;
-                    setError(err);
-                } else {
-                    const { [pros]: deletedError, ...restErrors } = err;
-                    setError(restErrors);
-                }
-                console.log(error);
-                break;
-            }
-            default: {
-                if (event.target.value.trim() === '') {
-                    err[pros] = `This field cannot be empty`;
-                    setError(err);
-                } else {
-                    const { [pros]: deletedError, ...restErrors } = err;
-                    setError(restErrors);
-                }
-            }
+        if (event.target.value.trim() === '') {
+            err[pros] = `This field cannot be empty`;
+            setError(err);
+        } else {
+            const { [pros]: deletedError, ...restErrors } = err;
+            setError(restErrors);
         }
     };
 
@@ -219,7 +199,7 @@ const Role = () => {
 
             <CModal size="lg" visible={visible} onClose={handleCloseModal} aria-labelledby="LiveDemoExampleLabel">
                 <CModalHeader onClose={handleCloseModal}>
-                    <CModalTitle id="LiveDemoExampleLabel">Contract Details</CModalTitle>
+                    <CModalTitle id="LiveDemoExampleLabel">Role Details</CModalTitle>
                 </CModalHeader>
                 <CModalBody>
                     {selectedRole && (

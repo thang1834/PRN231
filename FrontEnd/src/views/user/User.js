@@ -28,6 +28,7 @@ import {
 import CIcon from '@coreui/icons-react';
 import { cilSearch } from '@coreui/icons';
 import { refreshToken } from 'src/ultils/Authentication';
+import './User.scss';
 
 const User = () => {
     const [selectedUser, setSelectedUser] = useState({});
@@ -50,7 +51,6 @@ const User = () => {
     const displayedUsers = users.slice(startIndex, endIndex);
 
     useEffect(() => {
-        refreshToken();
         const availableToken = localStorage.getItem('accessToken');
         if (availableToken) {
             setAccessToken(availableToken);
@@ -147,19 +147,7 @@ const User = () => {
         setSelectedUser(user);
 
         switch (pros) {
-            case 'price': {
-                const inputValue = parseFloat(event.target.value);
-                if (isNaN(inputValue)) {
-                    err[pros] = `Please enter a valid number for ${pros}`;
-                    setError(err);
-                } else if (inputValue < 0) {
-                    err[pros] = `The ${pros} must not be negative`;
-                    setError(err);
-                } else {
-                    const { [pros]: deletedError, ...restErrors } = err;
-                    setError(restErrors);
-                }
-                console.log(error);
+            case 'dob': {
                 break;
             }
             default: {
@@ -186,7 +174,7 @@ const User = () => {
             username: selectedUser.username,
             password: selectedUser.password,
         };
-
+        if (Object.keys(error).length !== 0) return;
         if (statusModal === 'create') {
             const res = await postService.postUser(user, {
                 headers: {
@@ -302,7 +290,7 @@ const User = () => {
 
             <CModal size="lg" visible={visible} onClose={handleCloseModal} aria-labelledby="LiveDemoExampleLabel">
                 <CModalHeader onClose={handleCloseModal}>
-                    <CModalTitle id="LiveDemoExampleLabel">Contract Details</CModalTitle>
+                    <CModalTitle id="LiveDemoExampleLabel">User Details</CModalTitle>
                 </CModalHeader>
                 <CModalBody>
                     {selectedUser && (
@@ -326,6 +314,7 @@ const User = () => {
                                         value={selectedUser.lastName}
                                         onChange={(event) => handleInputChange(event, selectedUser.id, 'lastName')}
                                     />
+                                    <span className="error-message">{error.lastName}</span>
                                 </CCol>
                                 <CCol md={6}>
                                     <CFormInput
@@ -335,6 +324,7 @@ const User = () => {
                                         value={selectedUser.email}
                                         onChange={(event) => handleInputChange(event, selectedUser.id, 'email')}
                                     />
+                                    <span className="error-message">{error.email}</span>
                                 </CCol>
                                 <CCol md={6}>
                                     <CFormInput
@@ -344,6 +334,7 @@ const User = () => {
                                         value={selectedUser.phoneNumber}
                                         onChange={(event) => handleInputChange(event, selectedUser.id, 'phoneNumber')}
                                     />
+                                    <span className="error-message">{error.phoneNumber}</span>
                                 </CCol>
                                 <CCol md={6}>
                                     <CFormInput
@@ -353,6 +344,7 @@ const User = () => {
                                         value={selectedUser.dob}
                                         onChange={(event) => handleInputChange(event, selectedUser.id, 'dob')}
                                     />
+                                    <span className="error-message">{error.dob}</span>
                                 </CCol>
                                 <CCol md={6}>
                                     <CFormInput
@@ -364,6 +356,7 @@ const User = () => {
                                             handleInputChange(event, selectedUser.id, 'identificationNumber')
                                         }
                                     />
+                                    <span className="error-message">{error.identificationNumber}</span>
                                 </CCol>
                                 <CCol md={12}>
                                     <label style={{ marginBottom: 10 }}>Is Active</label>
@@ -407,6 +400,7 @@ const User = () => {
                                         value={selectedUser.password}
                                         onChange={(event) => handleInputChange(event, selectedUser.id, 'password')}
                                     />
+                                    <span className="error-message">{error.password}</span>
                                 </CCol>
                                 <CCol md={6}>
                                     <CFormInput
@@ -416,6 +410,7 @@ const User = () => {
                                         value={selectedUser.username}
                                         onChange={(event) => handleInputChange(event, selectedUser.id, 'username')}
                                     />
+                                    <span className="error-message">{error.username}</span>
                                 </CCol>
                             </CForm>
                         </>

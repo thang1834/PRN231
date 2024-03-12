@@ -192,5 +192,22 @@ namespace PRN231_Project.Services.Impl
                 throw new Exception($"Error adding roles for user: {ex.Message}");
             }
         }
+
+        public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordRequest request)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return false; // User not found
+            }
+
+            if (!IsValidPassword(user, request.CurrentPassword))
+            {
+                return false; // Current password does not match
+            }
+            user.Password = request.NewPassword;
+            await _userRepository.UpdateUserAsync(user);
+            return true;
+        }
     }
 }
