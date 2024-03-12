@@ -38,11 +38,17 @@ const House = () => {
     const [error, setError] = useState({});
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [houseToDelete, setHouseToDelete] = useState(null);
+    const [users, setUsers] = useState([]);
+    const [accessToken, setAccessToken] = useState('');
 
     const numberPerPage = 10;
 
     useEffect(() => {
         const fetchData = async () => {
+            const availableToken = localStorage.getItem('accessToken');
+            if (availableToken) {
+                setAccessToken(availableToken);
+            }
             // Load houses
             const housesResult = await loadService.loadHouses();
             if (housesResult) {
@@ -54,6 +60,18 @@ const House = () => {
             if (categoriesResult) {
                 setCategories(categoriesResult);
             }
+
+            // Load users
+            const usersResult = await loadService.loadUsers({
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            if (usersResult) {
+                setUsers(usersResult);
+            }
+
+            console.log('users', users);
         };
         fetchData();
     }, []);
@@ -61,6 +79,11 @@ const House = () => {
     const findCategoryName = (categoryId) => {
         const category = categories.find((c) => c.id === categoryId);
         return category ? category.name : 'Unknown';
+    };
+
+    const findUserName = (userId) => {
+        const user = users.find((u) => u.id === userId);
+        return user ? `${user.firstName} ${user.lastName}` : 'Unknown';
     };
 
     const numberOfPages = Math.ceil(houses.length / numberPerPage);
@@ -189,7 +212,8 @@ const House = () => {
                                 <CTableDataCell>{findCategoryName(house.categoryId)}</CTableDataCell>
                                 <CTableDataCell>{house.description}</CTableDataCell>
                                 <CTableDataCell>{house.isTenanted ? 'Yes' : 'No'}</CTableDataCell>
-                                <CTableDataCell>{house.userId}</CTableDataCell>
+                                <CTableDataCell>{house.userId ? findUserName(house.userId) : 'N/A'}</CTableDataCell>
+
                                 <CTableDataCell>
                                     <CButton color="primary" onClick={() => handleUpdate(house)}>
                                         Update
