@@ -264,12 +264,17 @@ const House = () => {
                             onChange={(e) => handleInputChange(e, 'description')}
                             placeholder="Description"
                         />
-                        <CFormInput
+                        <CFormSelect
                             value={selectedHouse.userId || ''}
                             onChange={(e) => handleInputChange(e, 'userId')}
-                            placeholder="User ID"
-                            type="number"
-                        />
+                        >
+                            <option value="">Select User</option>
+                            {users.map((user) => (
+                                <option key={user.id} value={user.id}>
+                                    {`${user.firstName} ${user.lastName}`}
+                                </option>
+                            ))}
+                        </CFormSelect>
                     </CForm>
                 </CModalBody>
                 <CModalFooter>
