@@ -38,9 +38,9 @@ namespace PRN231_Project.Services.Impl
                 var house = _mapper.Map<House>(houseDto);
                 if (house.UserId == null)
                 {
-                    house.UserId = 0;
+                    house.UserId = 1;
                 }
-                house.IsTenanted = house.UserId > 0;
+                house.IsTenanted = house.UserId > 1;
 
                 return await _repository.AddHouseAsync(house);
             }
@@ -61,9 +61,9 @@ namespace PRN231_Project.Services.Impl
             _mapper.Map(houseDto, existingHouse);
             if (existingHouse.UserId == null)
             {
-                existingHouse.UserId = 0; 
+                existingHouse.UserId = 1; 
             }
-            existingHouse.IsTenanted = existingHouse.UserId > 0;
+            existingHouse.IsTenanted = existingHouse.UserId > 1;
 
             await _repository.UpdateHouseAsync(existingHouse);
             return true;

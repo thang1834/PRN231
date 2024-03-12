@@ -87,10 +87,14 @@ const House = () => {
     };
 
     const handleInputChange = (event, property) => {
-        const value = event.target.value;
+        let value = event.target.value;
+        if (property === 'categoryId' || property === 'price' || property === 'userId') {
+            value = value ? parseInt(value, 10) : '';
+        }
+
         setSelectedHouse((prevSelectedHouse) => ({
             ...prevSelectedHouse,
-            [property]: property === 'categoryId' ? parseInt(value, 10) : value,
+            [property]: value,
         }));
     };
 
@@ -235,6 +239,12 @@ const House = () => {
                             value={selectedHouse.description || ''}
                             onChange={(e) => handleInputChange(e, 'description')}
                             placeholder="Description"
+                        />
+                        <CFormInput
+                            value={selectedHouse.userId || ''}
+                            onChange={(e) => handleInputChange(e, 'userId')}
+                            placeholder="User ID"
+                            type="number"
                         />
                     </CForm>
                 </CModalBody>
