@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using PRN231_Project.Dto.Contract;
+using PRN231_Project.Dto.Category;
 using PRN231_Project.Dto.House;
 using PRN231_Project.Dto.Role;
 using PRN231_Project.Dto.User;
@@ -47,6 +48,9 @@ namespace PRN231_Project.Helper
 
             CreateMap<HouseCreateDto, House>();
             CreateMap<House, HouseCreateDto>();
+
+            CreateMap<Category, CategoryDto>();
+            CreateMap<CategoryDto, Category>();
         }
     }
 }
