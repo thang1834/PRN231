@@ -36,11 +36,17 @@ namespace PRN231_Project.Services.Impl
             try
             {
                 var house = _mapper.Map<House>(houseDto);
+                if (house.UserId == null)
+                {
+                    house.UserId = 0;
+                }
+                house.IsTenanted = house.UserId > 0;
+
                 return await _repository.AddHouseAsync(house);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new Exception($"Creation failed: {ex.Message}");
             }
         }
 
@@ -53,9 +59,17 @@ namespace PRN231_Project.Services.Impl
             }
 
             _mapper.Map(houseDto, existingHouse);
+            if (existingHouse.UserId == null)
+            {
+                existingHouse.UserId = 0; 
+            }
+            existingHouse.IsTenanted = existingHouse.UserId > 0;
+
             await _repository.UpdateHouseAsync(existingHouse);
             return true;
         }
+
+
 
         public async Task<bool> RemoveHouseAsync(int houseId)
         {
