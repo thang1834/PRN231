@@ -56,8 +56,12 @@ namespace PRN231_Project
 
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            // Contract
             builder.Services.AddScoped<IContractRepository, ContractRepository>();
             builder.Services.AddScoped<IContractService, ContractService>();
+            // House
+            builder.Services.AddScoped<IHouseRepository, HouseRepository>();
+            builder.Services.AddScoped<IHouseService, HouseService>();
 
             var app = builder.Build();
 

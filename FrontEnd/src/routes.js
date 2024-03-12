@@ -8,6 +8,10 @@ const Typography = React.lazy(() => import('./views/theme/typography/Typography'
 
 const Contract = React.lazy(() => import('./views/contract/Contract'));
 
+// CRUD house
+
+const House = React.lazy(() => import('./views/house/House'));
+
 // Base
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'));
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'));
@@ -63,6 +67,7 @@ const Roles = React.lazy(() => import('./views/role/Role'));
 const routes = [
     { path: '/', exact: true, name: 'Home' },
     { path: '/dashboard/contract', name: 'Contract', element: Contract },
+    { path: '/dashboard/house', name: 'House', element: House },
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/theme', name: 'Theme', element: Colors, exact: true },
     { path: '/theme/colors', name: 'Colors', element: Colors },
