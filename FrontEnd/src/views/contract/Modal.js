@@ -30,7 +30,11 @@ const Modal = ({
         <CModal size="lg" visible={visible} onClose={handleCloseModal} aria-labelledby="LiveDemoExampleLabel">
             <CModalHeader onClose={handleCloseModal}>
                 <CModalTitle id="LiveDemoExampleLabel">
-                    {statusModal === 'update' || statusModal === 'create' ? 'Contract Details' : 'Warning'}
+                    {statusModal === 'create'
+                        ? 'Create New Contract'
+                        : statusModal === 'update'
+                        ? 'Contract Details'
+                        : 'Warning'}
                 </CModalTitle>
             </CModalHeader>
             <CModalBody>

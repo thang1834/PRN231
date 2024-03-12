@@ -9,7 +9,7 @@ namespace PRN231_Project.Services
         Task<ContractDto> GetContractByIdAsync(int contractId);
         Task<IEnumerable<ContractDto>> GetContractsByUserIdAsync(int userId);
         Task<IEnumerable<ContractDto>> GetContractsByHouseIdAsync(int houseId);
-        Task<IEnumerable<ContractDto>> GetContractsInDateRangeAsync(DateTime startDate, DateTime endDate);
+/*        Task<IEnumerable<ContractDto>> GetContractsInDateRangeAsync(DateTime startDate, DateTime endDate);*/
 
         Task<Contract> CreateContractAsync(ContractCreateDto contractDto);
         Task<Contract> UpdateContractAsync(int contractId, ContractUpdateDto contractDto);

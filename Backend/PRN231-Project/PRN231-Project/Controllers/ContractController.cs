@@ -51,12 +51,12 @@ namespace PRN231_Project.Controllers
             return Ok(contracts);
         }
 
-        [HttpGet("date-range")]
+        /*[HttpGet("date-range")]
         public async Task<IActionResult> GetContractsInDateRangeAsync([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
             var contracts = await _contractService.GetContractsInDateRangeAsync(startDate, endDate);
             return Ok(contracts);
-        }
+        }*/
 
         [HttpPost]
         public async Task<IActionResult> CreateContractAsync([FromForm] ContractCreateDto contractDto)

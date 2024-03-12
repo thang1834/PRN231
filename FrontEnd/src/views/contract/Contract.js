@@ -314,7 +314,7 @@ const Contract = () => {
                         <CTableHeaderCell scope="col">User Id</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Payment Id</CTableHeaderCell>
                         <CTableHeaderCell scope="col">House Id</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">File Path</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Image Contract</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Description</CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
