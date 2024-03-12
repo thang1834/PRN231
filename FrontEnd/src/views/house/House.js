@@ -72,7 +72,8 @@ const House = () => {
     };
 
     const handleInputChange = (event, property) => {
-        const newHouse = { ...selectedHouse, [property]: event.target.value };
+        const value = property === 'isTenanted' ? event.target.checked : event.target.value;
+        const newHouse = { ...selectedHouse, [property]: value };
         setSelectedHouse(newHouse);
     };
 
@@ -129,7 +130,11 @@ const House = () => {
                         <CTableRow>
                             <CTableHeaderCell>ID</CTableHeaderCell>
                             <CTableHeaderCell>Name</CTableHeaderCell>
-                            {/* Other headers */}
+                            <CTableHeaderCell>Price</CTableHeaderCell>
+                            <CTableHeaderCell>Category</CTableHeaderCell>
+                            <CTableHeaderCell>Description</CTableHeaderCell>
+                            <CTableHeaderCell>Is Tenanted?</CTableHeaderCell>
+                            <CTableHeaderCell>Tenant</CTableHeaderCell>
                         </CTableRow>
                     </CTableHead>
                     <CTableBody>
@@ -137,7 +142,11 @@ const House = () => {
                             <CTableRow key={index}>
                                 <CTableDataCell>{house.id}</CTableDataCell>
                                 <CTableDataCell>{house.name}</CTableDataCell>
-                                {/* Other cells */}
+                                <CTableDataCell>{house.price}</CTableDataCell>
+                                <CTableDataCell>{house.categoryId}</CTableDataCell>
+                                <CTableDataCell>{house.description}</CTableDataCell>
+                                <CTableDataCell>{house.isTenanted ? 'Yes' : 'No'}</CTableDataCell>
+                                <CTableDataCell>{house.userId}</CTableDataCell>
                             </CTableRow>
                         ))}
                     </CTableBody>
@@ -158,7 +167,22 @@ const House = () => {
                             onChange={(e) => handleInputChange(e, 'name')}
                             placeholder="Name"
                         />
-                        {/* Additional inputs as needed */}
+                        <CFormInput
+                            value={selectedHouse.price || ''}
+                            onChange={(e) => handleInputChange(e, 'price')}
+                            placeholder="Price"
+                            type="number" // Đảm bảo rằng giá trị nhập là số
+                        />
+                        <CFormInput
+                            value={selectedHouse.description || ''}
+                            onChange={(e) => handleInputChange(e, 'description')}
+                            placeholder="Description"
+                        />
+                        <CFormCheck
+                            label="Is Tenanted?"
+                            checked={selectedHouse.isTenanted || false}
+                            onChange={(e) => handleInputChange(e, 'isTenanted')}
+                        />
                     </CForm>
                 </CModalBody>
                 <CModalFooter>
