@@ -10,5 +10,6 @@ namespace PRN231_Project.Repositories
         Task<User> UpdateUserAsync(User user);
         Task<User> AddUserAsync(User user);
         Task<User> RemoveUserAsync(int userId);
+        Task AddRolesForUserAsync(int userId, List<int> roleIds);
     }
 }

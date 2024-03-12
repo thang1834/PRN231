@@ -10,10 +10,12 @@ namespace PRN231_Project.Services
     {
         Task<TokenModel> Authenticate(LoginModel loginModel);
         Task<TokenModel> RefreshToken(TokenModel tokenModel);
+        Task<bool> ChangePasswordAsync(int userId, ChangePasswordRequest request);
         Task<IEnumerable<UserDto>> GetAllUserAsync();
         Task<UserDto> GetUserByIdAsync(int userId);
         Task<User> CreateUserAsync(UserCreateDto userDto);
         Task<User> UpdateUserAsync(int userId, UserUpdateDto userDto);
         Task<User> RemoveUserAsync(int userId);
+        Task AddRolesForUserAsync(int userId, List<int> roleIds);
     }
 }

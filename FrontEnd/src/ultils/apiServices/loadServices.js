@@ -30,6 +30,15 @@ export const loadUsers = async (headers) => {
     }
 };
 
+export const loadUserById = async (id, headers) => {
+    try {
+        const res = await request.get(`User/${id}`, headers);
+        return res;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 //Role
 export const loadRoles = async (headers) => {
     try {
