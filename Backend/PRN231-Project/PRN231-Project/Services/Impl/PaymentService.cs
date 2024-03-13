@@ -56,7 +56,7 @@ namespace PRN231_Project.Services.Impl
             var existingPayment = await _repository.GetPaymentByIdAsync(PaymentId);
             if (existingPayment == null)
             {
-                throw new Exception("Role not found");
+                throw new Exception("Payment not found");
             }
             _mapper.Map(PaymentDto, existingPayment);
             return await _repository.UpdatePaymentAsync(existingPayment);
