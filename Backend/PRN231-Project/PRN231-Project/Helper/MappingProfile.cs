@@ -13,15 +13,6 @@ namespace PRN231_Project.Helper
     {
         public MappingProfile()
         {
-            CreateMap<Payment, PaymentDto>();
-            CreateMap<PaymentDto, Payment>();
-
-            CreateMap<PaymentUpdateDto, Payment>();
-            CreateMap<Payment, PaymentUpdateDto>();
-
-            CreateMap<PaymentCreateDto, Payment>();
-            CreateMap<Payment, PaymentCreateDto>();
-
             CreateMap<Contract, ContractDto>();
             CreateMap<ContractDto, Contract>();
 
