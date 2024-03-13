@@ -68,19 +68,12 @@ const House = () => {
             }
 
             // Load users
-            const usersResult = await loadService.loadUsers({
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-            if (usersResult) {
-                setUsers(usersResult);
+            if (accessToken) {
+                fetchUser();
             }
-
-            console.log('users', users);
         };
         fetchData();
-    }, []);
+    }, [accessToken]);
 
     const findCategoryName = (categoryId) => {
         const category = categories.find((c) => c.id === categoryId);
@@ -91,6 +84,27 @@ const House = () => {
         const user = users.find((u) => u.id === userId);
         return user ? `${user.firstName} ${user.lastName}` : 'Unknown';
     };
+
+    const fetchUser = async () => {
+        const list = await loadService.loadUsers({
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        if (list) {
+            list.map((item) => {
+                item.dob = formatDateString(item.dob);
+                return item;
+            });
+            setUsers(list);
+        }
+    };
+
+    function formatDateString(inputDateString) {
+        const inputDate = new Date(inputDateString);
+        const formattedDate = format(inputDate, 'yyyy-MM-dd');
+        return formattedDate;
+    }
 
     const numberOfPages = Math.ceil(houses.length / numberPerPage);
     const startIndex = (currentPage - 1) * numberPerPage;
