@@ -1,11 +1,13 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import * as loadService from '../../ultils/apiServices/loadServices';
 import * as postService from '../../ultils/apiServices/postServices';
 import * as getLinkImage from '../../ultils/getLinkImage';
 import './Contract.scss';
 import Modal from './Modal';
+
 import {
     CButton,
     CTable,
@@ -29,61 +31,40 @@ const Contract = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [statusModal, setStatusModal] = useState('');
     const [error, setError] = useState({});
-
+    const [accessToken, setAccessToken] = useState('');
+    const [role, setRole] = useState('');
     const numberPerPage = 10;
-
     useEffect(() => {
-        const fetchApi = async () => {
-            const result = await loadService.loadContracts();
-            if (result) {
-                result.map((item) => {
-                    item.startDate = formatDateString(item.startDate);
-                    item.endDate = formatDateString(item.endDate);
-                    return item;
-                });
-                setContracts(result);
-            }
+        const availableToken = localStorage.getItem('accessToken');
+        if (availableToken) {
+            setAccessToken(availableToken);
+        }
+        if (accessToken) {
+            const decodedToken = jwtDecode(accessToken);
+            setRole(decodedToken.role);
+            fetchContractApi();
+        }
+    }, [accessToken]);
+
+    const fetchContractApi = async () => {
+        const options = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
         };
-        fetchApi();
-    }, []);
-    // const contracts = [
-    //     {
-    //         id: 1,
-    //         type: 'Lease',
-    //         description: 'Apartment rental agreement',
-    //         startDate: '2024-03-01',
-    //         endDate: '2025-02-28',
-    //         price: 1200.5,
-    //         filePath: '/contracts/lease_contract_1.pdf',
-    //         userId: 101,
-    //         paymentId: 201,
-    //         houseId: 301,
-    //     },
-    //     {
-    //         id: 2,
-    //         type: 'Sale',
-    //         description: 'House sale agreement',
-    //         startDate: '2024-04-15',
-    //         endDate: '2025-04-14',
-    //         price: 250000.0,
-    //         filePath: '/contracts/sale_contract_1.pdf',
-    //         userId: 102,
-    //         paymentId: 202,
-    //         houseId: 302,
-    //     },
-    //     {
-    //         id: 3,
-    //         type: 'Lease',
-    //         description: 'Commercial space rental agreement',
-    //         startDate: '2024-06-01',
-    //         endDate: '2025-05-31',
-    //         price: 1800.75,
-    //         filePath: '/contracts/lease_contract_2.pdf',
-    //         userId: 103,
-    //         paymentId: 203,
-    //         houseId: 303,
-    //     },
-    // ];
+        const decodedToken = jwtDecode(accessToken);
+        let result = [];
+        if (decodedToken.role === 'Admin') result = await loadService.loadContracts(options);
+        else result = await loadService.loadAllContractsByUserId(decodedToken.nameid, options);
+        if (result) {
+            result.map((item) => {
+                item.startDate = formatDateString(item.startDate);
+                item.endDate = formatDateString(item.endDate);
+                return item;
+            });
+            setContracts(result);
+        }
+    };
 
     const numberOfPages = Math.ceil(contracts.length / numberPerPage);
     const startIndex = (currentPage - 1) * numberPerPage;
@@ -297,11 +278,15 @@ const Contract = () => {
 
     return (
         <>
-            <div style={{ display: 'flex', justifyContent: 'end', marginBottom: '10px' }}>
-                <CButton onClick={handleCreateNew} className="btn-create" color="secondary">
-                    Create new
-                </CButton>
-            </div>
+            {role === 'Admin' ? (
+                <div style={{ display: 'flex', justifyContent: 'end', marginBottom: '10px' }}>
+                    <CButton onClick={handleCreateNew} className="btn-create" color="secondary">
+                        Create new
+                    </CButton>
+                </div>
+            ) : (
+                <></>
+            )}
 
             <CTable striped>
                 <CTableHead>
@@ -389,127 +374,6 @@ const Contract = () => {
                 </CPaginationItem>
             </CPagination>
 
-            {/* <CModal size="lg" visible={visible} onClose={handleCloseModal} aria-labelledby="LiveDemoExampleLabel">
-                <CModalHeader onClose={handleCloseModal}>
-                    <CModalTitle id="LiveDemoExampleLabel">Contract Details</CModalTitle>
-                </CModalHeader>
-                <CModalBody>
-                    {selectedContract && (
-                        <>
-                            <CForm id="1" className="row g-3">
-                                <CCol md={2}>
-                                    <CFormInput
-                                        type="text"
-                                        id="contract_type"
-                                        label="Type"
-                                        value={selectedContract.type}
-                                        onChange={(event) => handleInputChange(event, 'type')}
-                                    />
-                                    <span className="error-message">{error.type}</span>
-                                </CCol>
-                                <CCol md={2}>
-                                    <CFormInput
-                                        type="number"
-                                        id="contract_price"
-                                        label="Price"
-                                        value={selectedContract.price}
-                                        onChange={(event) => handleInputChange(event, 'price')}
-                                        required
-                                    />
-                                    <span className="error-message">{error.price}</span>
-                                </CCol>
-                                <CCol md={3}>
-                                    <CFormInput
-                                        id="contract_userId"
-                                        label="User"
-                                        value={selectedContract.userId}
-                                        onChange={(event) => handleInputChange(event, 'userId')}
-                                    />
-                                    <span className="error-message">{error.userId}</span>
-                                </CCol>
-                                <CCol md={3}>
-                                    <CFormInput
-                                        id="contract_paymentId"
-                                        label="Payment ID"
-                                        value={selectedContract.paymentId}
-                                        onChange={(event) => handleInputChange(event, 'paymentId')}
-                                    />
-                                    <span className="error-message">{error.paymentId}</span>
-                                </CCol>
-                                <CCol md={2}>
-                                    <CFormInput
-                                        type="text"
-                                        id="contract_houseId"
-                                        label="House ID"
-                                        value={selectedContract.houseId}
-                                        onChange={(event) => handleInputChange(event, 'houseId')}
-                                    />
-                                    <span className="error-message">{error.houseId}</span>
-                                </CCol>
-                                <CCol md={6}>
-                                    <CFormInput
-                                        type="date"
-                                        id="contract_start_date"
-                                        label="Start Date"
-                                        value={selectedContract.startDate}
-                                        onChange={(event) => handleInputChange(event, 'startDate')}
-                                    />
-                                    <span className="error-message">{error.startDate}</span>
-                                </CCol>
-                                <CCol md={6}>
-                                    <CFormInput
-                                        type="date"
-                                        id="contract_end_date"
-                                        label="End Date"
-                                        value={selectedContract.endDate}
-                                        onChange={(event) => handleInputChange(event, 'endDate')}
-                                    />
-                                    <span className="error-message">{error.endDate}</span>
-                                </CCol>
-                                {statusModal === 'update' ? (
-                                    <CCol md={2}>
-                                        <CImage
-                                            height={40}
-                                            src={getLinkImage.getLinkImage(selectedContract.filePath)}
-                                        ></CImage>
-                                    </CCol>
-                                ) : (
-                                    <></>
-                                )}
-                                <CCol md={4}>
-                                    <CFormInput
-                                        type="file"
-                                        id="contract_filePath"
-                                        label="File Path"
-                                        // value={selectedContract.filePath}
-                                        onChange={(event) => handleInputChange(event, 'filePath')}
-                                    />
-                                    <span className="error-message">{error.filePath}</span>
-                                </CCol>
-
-                                <CCol md={12}>
-                                    <CFormInput
-                                        type="text"
-                                        id="contract_description"
-                                        label="Description"
-                                        value={selectedContract.description}
-                                        onChange={(event) => handleInputChange(event, 'description')}
-                                    />
-                                    <span className="error-message">{error.description}</span>
-                                </CCol>
-                            </CForm>
-                        </>
-                    )}
-                </CModalBody>
-                <CModalFooter>
-                    <CButton color="secondary" onClick={handleCloseModal}>
-                        Close
-                    </CButton>
-                    <CButton onClick={handleCreateOrUpdate} color="primary">
-                        Save
-                    </CButton>
-                </CModalFooter>
-            </CModal> */}
             <Modal
                 visible={visible}
                 selectedContract={selectedContract}
@@ -518,6 +382,7 @@ const Contract = () => {
                 handleConfirmModal={handleCreateOrUpdateOrDelete}
                 handleInputChange={handleInputChange}
                 statusModal={statusModal}
+                role={role}
             />
         </>
     );

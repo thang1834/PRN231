@@ -19,6 +19,15 @@ export const loadContractById = async (id) => {
         console.log(error);
     }
 };
+
+export const loadAllContractsByUserId = async (userId, options = {}) => {
+    try {
+        const res = await request.get(`Contract/user/${userId}`, options);
+        return res;
+    } catch (error) {
+        console.log(error);
+    }
+};
 // User
 
 export const loadUsers = async (headers) => {

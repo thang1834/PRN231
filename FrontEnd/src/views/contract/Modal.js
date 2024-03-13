@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as getLinkImage from '../../ultils/getLinkImage';
 import {
-    CSpinner,
     CRow,
     CForm,
     CFormSelect,
@@ -25,6 +24,7 @@ const Modal = ({
     error,
     handleConfirmModal,
     handleInputChange,
+    role,
 }) => {
     return (
         <CModal size="lg" visible={visible} onClose={handleCloseModal} aria-labelledby="LiveDemoExampleLabel">
@@ -48,6 +48,7 @@ const Modal = ({
                                 id="contract_type"
                                 label="Type"
                                 value={selectedContract.type}
+                                disabled={role !== 'Admin'}
                                 onChange={(event) => handleInputChange(event, 'type')}
                             />
                             <span className="error-message">{error.type}</span>
@@ -58,6 +59,7 @@ const Modal = ({
                                 id="contract_price"
                                 label="Price"
                                 value={selectedContract.price}
+                                disabled={role !== 'Admin'}
                                 onChange={(event) => handleInputChange(event, 'price')}
                                 required
                             />
@@ -68,6 +70,7 @@ const Modal = ({
                                 id="contract_userId"
                                 label="User"
                                 value={selectedContract.userId}
+                                disabled={role !== 'Admin'}
                                 onChange={(event) => handleInputChange(event, 'userId')}
                             />
                             <span className="error-message">{error.userId}</span>
@@ -77,6 +80,7 @@ const Modal = ({
                                 id="contract_paymentId"
                                 label="Payment ID"
                                 value={selectedContract.paymentId}
+                                disabled={role !== 'Admin'}
                                 onChange={(event) => handleInputChange(event, 'paymentId')}
                             />
                             <span className="error-message">{error.paymentId}</span>
@@ -87,6 +91,7 @@ const Modal = ({
                                 id="contract_houseId"
                                 label="House ID"
                                 value={selectedContract.houseId}
+                                disabled={role !== 'Admin'}
                                 onChange={(event) => handleInputChange(event, 'houseId')}
                             />
                             <span className="error-message">{error.houseId}</span>
@@ -97,6 +102,7 @@ const Modal = ({
                                 id="contract_start_date"
                                 label="Start Date"
                                 value={selectedContract.startDate}
+                                disabled={role !== 'Admin'}
                                 onChange={(event) => handleInputChange(event, 'startDate')}
                             />
                             <span className="error-message">{error.startDate}</span>
@@ -107,6 +113,7 @@ const Modal = ({
                                 id="contract_end_date"
                                 label="End Date"
                                 value={selectedContract.endDate}
+                                disabled={role !== 'Admin'}
                                 onChange={(event) => handleInputChange(event, 'endDate')}
                             />
                             <span className="error-message">{error.endDate}</span>
@@ -118,16 +125,21 @@ const Modal = ({
                         ) : (
                             <></>
                         )}
-                        <CCol md={4}>
-                            <CFormInput
-                                type="file"
-                                id="contract_filePath"
-                                label="File Path"
-                                // value={selectedContract.filePath}
-                                onChange={(event) => handleInputChange(event, 'filePath')}
-                            />
-                            <span className="error-message">{error.filePath}</span>
-                        </CCol>
+                        {role === 'Admin' ? (
+                            <CCol md={4}>
+                                <CFormInput
+                                    type="file"
+                                    id="contract_filePath"
+                                    label="File Path"
+                                    // value={selectedContract.filePath}
+
+                                    onChange={(event) => handleInputChange(event, 'filePath')}
+                                />
+                                <span className="error-message">{error.filePath}</span>
+                            </CCol>
+                        ) : (
+                            <></>
+                        )}
 
                         <CCol md={12}>
                             <CFormInput
@@ -135,6 +147,7 @@ const Modal = ({
                                 id="contract_description"
                                 label="Description"
                                 value={selectedContract.description}
+                                disabled={role !== 'Admin'}
                                 onChange={(event) => handleInputChange(event, 'description')}
                             />
                             <span className="error-message">{error.description}</span>
@@ -161,9 +174,13 @@ const Modal = ({
                 <CButton color="secondary" onClick={handleCloseModal}>
                     {statusModal === 'delete' ? 'No' : 'Close'}
                 </CButton>
-                <CButton onClick={handleConfirmModal} color="primary">
-                    {statusModal === 'delete' ? 'Yes' : 'Save'}
-                </CButton>
+                {role === 'Admin' ? (
+                    <CButton onClick={handleConfirmModal} color="primary">
+                        {statusModal === 'delete' ? 'Yes' : 'Save'}
+                    </CButton>
+                ) : (
+                    <></>
+                )}
             </CModalFooter>
         </CModal>
     );
