@@ -19,12 +19,13 @@ import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
 import img1 from 'src/assets/images/login-building.jpg';
 import { jwtDecode } from 'jwt-decode';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [decodedToken, setDecodedToken] = useState(null);
-    const [errorMessage, setErrorMessage] = useState('');
     const [accessToken, setAccessToken] = useState('');
     const navigate = useNavigate();
 
@@ -86,7 +87,7 @@ const Login = () => {
                 handleDecode(result.token.accessToken);
             })
             .catch((error) => {
-                setErrorMessage('Invalid username or password');
+                toast.error('Invalid username or password');
             });
     };
     return (
@@ -95,7 +96,6 @@ const Login = () => {
                 <CContainer>
                     <CRow className="justify-content-center">
                         <CCol md={8}>
-                            {errorMessage && <div style={{ color: 'red', fontSize: 20 }}>{errorMessage}</div>}
                             <CCardGroup>
                                 <CCard>
                                     <CImage rounded src={img1} width={450} height={450}></CImage>
@@ -143,6 +143,7 @@ const Login = () => {
                     </CRow>
                 </CContainer>
             </div>
+            <ToastContainer />
         </>
     );
 };
