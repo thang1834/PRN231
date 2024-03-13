@@ -12,6 +12,10 @@ const Contract = React.lazy(() => import('./views/contract/Contract'));
 
 const House = React.lazy(() => import('./views/house/House'));
 
+//chart
+const Statistic = React.lazy(() => import('./views/statistic/Statistic'));
+
+
 // Base
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'));
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'));
@@ -70,6 +74,7 @@ const Profile = React.lazy(() => import('./views/profile/Profile'));
 const routes = [
     { path: '/', exact: true, name: 'Home' },
     { path: '/dashboard/contract', name: 'Contract', element: Contract },
+    { path: '/dashboard/statistic', name: 'Statistic', element: Statistic },
     { path: '/dashboard/house', name: 'House', element: House },
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/theme', name: 'Theme', element: Colors, exact: true },
