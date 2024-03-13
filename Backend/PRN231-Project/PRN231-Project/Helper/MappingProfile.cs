@@ -4,6 +4,7 @@ using PRN231_Project.Dto.Category;
 using PRN231_Project.Dto.House;
 using PRN231_Project.Dto.Role;
 using PRN231_Project.Dto.User;
+using PRN231_Project.Dto.Payment;
 using PRN231_Project.Models;
 
 namespace PRN231_Project.Helper

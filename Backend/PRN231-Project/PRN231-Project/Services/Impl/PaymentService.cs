@@ -40,31 +40,13 @@ namespace PRN231_Project.Services.Impl
         }
         public async Task<Payment> CreatePaymentAsync(PaymentCreateDto PaymentDto)
         {
-            string fileImage = "";
             try
             {
-                string fileName = $"{DateTime.Now.Ticks}_{PaymentDto.ImageUpload.FileName}";
-                fileImage = fileName;
-                string filePath = Path.Combine(_environment.WebRootPath, "uploads", "images", fileName);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await PaymentDto.ImageUpload.CopyToAsync(fileStream);
-                }
-                var Payment = _mapper.Map<Payment>(PaymentDto);
-                Payment.FilePath = Path.Combine("uploads", "images", fileName);
-                return await _repository.AddPaymentAsync(Payment);
+                var payment = _mapper.Map<Payment>(PaymentDto);
+                return await _repository.AddPaymentAsync(payment);
             }
             catch (Exception ex)
             {
-                if (!string.IsNullOrEmpty(fileImage))
-                {
-                    string filePath = Path.Combine(_environment.WebRootPath, "uploads", "images", fileImage);
-                    if (System.IO.File.Exists(filePath))
-                    {
-                        System.IO.File.Delete(filePath);
-                    }
-                }
                 throw new Exception(ex.Message);
             }
         }
@@ -74,46 +56,10 @@ namespace PRN231_Project.Services.Impl
             var existingPayment = await _repository.GetPaymentByIdAsync(PaymentId);
             if (existingPayment == null)
             {
-                throw new Exception("Payment not found");
+                throw new Exception("Role not found");
             }
-            string fileImage = "";
-            try
-            {
-                _mapper.Map(PaymentDto, existingPayment);
-                if (PaymentDto.ImageUpload != null)
-                {
-                    string fileName = $"{DateTime.Now.Ticks}_{PaymentDto.ImageUpload.FileName}";
-                    fileImage = fileName;
-                    string filePath = Path.Combine(_environment.WebRootPath, "uploads", "images", fileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await PaymentDto.ImageUpload.CopyToAsync(fileStream);
-                    }
-
-                    var fileExist = Path.Combine(_environment.WebRootPath, existingPayment.FilePath);
-                    if (System.IO.File.Exists(fileExist))
-                    {
-                        System.IO.File.Delete(fileExist);
-                    }
-                    existingPayment.FilePath = Path.Combine("uploads", "images", fileImage);
-                }
-
-                return await _repository.UpdatePaymentAsync(existingPayment);
-            }
-            catch (Exception ex)
-            {
-                if (!string.IsNullOrEmpty(fileImage))
-                {
-                    string filePath = Path.Combine(_environment.WebRootPath, "uploads", "images", fileImage);
-                    if (System.IO.File.Exists(filePath))
-                    {
-                        System.IO.File.Delete(filePath);
-                    }
-                }
-                throw new Exception(ex.Message);
-            }
-
+            _mapper.Map(PaymentDto, existingPayment);
+            return await _repository.UpdatePaymentAsync(existingPayment);
         }
 
         public async Task<Payment> RemovePaymentAsync(int PaymentId)
@@ -121,12 +67,6 @@ namespace PRN231_Project.Services.Impl
             try
             {
                 var deletedPayment = await _repository.RemovePaymentAsync(PaymentId);
-                string filePath = Path.Combine(_environment.WebRootPath, deletedPayment.FilePath);
-                if (System.IO.File.Exists(filePath))
-                {
-
-                    System.IO.File.Delete(filePath);
-                }
                 return deletedPayment;
             }
             catch (Exception ex)
