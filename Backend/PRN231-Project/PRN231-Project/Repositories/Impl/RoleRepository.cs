@@ -27,6 +27,10 @@ namespace PRN231_Project.Repositories.Impl
         {
             return await _houseRentalContext.Roles.FindAsync(roleId);
         }
+        public async Task<List<Role>> GetRolesByIdsAsync(List<int> roleIds)
+        {
+            return await _houseRentalContext.Roles.Where(r => roleIds.Contains(r.Id)).ToListAsync();
+        }
 
         public async Task<Role> RemoveRoleAsync(int roleId)
         {

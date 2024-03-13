@@ -64,6 +64,9 @@ const Users = React.lazy(() => import('./views/user/User'));
 //Role
 const Roles = React.lazy(() => import('./views/role/Role'));
 
+//Profile
+const Profile = React.lazy(() => import('./views/profile/Profile'));
+
 const routes = [
     { path: '/', exact: true, name: 'Home' },
     { path: '/dashboard/contract', name: 'Contract', element: Contract },
@@ -113,6 +116,7 @@ const routes = [
     { path: '/widgets', name: 'Widgets', element: Widgets },
     { path: '/user', name: 'User', element: Users },
     { path: '/role', name: 'Role', element: Roles },
+    { path: '/profile', name: 'Profile', element: Profile },
 ];
 
 export default routes;

@@ -30,6 +30,15 @@ export const loadUsers = async (headers) => {
     }
 };
 
+export const loadUserById = async (id, headers) => {
+    try {
+        const res = await request.get(`User/${id}`, headers);
+        return res;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 //Role
 export const loadRoles = async (headers) => {
     try {
@@ -45,6 +54,17 @@ export const loadRoles = async (headers) => {
 export const loadHouses = async () => {
     try {
         const res = await request.get('House');
+        return res;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+// Category
+
+export const loadCategories = async () => {
+    try {
+        const res = await request.get('Category');
         return res;
     } catch (error) {
         console.log(error);

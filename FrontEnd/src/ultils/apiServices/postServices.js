@@ -74,6 +74,30 @@ export const deleteUser = async (id, options) => {
     }
 };
 
+//assign role
+export const assignRole = async (options, headers) => {
+    try {
+        const res = await request.post(`User/addRoles`, options, headers);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+    }
+};
+
+//change password
+export const changePassword = async (id, options, headers) => {
+    try {
+        const res = await request.post(`User/changepassword/${id}`, options, headers);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+    }
+};
+
 // create Role
 export const postRole = async (options, headers) => {
     try {

@@ -62,6 +62,9 @@ namespace PRN231_Project
             // House
             builder.Services.AddScoped<IHouseRepository, HouseRepository>();
             builder.Services.AddScoped<IHouseService, HouseService>();
+            // Category
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
 
             var app = builder.Build();
 
