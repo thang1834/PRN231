@@ -14,13 +14,11 @@ export const refreshToken = async () => {
             const response = await postService.refresh(token, {
                 'Content-Type': 'application/json',
             });
-            if (response) {
-                const data = await response.json();
-                const newToken = data.token;
-                console.log('refresh successfully');
-                localStorage.setItem('accessToken', newToken.accessToken);
-                localStorage.setItem('refreshToken', newToken.refreshToken);
-            }
+            const data = await response.json();
+            const newToken = data.token;
+            console.log('refresh successfully');
+            localStorage.setItem('accessToken', newToken.accessToken);
+            localStorage.setItem('refreshToken', newToken.refreshToken);
         } catch (error) {}
     }
 };

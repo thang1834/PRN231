@@ -14,10 +14,6 @@ const AppContent = () => {
         if (!isAuthenticated) {
             navigate('/login');
         }
-        refresh();
-    }, []);
-
-    const refresh = async () => {
         try {
             refreshToken();
         } catch (error) {
@@ -25,7 +21,7 @@ const AppContent = () => {
             localStorage.removeItem('refreshToken');
             navigate('/login');
         }
-    };
+    }, []);
 
     return (
         <CContainer lg>
