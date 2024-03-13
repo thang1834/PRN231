@@ -2,9 +2,9 @@ import * as request from '../request';
 
 // Contract
 
-export const loadContracts = async () => {
+export const loadContracts = async (options = {}) => {
     try {
-        const res = await request.get('Contract');
+        const res = await request.get('Contract', options);
         return res;
     } catch (error) {
         console.log(error);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PRN231_Project.Dto.Contract;
 using PRN231_Project.Services;
@@ -9,15 +10,16 @@ namespace PRN231_Project.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    
     public class ContractController : Controller
     {
         private readonly IContractService _contractService;
-
+        
         public ContractController(IContractService contractService)
         {
             _contractService = contractService;
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllContractsAsync()
         {
@@ -38,12 +40,13 @@ namespace PRN231_Project.Controllers
         }
 
         [HttpGet("user/{userId}")]
+        [Authorize]
         public async Task<IActionResult> GetContractsByUserIdAsync(int userId)
         {
             var contracts = await _contractService.GetContractsByUserIdAsync(userId);
             return Ok(contracts);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet("house/{houseId}")]
         public async Task<IActionResult> GetContractsByHouseIdAsync(int houseId)
         {
@@ -57,7 +60,7 @@ namespace PRN231_Project.Controllers
             var contracts = await _contractService.GetContractsInDateRangeAsync(startDate, endDate);
             return Ok(contracts);
         }*/
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateContractAsync([FromForm] ContractCreateDto contractDto)
         {
@@ -76,7 +79,7 @@ namespace PRN231_Project.Controllers
             }
             
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("{contractId}")]
         public async Task<IActionResult> UpdateContractAsync(int contractId, [FromForm] ContractUpdateDto contractDto)
         {
@@ -92,6 +95,7 @@ namespace PRN231_Project.Controllers
         }
 
         [HttpDelete("{contractId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RemoveContractAsync(int contractId)
         {
             try
