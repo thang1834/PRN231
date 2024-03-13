@@ -22,6 +22,7 @@ export const loadContractById = async (id) => {
     }
 };
 
+
 export const loadAllContractsByUserId = async (userId, options = {}) => {
     try {
         const res = await request.get(`Contract/user/${userId}`, options);
@@ -84,3 +85,37 @@ export const loadCategories = async () => {
         console.log(error);
     }
 };
+
+// count
+export const numberOfContracts = async (options = {}) => {
+    try {
+      const res = await request.get('Contract', options);
+      const recordCount = res.length; 
+      return recordCount;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  export const numberOfUsers = async (headers) => {
+    try {
+        const res = await request.get('User', headers);
+        return res.length;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const numberOfHouses = async () => {
+    try {
+        const res = await request.get('House');
+        return res.length;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+
+  

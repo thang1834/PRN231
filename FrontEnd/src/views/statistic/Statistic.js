@@ -60,27 +60,67 @@ const Statistic = () => {
   const [description, setDescription] = useState()
 
   useEffect(() => {
+
+    const countRecords = async () => {
+      try {
+        const recordCount = await loadContracts();
+        console.log('Số bản ghi:', recordCount);
+        return recordCount;
+      } catch (error) {
+        console.error('Error counting records:', error);
+        throw error;
+      }
+    };
+    countRecords();
+
+    const fetchData = async () => {
+      try {
+        // Gọi hàm loadContracts
+        const contractsData = await loadContracts();
+
+        // Trích xuất trường dữ liệu cần thiết (ví dụ: 'yourSpecificField')
+        const specificFieldData = contractsData.map(contract => contract.yourSpecificField);
+
+        // Cập nhật state với dữ liệu cho CChartLine
+        setChartData({
+          labels: contractsData.map(contract => contract.startDate), //  trường chứa dữ liệu thời gian
+          datasets: [
+            {
+              label: 'Your Dataset Label',
+              backgroundColor: hexToRgba('#3498db', 10),
+              borderColor: '#3498db',
+              pointHoverBackgroundColor: '#3498db',
+              borderWidth: 2,
+              data: specificFieldData,
+              fill: true,
+            },
+          ],
+        });
+      } catch (error) {
+        console.error('Error loading contracts:', error);
+      }
+    };
+
+    // Gọi hàm fetchData khi component được render
+    fetchData();
+  }, []); 
+
+
+  useEffect(() => {
     getHouse()
-    getContract()
   }, [])
+
 
   const getHouse = async () => {
     const abcd = await loadHouses()
     abcd.map((item, index) => {
       console.log(item)
-      setDescription(item.price) //set gtri dữ liệu
+      setDescription(item.description) //set gtri dữ liệu
       console.log(description)
+
   })
   }
 
-  const getContract = async () => {
-    const abcd = await loadContracts()
-    abcd.map((item, index) => {
-      console.log(item)
-      setDescription(item.price) //set gtri dữ liệu
-      console.log(description)
-  })
-  }
 
   const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
@@ -114,13 +154,105 @@ const Statistic = () => {
     { title: 'LinkedIn', icon: cibLinkedin, percent: 8, value: '27,319' },
   ];
 
-
+  const tableExample = [
+    {
+      avatar: { src: avatar1, status: 'success' },
+      user: {
+        name: 'Yiorgos Avraamu',
+        new: true,
+        registered: 'Jan 1, 2021',
+      },
+      country: { name: 'USA', flag: cifUs },
+      usage: {
+        value: 50,
+        period: 'Jun 11, 2021 - Jul 10, 2021',
+        color: 'success',
+      },
+      payment: { name: 'Mastercard', icon: cibCcMastercard },
+      activity: '10 sec ago',
+    },
+    {
+      avatar: { src: avatar2, status: 'danger' },
+      user: {
+        name: 'Avram Tarasios',
+        new: false,
+        registered: 'Jan 1, 2021',
+      },
+      country: { name: 'Brazil', flag: cifBr },
+      usage: {
+        value: 22,
+        period: 'Jun 11, 2021 - Jul 10, 2021',
+        color: 'info',
+      },
+      payment: { name: 'Visa', icon: cibCcVisa },
+      activity: '5 minutes ago',
+    },
+    {
+      avatar: { src: avatar3, status: 'warning' },
+      user: { name: 'Quintin Ed', new: true, registered: 'Jan 1, 2021' },
+      country: { name: 'India', flag: cifIn },
+      usage: {
+        value: 74,
+        period: 'Jun 11, 2021 - Jul 10, 2021',
+        color: 'warning',
+      },
+      payment: { name: 'Stripe', icon: cibCcStripe },
+      activity: '1 hour ago',
+    },
+    {
+      avatar: { src: avatar4, status: 'secondary' },
+      user: { name: 'Enéas Kwadwo', new: true, registered: 'Jan 1, 2021' },
+      country: { name: 'France', flag: cifFr },
+      usage: {
+        value: 98,
+        period: 'Jun 11, 2021 - Jul 10, 2021',
+        color: 'danger',
+      },
+      payment: { name: 'PayPal', icon: cibCcPaypal },
+      activity: 'Last month',
+    },
+    {
+      avatar: { src: avatar5, status: 'success' },
+      user: {
+        name: 'Agapetus Tadeáš',
+        new: true,
+        registered: 'Jan 1, 2021',
+      },
+      country: { name: 'Spain', flag: cifEs },
+      usage: {
+        value: 22,
+        period: 'Jun 11, 2021 - Jul 10, 2021',
+        color: 'primary',
+      },
+      payment: { name: 'Google Wallet', icon: cibCcApplePay },
+      activity: 'Last week',
+    },
+    {
+      avatar: { src: avatar6, status: 'danger' },
+      user: {
+        name: 'Friderik Dávid',
+        new: true,
+        registered: 'Jan 1, 2021',
+      },
+      country: { name: 'Poland', flag: cifPl },
+      usage: {
+        value: 43,
+        period: 'Jun 11, 2021 - Jul 10, 2021',
+        color: 'success',
+      },
+      payment: { name: 'Amex', icon: cibCcAmex },
+      activity: 'Last week',
+    },
+  ];
 
   return (
     <>
       <WidgetsDropdown />
       <CCard className="mb-4">
         
+        {/*  */}
+
+             
          <CCardBody>    {/* Payment */}
           <CRow>
             <CCol sm={5}>
@@ -234,7 +366,7 @@ const Statistic = () => {
               <h4 id="traffic" className="card-title mb-0">
                 Contract
               </h4>
-              <div className="small text-medium-emphasis">asdas</div>
+              <div className="small text-medium-emphasis">January - July 2021</div>
             </CCol>
             <CCol sm={7} className="d-none d-md-block">
               <CButton color="primary" className="float-end">
