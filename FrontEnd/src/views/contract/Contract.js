@@ -302,7 +302,7 @@ const Contract = () => {
                         <CTableHeaderCell scope="col">Image Contract</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Description</CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
-                        <CTableHeaderCell scope="col"></CTableHeaderCell>
+                        {role === 'Admin' ? <CTableHeaderCell scope="col"></CTableHeaderCell> : <></>}
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
@@ -337,20 +337,24 @@ const Contract = () => {
                                     }}
                                 ></CIcon>
                             </CTableDataCell>
-                            <CTableDataCell>
-                                <CIcon
-                                    className="icon-delete"
-                                    title="Delete"
-                                    icon={cilDelete}
-                                    size="xl"
-                                    onClick={() => {
-                                        setSelectedContract(contract);
-                                        setVisible(true);
-                                        setStatusModal('delete');
-                                        setError({});
-                                    }}
-                                ></CIcon>
-                            </CTableDataCell>
+                            {role === 'Admin' ? (
+                                <CTableDataCell>
+                                    <CIcon
+                                        className="icon-delete"
+                                        title="Delete"
+                                        icon={cilDelete}
+                                        size="xl"
+                                        onClick={() => {
+                                            setSelectedContract(contract);
+                                            setVisible(true);
+                                            setStatusModal('delete');
+                                            setError({});
+                                        }}
+                                    ></CIcon>
+                                </CTableDataCell>
+                            ) : (
+                                <></>
+                            )}
                         </CTableRow>
                     ))}
                 </CTableBody>
