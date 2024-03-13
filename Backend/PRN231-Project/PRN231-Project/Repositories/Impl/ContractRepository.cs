@@ -36,12 +36,12 @@ namespace PRN231_Project.Repositories
             return await _context.Contracts.Where(c => c.HouseId == houseId).ToListAsync();
         }
 
-        public async Task<IEnumerable<Contract>> GetContractsInDateRangeAsync(DateTime startDate, DateTime endDate)
+        /*public async Task<IEnumerable<Contract>> GetContractsInDateRangeAsync(DateTime startDate, DateTime endDate)
         {
             return await _context.Contracts
                 .Where(c => c.StartDate >= startDate && c.EndDate <= endDate)
                 .ToListAsync();
-        }
+        }*/
 
         public async Task<Contract> AddContractAsync(Contract contract)
         {

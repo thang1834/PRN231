@@ -8,7 +8,7 @@ namespace PRN231_Project.Repositories
         Task<Contract> GetContractByIdAsync(int contractId);
         Task<IEnumerable<Contract>> GetContractsByUserIdAsync(int userId);
         Task<IEnumerable<Contract>> GetContractsByHouseIdAsync(int houseId);
-        Task<IEnumerable<Contract>> GetContractsInDateRangeAsync(DateTime startDate, DateTime endDate);
+        /*Task<IEnumerable<Contract>> GetContractsInDateRangeAsync(DateTime startDate, DateTime endDate);*/
 
         Task <Contract> AddContractAsync(Contract contract);
         Task <Contract> UpdateContractAsync(Contract contract);

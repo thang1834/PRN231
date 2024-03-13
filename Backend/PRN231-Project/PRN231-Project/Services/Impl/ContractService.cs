@@ -45,11 +45,11 @@ namespace PRN231_Project.Services.Impl
             return _mapper.Map<IEnumerable<ContractDto>>(contracts);
         }
 
-        public async Task<IEnumerable<ContractDto>> GetContractsInDateRangeAsync(DateTime startDate, DateTime endDate)
+        /*public async Task<IEnumerable<ContractDto>> GetContractsInDateRangeAsync(DateTime startDate, DateTime endDate)
         {
             var contracts = await _repository.GetContractsInDateRangeAsync(startDate, endDate);
             return _mapper.Map<IEnumerable<ContractDto>>(contracts);
-        }
+        }*/
 
         public async Task<Contract> CreateContractAsync(ContractCreateDto contractDto)
         {
