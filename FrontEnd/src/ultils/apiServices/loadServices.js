@@ -8,6 +8,7 @@ export const loadContracts = async (options = {}) => {
         return res;
     } catch (error) {
         console.log(error);
+        throw error;
     }
 };
 
@@ -17,6 +18,7 @@ export const loadContractById = async (id) => {
         return res;
     } catch (error) {
         console.log(error);
+        throw error;
     }
 };
 
@@ -35,7 +37,7 @@ export const loadUsers = async (headers) => {
         const res = await request.get('User', headers);
         return res;
     } catch (error) {
-        console.log(error);
+        throw error;
     }
 };
 
@@ -45,6 +47,7 @@ export const loadUserById = async (id, headers) => {
         return res;
     } catch (error) {
         console.log(error);
+        throw error;
     }
 };
 
@@ -55,6 +58,7 @@ export const loadRoles = async (headers) => {
         return res;
     } catch (error) {
         console.log(error);
+        throw error;
     }
 };
 
@@ -66,6 +70,7 @@ export const loadHouses = async () => {
         return res;
     } catch (error) {
         console.log(error);
+        throw error;
     }
 };
 

@@ -29,6 +29,8 @@ import CIcon from '@coreui/icons-react';
 import { cilSearch } from '@coreui/icons';
 import { refreshToken } from 'src/ultils/Authentication';
 import './User.scss';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const User = () => {
     const [selectedUser, setSelectedUser] = useState({});
@@ -42,6 +44,7 @@ const User = () => {
     const [loading, setLoading] = useState(true);
     const [statusModal, setStatusModal] = useState('');
     const [error, setError] = useState({});
+    const [success, setSuccess] = useState(false);
 
     const numberPerPage = 10;
 
@@ -60,6 +63,10 @@ const User = () => {
             fetchRole();
         }
 
+        if (success) {
+            toast.success('Success');
+            setSuccess(false);
+        }
         setLoading(false);
     }, [accessToken, loading]);
 
@@ -70,28 +77,37 @@ const User = () => {
     }
 
     const fetchUser = async () => {
-        const list = await loadService.loadUsers({
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
-        if (list) {
-            list.map((item) => {
-                item.dob = formatDateString(item.dob);
-                return item;
+        try {
+            const list = await loadService.loadUsers({
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
             });
-            setUsers(list);
+            if (list) {
+                list.map((item) => {
+                    item.dob = formatDateString(item.dob);
+                    return item;
+                });
+                setUsers(list);
+            }
+        } catch (err) {
+            console.log('error');
+            toast.error('Error');
         }
     };
 
     const fetchRole = async () => {
-        const list = await loadService.loadRoles({
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
-        if (list) {
-            setRoles(list);
+        try {
+            const list = await loadService.loadRoles({
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            if (list) {
+                setRoles(list);
+            }
+        } catch (err) {
+            toast.error('Error');
         }
     };
 
@@ -174,23 +190,36 @@ const User = () => {
             username: selectedUser.username,
             password: selectedUser.password,
         };
-        if (Object.keys(error).length !== 0) return;
+        if (Object.keys(error).length !== 0) {
+            toast.error('Error');
+            return;
+        }
         if (statusModal === 'create') {
-            const res = await postService.postUser(user, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-            setLoading(true);
-            handleCloseModal();
+            try {
+                const res = await postService.postUser(user, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                setSuccess(true);
+                setLoading(true);
+                handleCloseModal();
+            } catch (err) {
+                toast.error('Error');
+            }
         } else if (statusModal === 'update') {
-            const res = await postService.updateUser(selectedUser.id, user, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-            setLoading(true);
-            handleCloseModal();
+            try {
+                const res = await postService.updateUser(selectedUser.id, user, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                setSuccess(true);
+                setLoading(true);
+                handleCloseModal();
+            } catch (err) {
+                toast.error('Error');
+            }
         }
     };
 
@@ -199,11 +228,16 @@ const User = () => {
             userId: selectedUser,
             roleIds: selectedRole,
         };
-        const res = await postService.assignRole(userRole, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
+        try {
+            const res = await postService.assignRole(userRole, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            setSuccess(true);
+        } catch (err) {
+            toast.error('Error');
+        }
         setLoading(true);
         handleCloseAddRoleModal();
     };
@@ -464,6 +498,7 @@ const User = () => {
                     </CButton>
                 </CModalFooter>
             </CModal>
+            <ToastContainer />
         </>
     );
 };

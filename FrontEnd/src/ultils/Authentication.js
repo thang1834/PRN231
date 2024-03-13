@@ -1,4 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
+import * as postService from './apiServices/postServices';
 
 export const refreshToken = async () => {
     const accessToken = localStorage.getItem('accessToken');
@@ -6,21 +7,21 @@ export const refreshToken = async () => {
 
     if (isTokenExpired(accessToken)) {
         try {
-            const response = await fetch('https://localhost:7080/User/refresh-token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ accessToken: accessToken, refreshToken: refreshToken }),
+            var token = {
+                accessToken: accessToken,
+                refreshToken: refreshToken,
+            };
+            const response = await postService.refresh(token, {
+                'Content-Type': 'application/json',
             });
-            const data = await response.json();
-            const newToken = data.token;
-            console.log('refresh successfully');
-            localStorage.setItem('accessToken', newToken.accessToken);
-            localStorage.setItem('refreshToken', newToken.refreshToken);
-        } catch (error) {
-            console.error('Error refreshing token:', error);
-        }
+            if (response) {
+                const data = await response.json();
+                const newToken = data.token;
+                console.log('refresh successfully');
+                localStorage.setItem('accessToken', newToken.accessToken);
+                localStorage.setItem('refreshToken', newToken.refreshToken);
+            }
+        } catch (error) {}
     }
 };
 
@@ -40,5 +41,3 @@ const isTokenExpired = (token) => {
         return true;
     }
 };
-
-export const isAuthenticated = localStorage.getItem('accessToken') !== null;

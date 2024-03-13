@@ -26,6 +26,8 @@ import CIcon from '@coreui/icons-react';
 import { cilSearch } from '@coreui/icons';
 import { refreshToken } from 'src/ultils/Authentication';
 import './Role.scss';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Role = () => {
     const [selectedRole, setSelectedRole] = useState({});
@@ -36,6 +38,7 @@ const Role = () => {
     const [loading, setLoading] = useState(true);
     const [statusModal, setStatusModal] = useState('');
     const [error, setError] = useState({});
+    const [success, setSuccess] = useState(false);
 
     const numberPerPage = 10;
 
@@ -54,17 +57,26 @@ const Role = () => {
             fetchRole();
         }
 
+        if (success) {
+            toast.success('Success');
+            setSuccess(false);
+        }
+
         setLoading(false);
     }, [accessToken, loading]);
 
     const fetchRole = async () => {
-        const list = await loadService.loadRoles({
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
-        if (list) {
-            setRoles(list);
+        try {
+            const list = await loadService.loadRoles({
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            if (list) {
+                setRoles(list);
+            }
+        } catch (err) {
+            toast.error('Error');
         }
     };
 
@@ -109,28 +121,41 @@ const Role = () => {
     };
 
     const handleCreateOrUpdate = async () => {
-        if (Object.keys(error).length !== 0) return;
+        if (Object.keys(error).length !== 0) {
+            toast.error('Error');
+            return;
+        }
 
         if (statusModal === 'create') {
-            var role = {
-                name: selectedRole.name,
-            };
-            const res = await postService.postRole(role, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
+            try {
+                var role = {
+                    name: selectedRole.name,
+                };
+                const res = await postService.postRole(role, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                setSuccess(true);
+            } catch (err) {
+                toast.error('Error');
+            }
             setLoading(true);
             handleCloseModal();
         } else if (statusModal === 'update') {
-            var role = {
-                name: selectedRole.name,
-            };
-            const res = await postService.updateRole(selectedRole.id, role, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
+            try {
+                var role = {
+                    name: selectedRole.name,
+                };
+                const res = await postService.updateRole(selectedRole.id, role, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                setSuccess(true);
+            } catch (err) {
+                toast.error('Error');
+            }
             setLoading(true);
             handleCloseModal();
         }
@@ -228,6 +253,7 @@ const Role = () => {
                     </CButton>
                 </CModalFooter>
             </CModal>
+            <ToastContainer />
         </>
     );
 };
