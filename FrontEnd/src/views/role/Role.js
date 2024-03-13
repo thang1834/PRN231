@@ -65,7 +65,30 @@ const Role = () => {
         setLoading(false);
     }, [accessToken, loading]);
 
+    const refresh = async () => {
+        const refreshToken = localStorage.getItem('refreshToken');
+        const accessToken = localStorage.getItem('accessToken');
+        if (isTokenExpired(accessToken)) {
+            try {
+                var token = {
+                    accessToken: accessToken,
+                    refreshToken: refreshToken,
+                };
+                const response = await postService.refreshToken(token);
+                localStorage.setItem('accessToken', response.token.accessToken);
+                localStorage.setItem('refreshToken', response.token.refreshToken);
+                setAccessToken(response.token.accessToken);
+                console.log('ok');
+            } catch (err) {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                navigate('/login');
+            }
+        }
+    };
+
     const fetchRole = async () => {
+        await refresh();
         try {
             const list = await loadService.loadRoles({
                 headers: {
@@ -125,6 +148,7 @@ const Role = () => {
             toast.error('Error');
             return;
         }
+        await refresh();
 
         if (statusModal === 'create') {
             try {

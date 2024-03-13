@@ -1,6 +1,6 @@
 import * as request from '../request';
 
-export const refresh = async (body, headers) => {
+export const refreshToken = async (body, headers) => {
     try {
         const res = await request.post('User/refresh-token', body, headers);
         //console.log(res);

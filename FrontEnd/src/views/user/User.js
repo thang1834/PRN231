@@ -27,10 +27,11 @@ import {
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilSearch } from '@coreui/icons';
-import { refreshToken } from 'src/ultils/Authentication';
 import './User.scss';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
+import { isTokenExpired } from 'src/ultils/Authentication';
 
 const User = () => {
     const [selectedUser, setSelectedUser] = useState({});
@@ -45,6 +46,7 @@ const User = () => {
     const [statusModal, setStatusModal] = useState('');
     const [error, setError] = useState({});
     const [success, setSuccess] = useState(false);
+    const navigate = useNavigate();
 
     const numberPerPage = 10;
 
@@ -76,7 +78,30 @@ const User = () => {
         return formattedDate;
     }
 
+    const refresh = async () => {
+        const refreshToken = localStorage.getItem('refreshToken');
+        const accessToken = localStorage.getItem('accessToken');
+        if (isTokenExpired(accessToken)) {
+            try {
+                var token = {
+                    accessToken: accessToken,
+                    refreshToken: refreshToken,
+                };
+                const response = await postService.refreshToken(token);
+                localStorage.setItem('accessToken', response.token.accessToken);
+                localStorage.setItem('refreshToken', response.token.refreshToken);
+                setAccessToken(response.token.accessToken);
+                console.log('ok')
+            } catch (err) {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                navigate('/login');
+            }
+        }
+    };
+
     const fetchUser = async () => {
+        await refresh();
         try {
             const list = await loadService.loadUsers({
                 headers: {
@@ -97,6 +122,7 @@ const User = () => {
     };
 
     const fetchRole = async () => {
+        await refresh();
         try {
             const list = await loadService.loadRoles({
                 headers: {
@@ -190,6 +216,7 @@ const User = () => {
             username: selectedUser.username,
             password: selectedUser.password,
         };
+        await refresh();
         if (Object.keys(error).length !== 0) {
             toast.error('Error');
             return;
@@ -228,6 +255,7 @@ const User = () => {
             userId: selectedUser,
             roleIds: selectedRole,
         };
+        await refresh()
         try {
             const res = await postService.assignRole(userRole, {
                 headers: {

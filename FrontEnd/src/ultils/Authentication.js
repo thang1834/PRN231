@@ -1,29 +1,6 @@
 import { jwtDecode } from 'jwt-decode';
-import * as postService from './apiServices/postServices';
 
-export const refreshToken = async () => {
-    const accessToken = localStorage.getItem('accessToken');
-    const refreshToken = localStorage.getItem('refreshToken');
-
-    if (isTokenExpired(accessToken)) {
-        try {
-            var token = {
-                accessToken: accessToken,
-                refreshToken: refreshToken,
-            };
-            const response = await postService.refresh(token, {
-                'Content-Type': 'application/json',
-            });
-            const data = await response.json();
-            const newToken = data.token;
-            console.log('refresh successfully');
-            localStorage.setItem('accessToken', newToken.accessToken);
-            localStorage.setItem('refreshToken', newToken.refreshToken);
-        } catch (error) {}
-    }
-};
-
-const isTokenExpired = (token) => {
+export const isTokenExpired = (token) => {
     if (!token) {
         // Token doesn't exist or is invalid
         return true;
