@@ -1,5 +1,16 @@
 import * as request from '../request';
 
+export const refresh = async (body, headers) => {
+    try {
+        const res = await request.post('User/refresh-token', body, headers);
+        //console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
 // create Contract
 
 export const postContract = async (body, options) => {
@@ -10,6 +21,7 @@ export const postContract = async (body, options) => {
     } catch (error) {
         console.log(error);
         console.log(options);
+        throw error;
     }
 };
 
@@ -22,6 +34,7 @@ export const updateContract = async (id, body, options) => {
     } catch (error) {
         console.log(error);
         console.log(options);
+        throw error;
     }
 };
 
@@ -34,6 +47,7 @@ export const deleteContract = async (id) => {
     } catch (error) {
         console.log(error);
         console.log(options);
+        throw error;
     }
 };
 
@@ -46,6 +60,7 @@ export const postUser = async (options, headers) => {
     } catch (error) {
         console.log(error);
         console.log(options);
+        throw error;
     }
 };
 
@@ -59,6 +74,7 @@ export const updateUser = async (id, options, headers) => {
         console.log(error);
         console.log(options);
         console.log(headers);
+        throw error;
     }
 };
 
@@ -71,6 +87,7 @@ export const deleteUser = async (id, options) => {
     } catch (error) {
         console.log(error);
         console.log(options);
+        throw error;
     }
 };
 
@@ -83,6 +100,7 @@ export const assignRole = async (options, headers) => {
     } catch (error) {
         console.log(error);
         console.log(options);
+        throw error;
     }
 };
 
@@ -95,6 +113,7 @@ export const changePassword = async (id, options, headers) => {
     } catch (error) {
         console.log(error);
         console.log(options);
+        throw error;
     }
 };
 
@@ -107,6 +126,7 @@ export const postRole = async (options, headers) => {
     } catch (error) {
         console.log(error);
         console.log(options);
+        throw error;
     }
 };
 
@@ -120,6 +140,7 @@ export const updateRole = async (id, options, headers) => {
         console.log(error);
         console.log(options);
         console.log(headers);
+        throw error;
     }
 };
 
@@ -132,6 +153,7 @@ export const deleteRole = async (id, options, headers) => {
     } catch (error) {
         console.log(error);
         console.log(options);
+        throw error;
     }
 };
 
@@ -143,6 +165,7 @@ export const postHouse = async (options) => {
     } catch (error) {
         console.log(error);
         console.log(options);
+        throw error;
     }
 };
 
@@ -155,6 +178,7 @@ export const updateHouse = async (id, options) => {
     } catch (error) {
         console.log(error);
         console.log(options);
+        throw error;
     }
 };
 
@@ -166,5 +190,6 @@ export const deleteHouse = async (id) => {
         return res;
     } catch (error) {
         console.log(error);
+        throw error;
     }
 };

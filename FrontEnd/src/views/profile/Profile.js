@@ -24,6 +24,8 @@ import {
 } from '@coreui/react';
 import { jwtDecode } from 'jwt-decode';
 import './Profile.scss';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Profile = () => {
     const [passwords, setPasswords] = useState({
@@ -35,6 +37,7 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [decodedToken, setDecodedToken] = useState({});
     const [error, setError] = useState({});
+    const [success, setSuccess] = useState(false);
 
     useEffect(() => {
         const availableToken = localStorage.getItem('accessToken');
@@ -44,20 +47,29 @@ const Profile = () => {
         if (accessToken) {
             fetchUserById();
         }
+        if (success) {
+            toast.success('Success');
+            setSuccess(false);
+        }
         setLoading(false);
     }, [accessToken, loading]);
 
     const fetchUserById = async () => {
-        const decoded = jwtDecode(accessToken);
-        setDecodedToken(decoded);
-        const res = await loadService.loadUserById(decoded.nameid, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
-        if (res) {
-            res.dob = formatDateString(res.dob);
-            setUser(res);
+        try {
+            const decoded = jwtDecode(accessToken);
+            setDecodedToken(decoded);
+            const res = await loadService.loadUserById(decoded.nameid, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            if (res) {
+                res.dob = formatDateString(res.dob);
+                setUser(res);
+            }
+            setSuccess(true);
+        } catch (err) {
+            toast.error('Error');
         }
     };
 
@@ -83,8 +95,11 @@ const Profile = () => {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
+            setSuccess(true);
+            setLoading(true);
             console.log('Profile updated successfully');
         } catch (error) {
+            toast.error('Error');
             // Handle error
             console.error('Failed to update profile:', error.message);
         }
@@ -117,8 +132,11 @@ const Profile = () => {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
+            setSuccess(true);
+            setLoading(true);
             console.log('Passwords changed successfully:', passwords);
         } catch (error) {
+            toast.error('Error');
             console.error('Failed to change passwords:', error.message);
         }
     };
@@ -247,6 +265,7 @@ const Profile = () => {
                     </div>
                 </CCol>
             </div>
+            <ToastContainer />
         </>
     );
 };
