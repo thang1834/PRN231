@@ -42,6 +42,13 @@ const Statistic = () => {
     const [accessToken, setAccessToken] = useState('');
     const [role, setRole] = useState('');
     const numberPerPage = 10;
+    const [chartData, setChartData] = useState({
+      labels: [],
+      datasets: [],
+    });
+
+    const [month, setMonth] = useState([])
+
     useEffect(() => {
         const availableToken = localStorage.getItem('accessToken');
         if (availableToken) {
@@ -50,29 +57,60 @@ const Statistic = () => {
         if (accessToken) {
             const decodedToken = jwtDecode(accessToken);
             setRole(decodedToken.role);
-            fetchContractApi();
-        }
-    }, [accessToken]);
+            const fetchContractApi = async () => {
+              const options = {
+                  headers: {
+                      Authorization: `Bearer ${accessToken}`,
+                  },
+              };
+              const decodedToken = jwtDecode(accessToken);
+              let result = [];
+              if (decodedToken.role === 'Admin') {
+                result = await loadService.loadContracts(options);
+                const recordsByMonth = Array(12).fill(0);
+                const contractsData = await loadService.loadContracts(options);
+                
+                contractsData.forEach(contract => {
+                  contractsData.map((item) => {
+                    item.startDate = formatDateString(item.startDate);
+                });
+                  const date = new Date(contract.startDate); // Thay thế 'yourDateField' bằng trường chứa dữ liệu thời gian
+                  const monthIndex = date.getMonth();
+                  recordsByMonth[monthIndex]++;
+                  setMonth(recordsByMonth)
 
-    const fetchContractApi = async () => {
-        const options = {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        };
-        const decodedToken = jwtDecode(accessToken);
-        let result = [];
-        if (decodedToken.role === 'Admin') result = await loadService.loadContracts(options);
-        else result = await loadService.loadAllContractsByUserId(decodedToken.nameid, options);
-        if (result) {
-            result.map((item) => {
-                item.startDate = formatDateString(item.startDate);
-                item.endDate = formatDateString(item.endDate);
-                return item;
-            });
-            setContracts(result);
+                });
+      
+                setChartData({
+                  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                  datasets: [
+                    {
+                      label: 'Number of Contracts',
+                      backgroundColor: hexToRgba('#3498db', 10),
+                      borderColor: '#3498db',
+                      pointHoverBackgroundColor: '#3498db',
+                      borderWidth: 2,
+                      data: recordsByMonth,
+                      fill: true,
+                    },
+                  ],
+                })
+              }
+              else result = await loadService.loadAllContractsByUserId(decodedToken.nameid, options);
+              if (result) {
+                  result.map((item) => {
+                      item.startDate = formatDateString(item.startDate);
+                      item.endDate = formatDateString(item.endDate);
+                      return item;
+                  });
+                  setContracts(result);
+              }
+          };
+          fetchContractApi();
         }
-    };
+
+        
+    }, [accessToken]);
 
     const numberOfPages = Math.ceil(contracts.length / numberPerPage);
     const startIndex = (currentPage - 1) * numberPerPage;
@@ -83,206 +121,8 @@ const Statistic = () => {
         const inputDate = new Date(inputDateString);
         const formattedDate = format(inputDate, 'yyyy-MM-dd');
         return formattedDate;
-    }
-    const handlePrevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
+    }  
 
-    // Hàm xử lý khi nhấn trang tiếp theo
-    const handleNextPage = () => {
-        if (currentPage < numberOfPages) {
-            setCurrentPage(currentPage + 1);
-        }
-    };
-    const handleCreateNew = () => {
-        const today = new Date();
-        var contract = {
-            startDate: formatDateString(today),
-            endDate: formatDateString(today),
-        };
-        setVisible(true);
-        setSelectedContract(contract);
-        setStatusModal('create');
-        setError({});
-    };
-
-    const handleCloseModal = () => {
-        setVisible(false);
-        setSelectedContract({});
-        setStatusModal('');
-        setError({});
-    };
-
-    const handleInputChange = (event, pros) => {
-        const contract = Object.assign({}, selectedContract);
-        const err = Object.assign({}, error);
-        if (pros != 'filePath') contract[pros] = event.target.value;
-        setSelectedContract(contract);
-        switch (pros) {
-            case 'price': {
-                const inputValue = parseFloat(event.target.value);
-                if (isNaN(inputValue)) {
-                    err[pros] = `Please enter a valid number for ${pros}`;
-                    setError(err);
-                } else if (inputValue < 0) {
-                    err[pros] = `The ${pros} must not be negative`;
-                    setError(err);
-                } else {
-                    const { [pros]: deletedError, ...restErrors } = err;
-                    setError(restErrors);
-                }
-                break;
-            }
-
-            case 'filePath':
-                const file = event.target.files[0]; // Get the first selected file
-                setSelectedFile(file);
-                if (!file) {
-                    if (statusModal == 'create') {
-                        err[pros] = 'Please choose a file';
-                        setError(err);
-                    }
-                } else {
-                    const allowedExtensions = ['jpg', 'jpeg', 'png'];
-                    const fileExtension = file.name.split('.').pop().toLowerCase();
-
-                    if (!allowedExtensions.includes(fileExtension)) {
-                        err[pros] = 'Please choose a file with a valid extension (jpg, jpeg, png)';
-                        setError(err);
-                    } else {
-                        const { [pros]: deletedError, ...restErrors } = err;
-                        setError(restErrors);
-                    }
-                }
-                break;
-            default: {
-                if (event.target.value.trim() === '') {
-                    err[pros] = `This field cannot be empty`;
-                    setError(err);
-                } else {
-                    const { [pros]: deletedError, ...restErrors } = err;
-                    setError(restErrors);
-                }
-            }
-        }
-        console.log(error);
-    };
-
-    const handleCreateOrUpdateOrDelete = async () => {
-        if (statusModal === 'delete') {
-            const res = await postService.deleteContract(selectedContract.id);
-            const indexDelete = contracts.findIndex((item) => selectedContract.id == item.id);
-            const updatedContracts = [...contracts.slice(0, indexDelete), ...contracts.slice(indexDelete + 1)];
-            setContracts(updatedContracts);
-            handleCloseModal();
-            return;
-        }
-
-        var contract = {
-            type: selectedContract.type,
-            description: selectedContract.description,
-            startDate: selectedContract.startDate,
-            endDate: selectedContract.endDate,
-            price: selectedContract.price,
-            filePath: selectedContract.filePath,
-            userId: selectedContract.userId,
-            paymentId: selectedContract.paymentId,
-            houseId: selectedContract.houseId,
-        };
-        const err = Object.assign({}, error);
-
-        for (var key in contract) {
-            let val = contract[key];
-
-            // Convert non-string values to string
-            val = val || '';
-            if (typeof val === 'number') {
-                val = String(val);
-            }
-            switch (key) {
-                case 'price': {
-                    const inputValue = parseFloat(val);
-                    if (isNaN(inputValue)) {
-                        err[key] = `Please enter a valid number for ${key}`;
-                        setError(err);
-                    } else if (inputValue < 0) {
-                        err[key] = `The ${key} must not be negative`;
-                        setError(err);
-                    } else {
-                        const { [key]: deletedError, ...restErrors } = err;
-                        setError(restErrors);
-                    }
-                    break;
-                }
-                case 'filePath':
-                    const file = selectedFile; // Get the first selected file
-                    if (!file) {
-                        if (statusModal == 'create') {
-                            err[key] = 'Please choose a file';
-                            setError(err);
-                        }
-                    } else {
-                        const allowedExtensions = ['jpg', 'jpeg', 'png'];
-                        const fileExtension = file.name.split('.').pop().toLowerCase();
-
-                        if (!allowedExtensions.includes(fileExtension)) {
-                            err[key] = 'Please choose a file with a valid extension (jpg, jpeg, png)';
-                            setError(err);
-                        } else {
-                            const { [key]: deletedError, ...restErrors } = err;
-                            setError(restErrors);
-                        }
-                    }
-                    break;
-                default: {
-                    //console.log(typeof val);
-                    if (val.trim() === '') {
-                        err[key] = `This field cannot be empty`;
-                        setError(err);
-                    } else {
-                        const { [key]: deletedError, ...restErrors } = err;
-                        setError(restErrors);
-                    }
-                }
-            }
-        }
-        if (Object.keys(err).length !== 0) return;
-        if (statusModal === 'create') {
-            // console.log(err);
-            const formData = new FormData();
-            for (var key in contract) {
-                if (key != 'filePath') formData.append(key, contract[key]);
-            }
-            formData.append('ImageUpload', selectedFile);
-            const res = await postService.postContract(formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            const { user: usernull, payment: paymentnull, house: housenull, ...rest } = res;
-            setContracts([...contracts, rest]);
-            handleCloseModal();
-        } else if (statusModal === 'update') {
-            const formData = new FormData();
-            for (var key in contract) {
-                formData.append(key, contract[key]);
-            }
-            formData.append('imageUpload', selectedFile);
-            const res = await postService.updateContract(selectedContract.id, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            const updatedContract = await loadService.loadContractById(selectedContract.id);
-            const indexUpdate = contracts.findIndex((item) => selectedContract.id == item.id);
-            contracts[indexUpdate] = updatedContract;
-            setContracts(contracts);
-            handleCloseModal();
-        }
-    };
     const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
     const progressExample = [
       { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
@@ -293,18 +133,18 @@ const Statistic = () => {
     ];
     return (
         <>
-            
+                  
+
             <WidgetsDropdown />
       <CCard className="mb-4">
-        
-        {/*  */}
-
              
+    
+
          <CCardBody>    {/* Payment */}
           <CRow>
             <CCol sm={5}>
               <h4 id="traffic" className="card-title mb-0">
-                Payment
+                Contract
               </h4>
               <div className="small text-medium-emphasis">January - July 2021</div>
             </CCol>
@@ -324,49 +164,21 @@ const Statistic = () => {
           <CChartLine
             style={{ height: '300px', marginTop: '40px' }}
             data={{
-              labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+              labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
               datasets: [
                 {
                   label: 'My First dataset',
                   backgroundColor: hexToRgba(getStyle('--cui-info'), 10),
                   borderColor: getStyle('--cui-info'),
                   pointHoverBackgroundColor: getStyle('--cui-info'),
-                  borderWidth: 2,
+                  borderWidth: 2,  
                   data: [
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                  ],
+                    ...month.map((item) => {
+                        console.log(item);
+                        return item;
+                    })
+                ],
                   fill: true,
-                },
-                {
-                  label: 'My Second dataset',
-                  backgroundColor: 'transparent',
-                  borderColor: getStyle('--cui-success'),
-                  pointHoverBackgroundColor: getStyle('--cui-success'),
-                  borderWidth: 2,
-                  data: [
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                  ],
-                },
-                {
-                  label: 'My Third dataset',
-                  backgroundColor: 'transparent',
-                  borderColor: getStyle('--cui-danger'),
-                  pointHoverBackgroundColor: getStyle('--cui-danger'),
-                  borderWidth: 1,
-                  borderDash: [8, 5],
-                  data: [65, 65, 65, 65, 65, 65, 65],
                 },
               ],
             }}
@@ -513,7 +325,8 @@ const Statistic = () => {
             }}
           />
           
-        </CCardBody>          
+        </CCardBody>         
+
             <CCardBody>     {/* User */}
           <CRow>
             <CCol sm={5}>
@@ -643,10 +456,6 @@ const Statistic = () => {
         </CCol>
       </CRow>
            
-
-          
-
-            
         </>
     );
 };
