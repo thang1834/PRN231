@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { CContainer, CSpinner } from '@coreui/react';
-import { isAuthenticated, refreshToken } from 'src/ultils/Authentication';
+import { refreshToken } from 'src/ultils/Authentication';
 
 // routes config
 import routes from '../routes';
@@ -14,18 +14,7 @@ const AppContent = () => {
         if (!isAuthenticated) {
             navigate('/login');
         }
-        refresh();
     }, []);
-
-    const refresh = async () => {
-        try {
-            refreshToken();
-        } catch (error) {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            navigate('/login');
-        }
-    };
 
     return (
         <CContainer lg>
