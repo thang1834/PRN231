@@ -23,8 +23,7 @@ import {
     CFormCheck,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilSearch } from '@coreui/icons';
-import { refreshToken } from 'src/ultils/Authentication';
+import { cilDelete, cilSearch } from '@coreui/icons';
 import './Role.scss';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -65,30 +64,7 @@ const Role = () => {
         setLoading(false);
     }, [accessToken, loading]);
 
-    const refresh = async () => {
-        const refreshToken = localStorage.getItem('refreshToken');
-        const accessToken = localStorage.getItem('accessToken');
-        if (isTokenExpired(accessToken)) {
-            try {
-                var token = {
-                    accessToken: accessToken,
-                    refreshToken: refreshToken,
-                };
-                const response = await postService.refreshToken(token);
-                localStorage.setItem('accessToken', response.token.accessToken);
-                localStorage.setItem('refreshToken', response.token.refreshToken);
-                setAccessToken(response.token.accessToken);
-                console.log('ok');
-            } catch (err) {
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                navigate('/login');
-            }
-        }
-    };
-
     const fetchRole = async () => {
-        await refresh();
         try {
             const list = await loadService.loadRoles({
                 headers: {
@@ -99,7 +75,11 @@ const Role = () => {
                 setRoles(list);
             }
         } catch (err) {
-            toast.error('Error');
+            if (err.response.status === 403) {
+                navigate('/403');
+            } else {
+                toast.error('Error');
+            }
         }
     };
 
@@ -120,6 +100,7 @@ const Role = () => {
         setVisible(true);
         setSelectedRole({});
         setStatusModal('create');
+        setError({});
     };
 
     const handleCloseModal = () => {
@@ -143,12 +124,26 @@ const Role = () => {
         }
     };
 
-    const handleCreateOrUpdate = async () => {
+    const handleCreateOrUpdateOrDelete = async () => {
+        if (statusModal === 'delete') {
+            try {
+                const res = await postService.deleteRole(selectedRole.id, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                setSuccess(true);
+                setLoading(true);
+            } catch (error) {
+                toast.error('Error');
+            }
+            handleCloseModal();
+        }
+
         if (Object.keys(error).length !== 0) {
             toast.error('Error');
             return;
         }
-        await refresh();
 
         if (statusModal === 'create') {
             try {
@@ -202,6 +197,7 @@ const Role = () => {
                         <CTableHeaderCell scope="col">#</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Name</CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
+                        <CTableHeaderCell scope="col"></CTableHeaderCell>
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
@@ -219,6 +215,20 @@ const Role = () => {
                                         setSelectedRole(role);
                                         setVisible(true);
                                         setStatusModal('update');
+                                        setError({});
+                                    }}
+                                ></CIcon>
+                            </CTableDataCell>
+                            <CTableDataCell>
+                                <CIcon
+                                    className="icon-delete"
+                                    title="Delete"
+                                    icon={cilDelete}
+                                    size="xl"
+                                    onClick={() => {
+                                        setSelectedRole(role);
+                                        setVisible(true);
+                                        setStatusModal('delete');
                                         setError({});
                                     }}
                                 ></CIcon>
@@ -248,32 +258,43 @@ const Role = () => {
 
             <CModal size="lg" visible={visible} onClose={handleCloseModal} aria-labelledby="LiveDemoExampleLabel">
                 <CModalHeader onClose={handleCloseModal}>
-                    <CModalTitle id="LiveDemoExampleLabel">Role Details</CModalTitle>
+                    <CModalTitle id="LiveDemoExampleLabel">
+                        <CModalTitle id="LiveDemoExampleLabel">
+                            {statusModal === 'create'
+                                ? 'Create New Role'
+                                : statusModal === 'update'
+                                ? 'Role Details'
+                                : 'Warning'}
+                        </CModalTitle>
+                    </CModalTitle>
                 </CModalHeader>
                 <CModalBody>
-                    {selectedRole && (
-                        <>
-                            <CForm className="row g-3">
-                                <CCol md={12}>
-                                    <CFormInput
-                                        type="text"
-                                        id="name"
-                                        label="Name"
-                                        value={selectedRole.name}
-                                        onChange={(event) => handleInputChange(event, selectedRole.id, 'name')}
-                                    />
-                                    <span className="error-message">{error.name}</span>
-                                </CCol>
-                            </CForm>
-                        </>
-                    )}
+                    {selectedRole &&
+                        (statusModal === 'delete' ? (
+                            <p>Are you sure to delete this role information ?</p>
+                        ) : (
+                            <>
+                                <CForm className="row g-3">
+                                    <CCol md={12}>
+                                        <CFormInput
+                                            type="text"
+                                            id="name"
+                                            label="Name"
+                                            value={selectedRole.name}
+                                            onChange={(event) => handleInputChange(event, selectedRole.id, 'name')}
+                                        />
+                                        <span className="error-message">{error.name}</span>
+                                    </CCol>
+                                </CForm>
+                            </>
+                        ))}
                 </CModalBody>
                 <CModalFooter>
                     <CButton color="secondary" onClick={handleCloseModal}>
-                        Close
+                        {statusModal === 'delete' ? 'No' : 'Close'}
                     </CButton>
-                    <CButton color="primary" onClick={handleCreateOrUpdate}>
-                        Save changes
+                    <CButton onClick={handleCreateOrUpdateOrDelete} color="primary">
+                        {statusModal === 'delete' ? 'Yes' : 'Save'}
                     </CButton>
                 </CModalFooter>
             </CModal>

@@ -1,4 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
+import * as request from './request';
 
 export const isTokenExpired = (token) => {
     if (!token) {
@@ -14,5 +15,27 @@ export const isTokenExpired = (token) => {
         // Failed to decode token
         console.error('Error decoding token:', error);
         return true;
+    }
+};
+
+export const refresh = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const accessToken = localStorage.getItem('accessToken');
+    if (isTokenExpired(accessToken)) {
+        try {
+            var token = {
+                accessToken: accessToken,
+                refreshToken: refreshToken,
+            };
+            const response = await request.refreshToken(token);
+            console.log(response);
+            localStorage.setItem('accessToken', response.token.accessToken);
+            localStorage.setItem('refreshToken', response.token.refreshToken);
+            console.log('ok');
+        } catch (err) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            throw err;
+        }
     }
 };

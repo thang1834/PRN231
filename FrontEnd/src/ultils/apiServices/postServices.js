@@ -1,16 +1,5 @@
 import * as request from '../request';
 
-export const refreshToken = async (body, headers) => {
-    try {
-        const res = await request.post('User/refresh-token', body, headers);
-        //console.log(res);
-        return res;
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
-};
-
 // create Contract
 
 export const postContract = async (body, options) => {
@@ -79,14 +68,13 @@ export const updateUser = async (id, options, headers) => {
 };
 
 //delete user
-export const deleteUser = async (id, options) => {
+export const deleteUser = async (id, headers) => {
     try {
-        const res = await request.del(`User/${id}`);
+        const res = await request.del(`User/${id}`, headers);
         console.log(res);
         return res;
     } catch (error) {
         console.log(error);
-        console.log(options);
         throw error;
     }
 };
@@ -145,14 +133,13 @@ export const updateRole = async (id, options, headers) => {
 };
 
 //delete user
-export const deleteRole = async (id, options, headers) => {
+export const deleteRole = async (id, headers) => {
     try {
         const res = await request.del(`Role/${id}`, headers);
         console.log(res);
         return res;
     } catch (error) {
         console.log(error);
-        console.log(options);
         throw error;
     }
 };

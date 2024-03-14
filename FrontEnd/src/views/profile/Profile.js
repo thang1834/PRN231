@@ -2,26 +2,7 @@ import React, { useEffect, useState } from 'react';
 import * as loadService from '../../ultils/apiServices/loadServices';
 import * as postService from '../../ultils/apiServices/postServices';
 import { format } from 'date-fns';
-import {
-    CForm,
-    CCol,
-    CFormInput,
-    CModal,
-    CModalHeader,
-    CModalTitle,
-    CModalBody,
-    CModalFooter,
-    CButton,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
-    CPagination,
-    CPaginationItem,
-    CFormCheck,
-} from '@coreui/react';
+import { CForm, CCol, CFormInput, CButton } from '@coreui/react';
 import { jwtDecode } from 'jwt-decode';
 import './Profile.scss';
 import { ToastContainer, toast } from 'react-toastify';
@@ -54,30 +35,7 @@ const Profile = () => {
         setLoading(false);
     }, [accessToken, loading]);
 
-    const refresh = async () => {
-        const refreshToken = localStorage.getItem('refreshToken');
-        const accessToken = localStorage.getItem('accessToken');
-        if (isTokenExpired(accessToken)) {
-            try {
-                var token = {
-                    accessToken: accessToken,
-                    refreshToken: refreshToken,
-                };
-                const response = await postService.refreshToken(token);
-                localStorage.setItem('accessToken', response.token.accessToken);
-                localStorage.setItem('refreshToken', response.token.refreshToken);
-                setAccessToken(response.token.accessToken);
-                console.log('ok');
-            } catch (err) {
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                navigate('/login');
-            }
-        }
-    };
-
     const fetchUserById = async () => {
-        await refresh();
         try {
             const decoded = jwtDecode(accessToken);
             setDecodedToken(decoded);
@@ -111,7 +69,6 @@ const Profile = () => {
     };
 
     const handleSubmitProfileForm = async (e) => {
-        await refresh();
         e.preventDefault();
         try {
             const res = await postService.updateUser(decodedToken.nameid, user, {
@@ -127,6 +84,7 @@ const Profile = () => {
             // Handle error
             console.error('Failed to update profile:', error.message);
         }
+        setError({});
     };
 
     const handleChangePasswordForm = (e) => {
@@ -148,7 +106,6 @@ const Profile = () => {
     };
 
     const handleSubmitPasswordForm = async (e) => {
-        await refresh();
         e.preventDefault();
         if (Object.keys(error).length !== 0) return;
         try {
@@ -164,6 +121,7 @@ const Profile = () => {
             toast.error('Error');
             console.error('Failed to change passwords:', error.message);
         }
+        setError({});
     };
 
     if (loading) {
