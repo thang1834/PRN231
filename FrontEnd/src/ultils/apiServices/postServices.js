@@ -39,9 +39,9 @@ export const updateContract = async (id, body, options) => {
 };
 
 //delete Contract
-export const deleteContract = async (id) => {
+export const deleteContract = async (id, options = {}) => {
     try {
-        const res = await request.del(`Contract/${id}`);
+        const res = await request.del(`Contract/${id}`, options);
         //console.log(res);
         return res;
     } catch (error) {
