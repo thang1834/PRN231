@@ -25,6 +25,8 @@ const Modal = ({
     handleConfirmModal,
     handleInputChange,
     role,
+    houses,
+    users,
 }) => {
     return (
         <CModal size="lg" visible={visible} onClose={handleCloseModal} aria-labelledby="LiveDemoExampleLabel">
@@ -42,7 +44,7 @@ const Modal = ({
                     <p>Are you sure to delete this contract information ?</p>
                 ) : (
                     <CForm id="1" className="row g-3">
-                        <CCol md={2}>
+                        <CCol md={4}>
                             <CFormInput
                                 type="text"
                                 id="contract_type"
@@ -53,7 +55,7 @@ const Modal = ({
                             />
                             <span className="error-message">{error.type}</span>
                         </CCol>
-                        <CCol md={2}>
+                        <CCol md={4}>
                             <CFormInput
                                 type="number"
                                 id="contract_price"
@@ -65,17 +67,8 @@ const Modal = ({
                             />
                             <span className="error-message">{error.price}</span>
                         </CCol>
-                        <CCol md={3}>
-                            <CFormInput
-                                id="contract_userId"
-                                label="User"
-                                value={selectedContract.userId}
-                                disabled={role !== 'Admin'}
-                                onChange={(event) => handleInputChange(event, 'userId')}
-                            />
-                            <span className="error-message">{error.userId}</span>
-                        </CCol>
-                        <CCol md={3}>
+
+                        <CCol md={4}>
                             <CFormInput
                                 id="contract_paymentId"
                                 label="Payment ID"
@@ -86,16 +79,52 @@ const Modal = ({
                             <span className="error-message">{error.paymentId}</span>
                         </CCol>
                         <CCol md={2}>
-                            <CFormInput
+                            {/* <CFormInput
                                 type="text"
                                 id="contract_houseId"
                                 label="House ID"
                                 value={selectedContract.houseId}
                                 disabled={role !== 'Admin'}
                                 onChange={(event) => handleInputChange(event, 'houseId')}
-                            />
+                            /> */}
                             <span className="error-message">{error.houseId}</span>
                         </CCol>
+                        <CRow>
+                            {role === 'Admin' && (
+                                <>
+                                    <CFormSelect
+                                        style={{ margin: 10 }}
+                                        value={selectedContract.userId || ''}
+                                        onChange={(event) => handleInputChange(event, 'userId')}
+                                    >
+                                        <option value="">Select User</option>
+                                        {users.map((u) => (
+                                            <option key={u.id} value={u.id}>
+                                                {`${u.firstName} ${u.lastName}`}
+                                            </option>
+                                        ))}
+                                    </CFormSelect>
+
+                                    <span className="error-message">{error.userId}</span>
+                                </>
+                            )}
+                        </CRow>
+                        <CRow>
+                            <CFormSelect
+                                style={{ margin: 10 }}
+                                value={selectedContract.houseId || ''}
+                                disabled={role !== 'Admin'}
+                                onChange={(event) => handleInputChange(event, 'houseId')}
+                            >
+                                <option value="">Select House</option>
+                                {houses.map((h) => (
+                                    <option key={h.id} value={h.id}>
+                                        {h.name}
+                                    </option>
+                                ))}
+                            </CFormSelect>
+                        </CRow>
+
                         <CCol md={6}>
                             <CFormInput
                                 type="date"

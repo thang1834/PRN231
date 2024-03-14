@@ -6,6 +6,7 @@ import * as loadService from '../../ultils/apiServices/loadServices';
 import * as postService from '../../ultils/apiServices/postServices';
 import * as getLinkImage from '../../ultils/getLinkImage';
 import './Contract.scss';
+import 'react-toastify/dist/ReactToastify.css';
 import Modal from './Modal';
 
 import {
@@ -21,6 +22,7 @@ import {
     CImage,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
+import { ToastContainer, toast } from 'react-toastify';
 import { cilSearch, cilDelete } from '@coreui/icons';
 
 const Contract = () => {
@@ -33,6 +35,8 @@ const Contract = () => {
     const [error, setError] = useState({});
     const [accessToken, setAccessToken] = useState('');
     const [role, setRole] = useState('');
+    const [users, setUsers] = useState([]);
+    const [houses, setHouses] = useState([]);
     const numberPerPage = 10;
     useEffect(() => {
         const availableToken = localStorage.getItem('accessToken');
@@ -42,27 +46,60 @@ const Contract = () => {
         if (accessToken) {
             const decodedToken = jwtDecode(accessToken);
             setRole(decodedToken.role);
-            fetchContractApi();
+            if (decodedToken.role === 'Admin') {
+                fetchHouse();
+                fetchUser();
+            }
+            fetchContract();
         }
     }, [accessToken]);
 
-    const fetchContractApi = async () => {
+    const fetchContract = async () => {
         const options = {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
         };
         const decodedToken = jwtDecode(accessToken);
-        let result = [];
-        if (decodedToken.role === 'Admin') result = await loadService.loadContracts(options);
-        else result = await loadService.loadAllContractsByUserId(decodedToken.nameid, options);
-        if (result) {
-            result.map((item) => {
-                item.startDate = formatDateString(item.startDate);
-                item.endDate = formatDateString(item.endDate);
-                return item;
+        try {
+            let result = [];
+            if (decodedToken.role === 'Admin') result = await loadService.loadContracts(options);
+            else result = await loadService.loadAllContractsByUserId(decodedToken.nameid, options);
+            if (result) {
+                result.map((item) => {
+                    item.startDate = formatDateString(item.startDate);
+                    item.endDate = formatDateString(item.endDate);
+                    return item;
+                });
+                setContracts(result);
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error('Error loading data');
+        }
+    };
+    const fetchHouse = async () => {
+        const housesResult = await loadService.loadHouses();
+        if (housesResult) {
+            setHouses(housesResult);
+        }
+    };
+    const fetchUser = async () => {
+        try {
+            const list = await loadService.loadUsers({
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
             });
-            setContracts(result);
+            if (list) {
+                list.map((item) => {
+                    item.dob = formatDateString(item.dob);
+                    return item;
+                });
+                setUsers(list);
+            }
+        } catch (err) {
+            console.log('error');
         }
     };
 
@@ -159,16 +196,25 @@ const Contract = () => {
                 }
             }
         }
-        console.log(error);
     };
 
     const handleCreateOrUpdateOrDelete = async () => {
         if (statusModal === 'delete') {
-            const res = await postService.deleteContract(selectedContract.id);
-            const indexDelete = contracts.findIndex((item) => selectedContract.id == item.id);
-            const updatedContracts = [...contracts.slice(0, indexDelete), ...contracts.slice(indexDelete + 1)];
-            setContracts(updatedContracts);
+            try {
+                const res = await postService.deleteContract(selectedContract.id, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                const indexDelete = contracts.findIndex((item) => selectedContract.id == item.id);
+                const updatedContracts = [...contracts.slice(0, indexDelete), ...contracts.slice(indexDelete + 1)];
+                setContracts(updatedContracts);
+                toast.success('Delete successful');
+            } catch (err) {
+                toast.error('Error delete');
+            }
             handleCloseModal();
+
             return;
         }
 
@@ -242,36 +288,54 @@ const Contract = () => {
         }
         if (Object.keys(err).length !== 0) return;
         if (statusModal === 'create') {
-            // console.log(err);
-            const formData = new FormData();
-            for (var key in contract) {
-                if (key != 'filePath') formData.append(key, contract[key]);
+            try {
+                const formData = new FormData();
+                for (var key in contract) {
+                    if (key != 'filePath') formData.append(key, contract[key]);
+                }
+                formData.append('ImageUpload', selectedFile);
+                const res = await postService.postContract(formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                const { user: usernull, payment: paymentnull, house: housenull, ...rest } = res;
+                if (rest.startDate) rest.startDate = formatDateString(rest.startDate);
+                if (rest.endDate) rest.endDate = formatDateString(rest.endDate);
+                console.log(rest);
+                setContracts([...contracts, rest]);
+                toast.success('Create successful');
+            } catch (err) {
+                toast.error('Error create');
             }
-            formData.append('ImageUpload', selectedFile);
-            const res = await postService.postContract(formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            const { user: usernull, payment: paymentnull, house: housenull, ...rest } = res;
-            setContracts([...contracts, rest]);
+
             handleCloseModal();
         } else if (statusModal === 'update') {
-            const formData = new FormData();
-            for (var key in contract) {
-                formData.append(key, contract[key]);
-            }
-            formData.append('imageUpload', selectedFile);
-            const res = await postService.updateContract(selectedContract.id, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            try {
+                const formData = new FormData();
+                for (var key in contract) {
+                    formData.append(key, contract[key]);
+                }
+                formData.append('imageUpload', selectedFile);
+                const res = await postService.updateContract(selectedContract.id, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
 
-            const updatedContract = await loadService.loadContractById(selectedContract.id);
-            const indexUpdate = contracts.findIndex((item) => selectedContract.id == item.id);
-            contracts[indexUpdate] = updatedContract;
-            setContracts(contracts);
+                const updatedContract = await loadService.loadContractById(selectedContract.id);
+                if (updatedContract.startDate) updatedContract.startDate = formatDateString(updatedContract.startDate);
+                if (updatedContract.endDate) updatedContract.endDate = formatDateString(updatedContract.endDate);
+                const indexUpdate = contracts.findIndex((item) => selectedContract.id == item.id);
+                contracts[indexUpdate] = updatedContract;
+                setContracts(contracts);
+                toast.success('Update successful');
+            } catch (err) {
+                toast.error('Error updating');
+            }
+
             handleCloseModal();
         }
     };
@@ -387,7 +451,10 @@ const Contract = () => {
                 handleInputChange={handleInputChange}
                 statusModal={statusModal}
                 role={role}
+                users={users}
+                houses={houses}
             />
+            <ToastContainer />
         </>
     );
 };
