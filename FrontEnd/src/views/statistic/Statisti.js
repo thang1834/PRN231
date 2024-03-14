@@ -1,300 +1,283 @@
-import React from 'react';
-import { format } from 'date-fns';
-import { useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
-import * as loadService from '../../ultils/apiServices/loadServices';
-import * as postService from '../../ultils/apiServices/postServices';
-import * as getLinkImage from '../../ultils/getLinkImage';
+import React, { useEffect, useState } from 'react';
 
 import {
-    CButton,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
-    CPagination,
-    CPaginationItem,
-    CImage,
-    CCard,
-    CCardBody,
-    CRow,
-    CCol,
-    CButtonGroup,
-    CCardFooter,
-    CProgress,
+  CAvatar,
+  CButton,
+  CButtonGroup,
+  CCard,
+  CCardBody,
+  CCardFooter,
+  CCardHeader,
+  CCol,
+  CProgress,
+  CRow,
+  CTable,
+  CTableBody,
+  CTableDataCell,
+  CTableHead,
+  CTableHeaderCell,
+  CTableRow,
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilSearch, cilDelete, cilCloudDownload } from '@coreui/icons';
-import WidgetsDropdown from '../widgets/WidgetsDropdown';
 import { CChartLine } from '@coreui/react-chartjs';
 import { getStyle, hexToRgba } from '@coreui/utils';
+import CIcon from '@coreui/icons-react';
+import {
+  cibCcAmex,
+  cibCcApplePay,
+  cibCcMastercard,
+  cibCcPaypal,
+  cibCcStripe,
+  cibCcVisa,
+  cibGoogle,
+  cibFacebook,
+  cibLinkedin,
+  cifBr,
+  cifEs,
+  cifFr,
+  cifIn,
+  cifPl,
+  cifUs,
+  cibTwitter,
+  cilCloudDownload,
+  cilPeople,
+  cilUser,
+  cilUserFemale,
+} from '@coreui/icons';
+
+import avatar1 from 'src/assets/images/avatars/1.jpg';
+import avatar2 from 'src/assets/images/avatars/2.jpg';
+import avatar3 from 'src/assets/images/avatars/3.jpg';
+import avatar4 from 'src/assets/images/avatars/4.jpg';
+import avatar5 from 'src/assets/images/avatars/5.jpg';
+import avatar6 from 'src/assets/images/avatars/6.jpg';
+
+import WidgetsBrand from '../widgets/WidgetsBrand';
+import WidgetsDropdown from '../widgets/WidgetsDropdown';
+import { loadContracts, loadHouses } from 'src/ultils/apiServices/loadServices';
 
 const Statistic = () => {
-    const [contracts, setContracts] = useState([]);
-    const [selectedContract, setSelectedContract] = useState({});
-    const [selectedFile, setSelectedFile] = useState();
-    const [visible, setVisible] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [statusModal, setStatusModal] = useState('');
-    const [error, setError] = useState({});
-    const [accessToken, setAccessToken] = useState('');
-    const [role, setRole] = useState('');
-    const numberPerPage = 10;
-    useEffect(() => {
-        const availableToken = localStorage.getItem('accessToken');
-        if (availableToken) {
-            setAccessToken(availableToken);
-        }
-        if (accessToken) {
-            const decodedToken = jwtDecode(accessToken);
-            setRole(decodedToken.role);
-            fetchContractApi();
-        }
-    }, [accessToken]);
+  //Lưu giữ liệu
+  const [description, setDescription] = useState()
 
-    const fetchContractApi = async () => {
-        const options = {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
+  useEffect(() => {
+    
+    const countRecordsByMonth = async () => {
+      try {
+        const contractsData = await loadContracts();
+    
+        // Tạo một đối tượng để theo dõi số lượng bản ghi theo từng tháng
+        const recordsByMonth = {};
+    
+        // Xử lý dữ liệu để đếm số lượng bản ghi theo từng tháng
+        contractsData.forEach(contract => {
+          const date = new Date(contract.startDate); // Thay thế 'yourDateField' bằng trường chứa dữ liệu thời gian
+          const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+    
+          // Tăng giá trị tương ứng với tháng hoặc tạo mới nếu chưa có
+          recordsByMonth[monthKey] = (recordsByMonth[monthKey] || 0) + 1;
+        });
+    
+        console.log('Số bản ghi theo từng tháng:', recordsByMonth);
+    
+        return recordsByMonth;
+      } catch (error) {
+        console.error('Error counting records by month:', error);
+        throw error;
+      }
+    };
+    
+    // Gọi hàm countRecordsByMonth khi cần thiết
+    countRecordsByMonth();
+    
+    //----------------------------------------------------------------------------------------------------------------------//
+
+    const countRecords = async () => {
+      try {
+        const recordCount = await loadContracts();
+        console.log('Số bản ghi:', recordCount);
+        return recordCount;
+      } catch (error) {
+        console.error('Error counting records:', error);
+        throw error;
+      }
+    };
+    countRecords();
+
+    const fetchData = async () => {
+      try {
+        // Gọi hàm loadContracts
+        const contractsData = await loadContracts();
+
+        // Trích xuất trường dữ liệu cần thiết (ví dụ: 'yourSpecificField')
+        const specificFieldData = contractsData.map(contract => contract.yourSpecificField);
+
+        // Cập nhật state với dữ liệu cho CChartLine
+        setChartData({
+          labels: contractsData.map(contract => contract.startDate), //  trường chứa dữ liệu thời gian
+          datasets: [
+            {
+              label: 'Your Dataset Label',
+              backgroundColor: hexToRgba('#3498db', 10),
+              borderColor: '#3498db',
+              pointHoverBackgroundColor: '#3498db',
+              borderWidth: 2,
+              data: specificFieldData,
+              fill: true,
             },
-        };
-        const decodedToken = jwtDecode(accessToken);
-        let result = [];
-        if (decodedToken.role === 'Admin') result = await loadService.loadContracts(options);
-        else result = await loadService.loadAllContractsByUserId(decodedToken.nameid, options);
-        if (result) {
-            result.map((item) => {
-                item.startDate = formatDateString(item.startDate);
-                item.endDate = formatDateString(item.endDate);
-                return item;
-            });
-            setContracts(result);
-        }
+          ],
+        });
+      } catch (error) {
+        console.error('Error loading contracts:', error);
+      }
     };
 
-    const numberOfPages = Math.ceil(contracts.length / numberPerPage);
-    const startIndex = (currentPage - 1) * numberPerPage;
-    const endIndex = startIndex + numberPerPage;
-    const displayedContracts = contracts.slice(startIndex, endIndex);
+    // Gọi hàm fetchData khi component được render
+    fetchData();
+  }, []); 
 
-    function formatDateString(inputDateString) {
-        const inputDate = new Date(inputDateString);
-        const formattedDate = format(inputDate, 'yyyy-MM-dd');
-        return formattedDate;
-    }
-    const handlePrevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
 
-    // Hàm xử lý khi nhấn trang tiếp theo
-    const handleNextPage = () => {
-        if (currentPage < numberOfPages) {
-            setCurrentPage(currentPage + 1);
-        }
-    };
-    const handleCreateNew = () => {
-        const today = new Date();
-        var contract = {
-            startDate: formatDateString(today),
-            endDate: formatDateString(today),
-        };
-        setVisible(true);
-        setSelectedContract(contract);
-        setStatusModal('create');
-        setError({});
-    };
+  useEffect(() => {
+    getHouse()
+  }, [])
 
-    const handleCloseModal = () => {
-        setVisible(false);
-        setSelectedContract({});
-        setStatusModal('');
-        setError({});
-    };
 
-    const handleInputChange = (event, pros) => {
-        const contract = Object.assign({}, selectedContract);
-        const err = Object.assign({}, error);
-        if (pros != 'filePath') contract[pros] = event.target.value;
-        setSelectedContract(contract);
-        switch (pros) {
-            case 'price': {
-                const inputValue = parseFloat(event.target.value);
-                if (isNaN(inputValue)) {
-                    err[pros] = `Please enter a valid number for ${pros}`;
-                    setError(err);
-                } else if (inputValue < 0) {
-                    err[pros] = `The ${pros} must not be negative`;
-                    setError(err);
-                } else {
-                    const { [pros]: deletedError, ...restErrors } = err;
-                    setError(restErrors);
-                }
-                break;
-            }
+  const getHouse = async () => {
+    const abcd = await loadHouses()
+    abcd.map((item, index) => {
+      console.log(item)
+      setDescription(item.description) //set gtri dữ liệu
+      console.log(description)
 
-            case 'filePath':
-                const file = event.target.files[0]; // Get the first selected file
-                setSelectedFile(file);
-                if (!file) {
-                    if (statusModal == 'create') {
-                        err[pros] = 'Please choose a file';
-                        setError(err);
-                    }
-                } else {
-                    const allowedExtensions = ['jpg', 'jpeg', 'png'];
-                    const fileExtension = file.name.split('.').pop().toLowerCase();
+  })
+  }
 
-                    if (!allowedExtensions.includes(fileExtension)) {
-                        err[pros] = 'Please choose a file with a valid extension (jpg, jpeg, png)';
-                        setError(err);
-                    } else {
-                        const { [pros]: deletedError, ...restErrors } = err;
-                        setError(restErrors);
-                    }
-                }
-                break;
-            default: {
-                if (event.target.value.trim() === '') {
-                    err[pros] = `This field cannot be empty`;
-                    setError(err);
-                } else {
-                    const { [pros]: deletedError, ...restErrors } = err;
-                    setError(restErrors);
-                }
-            }
-        }
-        console.log(error);
-    };
 
-    const handleCreateOrUpdateOrDelete = async () => {
-        if (statusModal === 'delete') {
-            const res = await postService.deleteContract(selectedContract.id);
-            const indexDelete = contracts.findIndex((item) => selectedContract.id == item.id);
-            const updatedContracts = [...contracts.slice(0, indexDelete), ...contracts.slice(indexDelete + 1)];
-            setContracts(updatedContracts);
-            handleCloseModal();
-            return;
-        }
+  const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
-        var contract = {
-            type: selectedContract.type,
-            description: selectedContract.description,
-            startDate: selectedContract.startDate,
-            endDate: selectedContract.endDate,
-            price: selectedContract.price,
-            filePath: selectedContract.filePath,
-            userId: selectedContract.userId,
-            paymentId: selectedContract.paymentId,
-            houseId: selectedContract.houseId,
-        };
-        const err = Object.assign({}, error);
+  const progressExample = [
+    { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
+    { title: 'Unique', value: '24.093 Users', percent: 20, color: 'info' },
+    { title: 'Pageviews', value: '78.706 Views', percent: 60, color: 'warning' },
+    { title: 'New Users', value: '22.123 Users', percent: 80, color: 'danger' },
+    { title: 'Bounce Rate', value: 'Average Rate', percent: 40.15, color: 'primary' },
+  ];
 
-        for (var key in contract) {
-            let val = contract[key];
+  const progressGroupExample1 = [
+    { title: 'Monday', value1: 34, value2: 78 },
+    { title: 'Tuesday', value1: 56, value2: 94 },
+    { title: 'Wednesday', value1: 12, value2: 67 },
+    { title: 'Thursday', value1: 43, value2: 91 },
+    { title: 'Friday', value1: 22, value2: 73 },
+    { title: 'Saturday', value1: 53, value2: 82 },
+    { title: 'Sunday', value1: 9, value2: 69 },
+  ];
 
-            // Convert non-string values to string
-            val = val || '';
-            if (typeof val === 'number') {
-                val = String(val);
-            }
-            switch (key) {
-                case 'price': {
-                    const inputValue = parseFloat(val);
-                    if (isNaN(inputValue)) {
-                        err[key] = `Please enter a valid number for ${key}`;
-                        setError(err);
-                    } else if (inputValue < 0) {
-                        err[key] = `The ${key} must not be negative`;
-                        setError(err);
-                    } else {
-                        const { [key]: deletedError, ...restErrors } = err;
-                        setError(restErrors);
-                    }
-                    break;
-                }
-                case 'filePath':
-                    const file = selectedFile; // Get the first selected file
-                    if (!file) {
-                        if (statusModal == 'create') {
-                            err[key] = 'Please choose a file';
-                            setError(err);
-                        }
-                    } else {
-                        const allowedExtensions = ['jpg', 'jpeg', 'png'];
-                        const fileExtension = file.name.split('.').pop().toLowerCase();
+  const progressGroupExample2 = [
+    { title: 'Male', icon: cilUser, value: 53 },
+    { title: 'Female', icon: cilUserFemale, value: 43 },
+  ];
 
-                        if (!allowedExtensions.includes(fileExtension)) {
-                            err[key] = 'Please choose a file with a valid extension (jpg, jpeg, png)';
-                            setError(err);
-                        } else {
-                            const { [key]: deletedError, ...restErrors } = err;
-                            setError(restErrors);
-                        }
-                    }
-                    break;
-                default: {
-                    //console.log(typeof val);
-                    if (val.trim() === '') {
-                        err[key] = `This field cannot be empty`;
-                        setError(err);
-                    } else {
-                        const { [key]: deletedError, ...restErrors } = err;
-                        setError(restErrors);
-                    }
-                }
-            }
-        }
-        if (Object.keys(err).length !== 0) return;
-        if (statusModal === 'create') {
-            // console.log(err);
-            const formData = new FormData();
-            for (var key in contract) {
-                if (key != 'filePath') formData.append(key, contract[key]);
-            }
-            formData.append('ImageUpload', selectedFile);
-            const res = await postService.postContract(formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            const { user: usernull, payment: paymentnull, house: housenull, ...rest } = res;
-            setContracts([...contracts, rest]);
-            handleCloseModal();
-        } else if (statusModal === 'update') {
-            const formData = new FormData();
-            for (var key in contract) {
-                formData.append(key, contract[key]);
-            }
-            formData.append('imageUpload', selectedFile);
-            const res = await postService.updateContract(selectedContract.id, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+  const progressGroupExample3 = [
+    { title: 'Organic Search', icon: cibGoogle, percent: 56, value: '191,235' },
+    { title: 'Facebook', icon: cibFacebook, percent: 15, value: '51,223' },
+    { title: 'Twitter', icon: cibTwitter, percent: 11, value: '37,564' },
+    { title: 'LinkedIn', icon: cibLinkedin, percent: 8, value: '27,319' },
+  ];
 
-            const updatedContract = await loadService.loadContractById(selectedContract.id);
-            const indexUpdate = contracts.findIndex((item) => selectedContract.id == item.id);
-            contracts[indexUpdate] = updatedContract;
-            setContracts(contracts);
-            handleCloseModal();
-        }
-    };
-    const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
-    const progressExample = [
-      { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
-      { title: 'Unique', value: '24.093 Users', percent: 20, color: 'info' },
-      { title: 'Pageviews', value: '78.706 Views', percent: 60, color: 'warning' },
-      { title: 'New Users', value: '22.123 Users', percent: 80, color: 'danger' },
-      { title: 'Bounce Rate', value: 'Average Rate', percent: 40.15, color: 'primary' },
-    ];
-    return (
-        <>
-            
-            <WidgetsDropdown />
+  const tableExample = [
+    {
+      avatar: { src: avatar1, status: 'success' },
+      user: {
+        name: 'Yiorgos Avraamu',
+        new: true,
+        registered: 'Jan 1, 2021',
+      },
+      country: { name: 'USA', flag: cifUs },
+      usage: {
+        value: 50,
+        period: 'Jun 11, 2021 - Jul 10, 2021',
+        color: 'success',
+      },
+      payment: { name: 'Mastercard', icon: cibCcMastercard },
+      activity: '10 sec ago',
+    },
+    {
+      avatar: { src: avatar2, status: 'danger' },
+      user: {
+        name: 'Avram Tarasios',
+        new: false,
+        registered: 'Jan 1, 2021',
+      },
+      country: { name: 'Brazil', flag: cifBr },
+      usage: {
+        value: 22,
+        period: 'Jun 11, 2021 - Jul 10, 2021',
+        color: 'info',
+      },
+      payment: { name: 'Visa', icon: cibCcVisa },
+      activity: '5 minutes ago',
+    },
+    {
+      avatar: { src: avatar3, status: 'warning' },
+      user: { name: 'Quintin Ed', new: true, registered: 'Jan 1, 2021' },
+      country: { name: 'India', flag: cifIn },
+      usage: {
+        value: 74,
+        period: 'Jun 11, 2021 - Jul 10, 2021',
+        color: 'warning',
+      },
+      payment: { name: 'Stripe', icon: cibCcStripe },
+      activity: '1 hour ago',
+    },
+    {
+      avatar: { src: avatar4, status: 'secondary' },
+      user: { name: 'Enéas Kwadwo', new: true, registered: 'Jan 1, 2021' },
+      country: { name: 'France', flag: cifFr },
+      usage: {
+        value: 98,
+        period: 'Jun 11, 2021 - Jul 10, 2021',
+        color: 'danger',
+      },
+      payment: { name: 'PayPal', icon: cibCcPaypal },
+      activity: 'Last month',
+    },
+    {
+      avatar: { src: avatar5, status: 'success' },
+      user: {
+        name: 'Agapetus Tadeáš',
+        new: true,
+        registered: 'Jan 1, 2021',
+      },
+      country: { name: 'Spain', flag: cifEs },
+      usage: {
+        value: 22,
+        period: 'Jun 11, 2021 - Jul 10, 2021',
+        color: 'primary',
+      },
+      payment: { name: 'Google Wallet', icon: cibCcApplePay },
+      activity: 'Last week',
+    },
+    {
+      avatar: { src: avatar6, status: 'danger' },
+      user: {
+        name: 'Friderik Dávid',
+        new: true,
+        registered: 'Jan 1, 2021',
+      },
+      country: { name: 'Poland', flag: cifPl },
+      usage: {
+        value: 43,
+        period: 'Jun 11, 2021 - Jul 10, 2021',
+        color: 'success',
+      },
+      payment: { name: 'Amex', icon: cibCcAmex },
+      activity: 'Last week',
+    },
+  ];
+
+  return (
+    <>
+      <WidgetsDropdown />
       <CCard className="mb-4">
         
         {/*  */}
@@ -642,13 +625,8 @@ const Statistic = () => {
          
         </CCol>
       </CRow>
-           
-
-          
-
-            
-        </>
-    );
+    </>
+  );
 };
 
 export default Statistic;
