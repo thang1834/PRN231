@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { CSidebar, CSidebarBrand, CSidebarNav, CSidebarToggler } from '@coreui/react';
@@ -13,13 +13,32 @@ import SimpleBar from 'simplebar-react';
 import 'simplebar/dist/simplebar.min.css';
 
 // sidebar nav config
-import navigation from '../_nav';
+import * as navigation from '../_nav';
+import { jwtDecode } from 'jwt-decode';
 
 const AppSidebar = () => {
     const dispatch = useDispatch();
     const unfoldable = useSelector((state) => state.sidebarUnfoldable);
     const sidebarShow = useSelector((state) => state.sidebarShow);
+    const [navItems, setNavItems] = useState([]);
 
+    useEffect(() => {
+        const accessToken = localStorage.getItem('accessToken');
+        const decodedToken = jwtDecode(accessToken);
+        let userRoles = [];
+        if (Array.isArray(decodedToken.role)) {
+            userRoles = decodedToken.role;
+        } else {
+            userRoles = [decodedToken.role];
+        }
+
+        // Kiểm tra từng role
+        if (userRoles.includes('Admin')) {
+            setNavItems(navigation._nav);
+        } else {
+            setNavItems(navigation._nav_normal);
+        }
+    });
     return (
         <CSidebar
             position="fixed"
@@ -35,7 +54,7 @@ const AppSidebar = () => {
       </CSidebarBrand> */}
             <CSidebarNav>
                 <SimpleBar>
-                    <AppSidebarNav items={navigation} />
+                    <AppSidebarNav items={navItems} />
                 </SimpleBar>
             </CSidebarNav>
             <CSidebarToggler
