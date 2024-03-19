@@ -84,3 +84,23 @@ export const loadCategories = async () => {
         console.log(error);
     }
 };
+
+// payment
+export const loadPayments = async (options = {}) => {
+    try {
+        const res = await request.get('Payment', options);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+export const loadPaymentsByUserId = async (userId, options = {}) => {
+    try {
+        const res = await request.get('Payment/User/' + userId, options);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};

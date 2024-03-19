@@ -152,11 +152,13 @@ namespace PRN231_Project.Models
             {
                 entity.ToTable("payments");
 
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Amount).HasColumnName("amount");
+
+                entity.Property(e => e.DateCompleted)
+                    .HasColumnType("date")
+                    .HasColumnName("date_completed");
 
                 entity.Property(e => e.DateCreated)
                     .HasColumnType("date")
@@ -166,6 +168,14 @@ namespace PRN231_Project.Models
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("invoice");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(500)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.Status)
+                    .HasMaxLength(50)
+                    .HasColumnName("status");
 
                 entity.Property(e => e.UserId).HasColumnName("userId");
 

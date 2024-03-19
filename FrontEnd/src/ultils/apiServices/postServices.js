@@ -193,3 +193,38 @@ export const deleteHouse = async (id) => {
         throw error;
     }
 };
+
+// Create payment
+export const postPayment = async (body, options = {}) => {
+    try {
+        const res = await request.post(`Payment`, body, options);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+// Update Payment
+export const updatePayment = async (body, options = {}) => {
+    try {
+        const res = await request.put(`Payment`, body, options);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const deletePayment = async (id, options = {}) => {
+    try {
+        const res = await request.del(`Payment/${id}`, options);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};

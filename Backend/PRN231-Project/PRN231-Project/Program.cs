@@ -66,6 +66,9 @@ namespace PRN231_Project
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
 
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

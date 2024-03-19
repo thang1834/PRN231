@@ -8,6 +8,9 @@ const Typography = React.lazy(() => import('./views/theme/typography/Typography'
 
 const Contract = React.lazy(() => import('./views/contract/Contract'));
 
+// Payment
+const Payment = React.lazy(() => import('./views/paymentPaypal/Payment'));
+
 // CRUD house
 
 const House = React.lazy(() => import('./views/house/House'));
@@ -69,8 +72,10 @@ const Profile = React.lazy(() => import('./views/profile/Profile'));
 
 const routes = [
     { path: '/', exact: true, name: 'Home' },
+    { path: '/dashboard/payment', name: 'Payment', element: Payment },
     { path: '/dashboard/contract', name: 'Contract', element: Contract },
     { path: '/dashboard/house', name: 'House', element: House },
+
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/theme', name: 'Theme', element: Colors, exact: true },
     { path: '/theme/colors', name: 'Colors', element: Colors },

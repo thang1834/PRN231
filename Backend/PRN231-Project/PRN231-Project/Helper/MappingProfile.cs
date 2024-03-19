@@ -4,6 +4,7 @@ using PRN231_Project.Dto.Category;
 using PRN231_Project.Dto.House;
 using PRN231_Project.Dto.Role;
 using PRN231_Project.Dto.User;
+using PRN231_Project.Dto.Payment;
 using PRN231_Project.Models;
 
 namespace PRN231_Project.Helper
@@ -51,6 +52,10 @@ namespace PRN231_Project.Helper
 
             CreateMap<Category, CategoryDto>();
             CreateMap<CategoryDto, Category>();
+
+            CreateMap<Payment, PaymentDto>().ReverseMap();
+            CreateMap<PaymentUpdateDto, Payment>().ReverseMap();
+            CreateMap<PaymentCreateDto, Payment>().ReverseMap();
         }
     }
 }
