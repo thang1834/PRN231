@@ -19,7 +19,7 @@ import {
 } from '@coreui/icons';
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react';
 
-const _nav = [
+export const _nav = [
     {
         component: CNavItem,
         name: 'Dashboard',
@@ -60,4 +60,25 @@ const _nav = [
     },
 ];
 
-export default _nav;
+export const _nav_normal = [
+    {
+        component: CNavItem,
+        name: 'Welcome',
+        to: '/welcome',
+        icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+        badge: {
+            color: 'info',
+            text: 'NEW',
+        },
+    },
+    {
+        component: CNavTitle,
+        name: 'Theme',
+    },
+    {
+        component: CNavItem,
+        name: 'Contract',
+        to: '/dashboard/contract',
+        icon: <CIcon icon={cilMap} customClassName="nav-icon" />,
+    },
+];

@@ -27,6 +27,7 @@ import { cilDelete, cilSearch } from '@coreui/icons';
 import './Role.scss';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 const Role = () => {
     const [selectedRole, setSelectedRole] = useState({});
@@ -38,6 +39,7 @@ const Role = () => {
     const [statusModal, setStatusModal] = useState('');
     const [error, setError] = useState({});
     const [success, setSuccess] = useState(false);
+    const navigate = useNavigate();
 
     const numberPerPage = 10;
 

@@ -31,7 +31,7 @@ namespace PRN231_Project.Services.Impl
         {
             var user = await _userRepository.GetByUsernameAsync(loginModel.Username);
 
-            if (user != null && IsValidPassword(user, loginModel.Password))
+            if (user != null && IsValidPassword(user, loginModel.Password) && user.IsActive)
             {
                 var accessToken = GenerateAccessToken(user);
                 var refreshToken = GenerateRefreshToken();
