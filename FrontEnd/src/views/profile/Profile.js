@@ -2,26 +2,7 @@ import React, { useEffect, useState } from 'react';
 import * as loadService from '../../ultils/apiServices/loadServices';
 import * as postService from '../../ultils/apiServices/postServices';
 import { format } from 'date-fns';
-import {
-    CForm,
-    CCol,
-    CFormInput,
-    CModal,
-    CModalHeader,
-    CModalTitle,
-    CModalBody,
-    CModalFooter,
-    CButton,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
-    CPagination,
-    CPaginationItem,
-    CFormCheck,
-} from '@coreui/react';
+import { CForm, CCol, CFormInput, CButton } from '@coreui/react';
 import { jwtDecode } from 'jwt-decode';
 import './Profile.scss';
 import { ToastContainer, toast } from 'react-toastify';
@@ -103,6 +84,7 @@ const Profile = () => {
             // Handle error
             console.error('Failed to update profile:', error.message);
         }
+        setError({});
     };
 
     const handleChangePasswordForm = (e) => {
@@ -139,6 +121,7 @@ const Profile = () => {
             toast.error('Error');
             console.error('Failed to change passwords:', error.message);
         }
+        setError({});
     };
 
     if (loading) {

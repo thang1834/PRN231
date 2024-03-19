@@ -26,11 +26,11 @@ import {
     CFormSelect,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilSearch } from '@coreui/icons';
-import { refreshToken } from 'src/ultils/Authentication';
+import { cilDelete, cilSearch } from '@coreui/icons';
 import './User.scss';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 const User = () => {
     const [selectedUser, setSelectedUser] = useState({});
@@ -45,6 +45,7 @@ const User = () => {
     const [statusModal, setStatusModal] = useState('');
     const [error, setError] = useState({});
     const [success, setSuccess] = useState(false);
+    const navigate = useNavigate();
 
     const numberPerPage = 10;
 
@@ -57,7 +58,10 @@ const User = () => {
         const availableToken = localStorage.getItem('accessToken');
         if (availableToken) {
             setAccessToken(availableToken);
+        } else {
+            navigate('/login');
         }
+
         if (accessToken) {
             fetchUser();
             fetchRole();
@@ -92,7 +96,11 @@ const User = () => {
             }
         } catch (err) {
             console.log('error');
-            toast.error('Error');
+            if (err.response.status === 403) {
+                navigate('/403');
+            } else {
+                toast.error('Error');
+            }
         }
     };
 
@@ -107,7 +115,11 @@ const User = () => {
                 setRoles(list);
             }
         } catch (err) {
-            toast.error('Error');
+            if (err.response.status === 403) {
+                navigate('/403');
+            } else {
+                toast.error('Error');
+            }
         }
     };
 
@@ -128,11 +140,13 @@ const User = () => {
         setVisible(true);
         setSelectedUser({});
         setStatusModal('create');
+        setError({});
     };
 
     const handleAddRole = () => {
         setIsAddRole(true);
         setSelectedUser({});
+        setError({});
     };
 
     const handleCloseModal = () => {
@@ -145,6 +159,7 @@ const User = () => {
     const handleCloseAddRoleModal = () => {
         setIsAddRole(false);
         setSelectedUser(null);
+        setError({});
     };
 
     const handleSelectUser = (e) => {
@@ -178,7 +193,22 @@ const User = () => {
         }
     };
 
-    const handleCreateOrUpdate = async () => {
+    const handleCreateOrUpdateOrDelete = async () => {
+        if (statusModal === 'delete') {
+            try {
+                const res = await postService.deleteUser(selectedUser.id, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                setSuccess(true);
+                setLoading(true);
+            } catch (error) {
+                toast.error('Error');
+            }
+            handleCloseModal();
+        }
+
         var user = {
             firstName: selectedUser.firstName,
             lastName: selectedUser.lastName,
@@ -270,6 +300,7 @@ const User = () => {
                         <CTableHeaderCell scope="col">Password</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Username</CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
+                        <CTableHeaderCell scope="col"></CTableHeaderCell>
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
@@ -299,6 +330,20 @@ const User = () => {
                                     }}
                                 ></CIcon>
                             </CTableDataCell>
+                            <CTableDataCell>
+                                <CIcon
+                                    className="icon-delete"
+                                    title="Delete"
+                                    icon={cilDelete}
+                                    size="xl"
+                                    onClick={() => {
+                                        setSelectedUser(user);
+                                        setVisible(true);
+                                        setStatusModal('delete');
+                                        setError({});
+                                    }}
+                                ></CIcon>
+                            </CTableDataCell>
                         </CTableRow>
                     ))}
                 </CTableBody>
@@ -324,138 +369,149 @@ const User = () => {
 
             <CModal size="lg" visible={visible} onClose={handleCloseModal} aria-labelledby="LiveDemoExampleLabel">
                 <CModalHeader onClose={handleCloseModal}>
-                    <CModalTitle id="LiveDemoExampleLabel">User Details</CModalTitle>
+                    <CModalTitle id="LiveDemoExampleLabel">
+                        {statusModal === 'create'
+                            ? 'Create New User'
+                            : statusModal === 'update'
+                            ? 'User Details'
+                            : 'Warning'}
+                    </CModalTitle>
                 </CModalHeader>
                 <CModalBody>
-                    {selectedUser && (
-                        <>
-                            <CForm className="row g-3">
-                                <CCol md={6}>
-                                    <CFormInput
-                                        type="text"
-                                        id="first_name"
-                                        label="First Name"
-                                        value={selectedUser.firstName}
-                                        onChange={(event) => handleInputChange(event, selectedUser.id, 'firstName')}
-                                    />
-                                    <span className="error-message">{error.firstName}</span>
-                                </CCol>
-                                <CCol md={6}>
-                                    <CFormInput
-                                        type="text"
-                                        id="last_name"
-                                        label="Last Name"
-                                        value={selectedUser.lastName}
-                                        onChange={(event) => handleInputChange(event, selectedUser.id, 'lastName')}
-                                    />
-                                    <span className="error-message">{error.lastName}</span>
-                                </CCol>
-                                <CCol md={6}>
-                                    <CFormInput
-                                        type="email"
-                                        id="email"
-                                        label="Email"
-                                        value={selectedUser.email}
-                                        onChange={(event) => handleInputChange(event, selectedUser.id, 'email')}
-                                    />
-                                    <span className="error-message">{error.email}</span>
-                                </CCol>
-                                <CCol md={6}>
-                                    <CFormInput
-                                        type="text"
-                                        id="phoneNumber"
-                                        label="Phone Number"
-                                        value={selectedUser.phoneNumber}
-                                        onChange={(event) => handleInputChange(event, selectedUser.id, 'phoneNumber')}
-                                    />
-                                    <span className="error-message">{error.phoneNumber}</span>
-                                </CCol>
-                                <CCol md={6}>
-                                    <CFormInput
-                                        type="date"
-                                        id="dob"
-                                        label="Date Of Birth"
-                                        value={selectedUser.dob}
-                                        onChange={(event) => handleInputChange(event, selectedUser.id, 'dob')}
-                                    />
-                                    <span className="error-message">{error.dob}</span>
-                                </CCol>
-                                <CCol md={6}>
-                                    <CFormInput
-                                        type="text"
-                                        id="identificationNumber"
-                                        label="Identification Number"
-                                        value={selectedUser.identificationNumber}
-                                        onChange={(event) =>
-                                            handleInputChange(event, selectedUser.id, 'identificationNumber')
-                                        }
-                                    />
-                                    <span className="error-message">{error.identificationNumber}</span>
-                                </CCol>
-                                <CCol md={12}>
-                                    <label style={{ marginBottom: 10 }}>Is Active</label>
-                                    <div>
-                                        <CFormCheck
-                                            inline
-                                            type="radio"
-                                            name="isActive"
-                                            id="isActive"
-                                            value="true"
-                                            label="Yes"
-                                            checked={selectedUser.isActive === true}
-                                            onChange={() => {
-                                                const user = Object.assign({}, selectedUser);
-                                                user.isActive = true;
-                                                console.log(user.isActive);
-                                                setSelectedUser(user);
-                                            }}
+                    {selectedUser &&
+                        (statusModal === 'delete' ? (
+                            <p>Are you sure to delete this user information ?</p>
+                        ) : (
+                            <>
+                                <CForm className="row g-3">
+                                    <CCol md={6}>
+                                        <CFormInput
+                                            type="text"
+                                            id="first_name"
+                                            label="First Name"
+                                            value={selectedUser.firstName}
+                                            onChange={(event) => handleInputChange(event, selectedUser.id, 'firstName')}
                                         />
-                                        <CFormCheck
-                                            inline
-                                            type="radio"
-                                            name="isActive"
-                                            id="isActive"
-                                            value="false"
-                                            label="No"
-                                            checked={selectedUser.isActive === false}
-                                            onChange={() => {
-                                                const user = Object.assign({}, selectedUser);
-                                                user.isActive = false;
-                                                setSelectedUser(user);
-                                            }}
+                                        <span className="error-message">{error.firstName}</span>
+                                    </CCol>
+                                    <CCol md={6}>
+                                        <CFormInput
+                                            type="text"
+                                            id="last_name"
+                                            label="Last Name"
+                                            value={selectedUser.lastName}
+                                            onChange={(event) => handleInputChange(event, selectedUser.id, 'lastName')}
                                         />
-                                    </div>
-                                </CCol>
-                                <CCol md={6}>
-                                    <CFormInput
-                                        type="text"
-                                        id="password"
-                                        label="Password"
-                                        value={selectedUser.password}
-                                        onChange={(event) => handleInputChange(event, selectedUser.id, 'password')}
-                                    />
-                                    <span className="error-message">{error.password}</span>
-                                </CCol>
-                                <CCol md={6}>
-                                    <CFormInput
-                                        type="text"
-                                        id="username"
-                                        label="Username"
-                                        value={selectedUser.username}
-                                        onChange={(event) => handleInputChange(event, selectedUser.id, 'username')}
-                                    />
-                                    <span className="error-message">{error.username}</span>
-                                </CCol>
-                            </CForm>
-                        </>
-                    )}
+                                        <span className="error-message">{error.lastName}</span>
+                                    </CCol>
+                                    <CCol md={6}>
+                                        <CFormInput
+                                            type="email"
+                                            id="email"
+                                            label="Email"
+                                            value={selectedUser.email}
+                                            onChange={(event) => handleInputChange(event, selectedUser.id, 'email')}
+                                        />
+                                        <span className="error-message">{error.email}</span>
+                                    </CCol>
+                                    <CCol md={6}>
+                                        <CFormInput
+                                            type="text"
+                                            id="phoneNumber"
+                                            label="Phone Number"
+                                            value={selectedUser.phoneNumber}
+                                            onChange={(event) =>
+                                                handleInputChange(event, selectedUser.id, 'phoneNumber')
+                                            }
+                                        />
+                                        <span className="error-message">{error.phoneNumber}</span>
+                                    </CCol>
+                                    <CCol md={6}>
+                                        <CFormInput
+                                            type="date"
+                                            id="dob"
+                                            label="Date Of Birth"
+                                            value={selectedUser.dob}
+                                            onChange={(event) => handleInputChange(event, selectedUser.id, 'dob')}
+                                        />
+                                        <span className="error-message">{error.dob}</span>
+                                    </CCol>
+                                    <CCol md={6}>
+                                        <CFormInput
+                                            type="text"
+                                            id="identificationNumber"
+                                            label="Identification Number"
+                                            value={selectedUser.identificationNumber}
+                                            onChange={(event) =>
+                                                handleInputChange(event, selectedUser.id, 'identificationNumber')
+                                            }
+                                        />
+                                        <span className="error-message">{error.identificationNumber}</span>
+                                    </CCol>
+                                    <CCol md={12}>
+                                        <label style={{ marginBottom: 10 }}>Is Active</label>
+                                        <div>
+                                            <CFormCheck
+                                                inline
+                                                type="radio"
+                                                name="isActive"
+                                                id="isActive"
+                                                value="true"
+                                                label="Yes"
+                                                checked={selectedUser.isActive === true}
+                                                onChange={() => {
+                                                    const user = Object.assign({}, selectedUser);
+                                                    user.isActive = true;
+                                                    console.log(user.isActive);
+                                                    setSelectedUser(user);
+                                                }}
+                                            />
+                                            <CFormCheck
+                                                inline
+                                                type="radio"
+                                                name="isActive"
+                                                id="isActive"
+                                                value="false"
+                                                label="No"
+                                                checked={selectedUser.isActive === false}
+                                                onChange={() => {
+                                                    const user = Object.assign({}, selectedUser);
+                                                    user.isActive = false;
+                                                    setSelectedUser(user);
+                                                }}
+                                            />
+                                        </div>
+                                    </CCol>
+                                    <CCol md={6}>
+                                        <CFormInput
+                                            type="text"
+                                            id="password"
+                                            label="Password"
+                                            value={selectedUser.password}
+                                            onChange={(event) => handleInputChange(event, selectedUser.id, 'password')}
+                                        />
+                                        <span className="error-message">{error.password}</span>
+                                    </CCol>
+                                    <CCol md={6}>
+                                        <CFormInput
+                                            type="text"
+                                            id="username"
+                                            label="Username"
+                                            value={selectedUser.username}
+                                            onChange={(event) => handleInputChange(event, selectedUser.id, 'username')}
+                                        />
+                                        <span className="error-message">{error.username}</span>
+                                    </CCol>
+                                </CForm>
+                            </>
+                        ))}
                 </CModalBody>
                 <CModalFooter>
                     <CButton color="secondary" onClick={handleCloseModal}>
-                        Close
+                        {statusModal === 'delete' ? 'No' : 'Close'}
                     </CButton>
-                    <CButton color="primary" onClick={handleCreateOrUpdate}>
-                        Save changes
+                    <CButton onClick={handleCreateOrUpdateOrDelete} color="primary">
+                        {statusModal === 'delete' ? 'Yes' : 'Save'}
                     </CButton>
                 </CModalFooter>
             </CModal>

@@ -43,7 +43,7 @@ const Login = () => {
             if (userRoles.includes('Admin')) {
                 navigate('/dashboard');
             } else {
-                navigate('/login');
+                navigate('/welcome');
             }
         }
     }, [accessToken]);

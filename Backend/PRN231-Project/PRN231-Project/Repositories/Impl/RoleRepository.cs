@@ -37,11 +37,18 @@ namespace PRN231_Project.Repositories.Impl
             var role = await _houseRentalContext.Roles.FindAsync(roleId);
             if (role != null)
             {
+                await DeleteUserRolesByRoleIdAsync(roleId);
                 _houseRentalContext.Roles.Remove(role);
                 await _houseRentalContext.SaveChangesAsync();
                 return role;
             }
             return null;
+        }
+
+        private async Task DeleteUserRolesByRoleIdAsync(int roleId)
+        {
+            var sql = $"DELETE FROM UserRole WHERE roleId = {roleId}";
+            await _houseRentalContext.Database.ExecuteSqlRawAsync(sql);
         }
 
         public async Task<Role> UpdateRoleAsync(Role role)
