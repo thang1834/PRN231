@@ -24,7 +24,7 @@ const Welcome = () => {
                     management team.
                 </p>
                 <div class="hero-actions">
-                    <button class="btn hover-effect" onclick="">
+                    <button class="showcase hover-effect" onclick="">
                         Showcase
                     </button>
                 </div>

@@ -17,7 +17,7 @@
 .hero-actions {
     margin-top: 3%;
 }
-.btn {
+.showcase {
     position: relative;
     border: 2px solid #1f2020;
     border-radius: 3px;
@@ -28,14 +28,14 @@
     z-index: 2;
     background-color: #5eb0e5;
 }
-.btn + .btn {
+.showcase + .showcase {
     margin-left: 1rem;
 }
-.btn:active {
+.showcase:active {
     box-shadow: -2px -2px 0px #25282a;
     transform: translate(2px, 2px);
 }
-.btn.hover-effect::before {
+.showcase.hover-effect::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -46,10 +46,10 @@
     z-index: 1;
     clip-path: ellipse(0px 0px at bottom center);
 }
-.btn.hover-effect:hover:before {
+.showcase.hover-effect:hover:before {
     clip-path: ellipse(50% 100% at bottom center);
 }
-.btn.hover-effect:active:before {
+.showcase.hover-effect:active:before {
     background-color: #25282a;
     mix-blend-mode: color-dodge;
 }
