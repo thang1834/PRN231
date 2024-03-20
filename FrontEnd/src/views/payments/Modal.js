@@ -34,16 +34,16 @@ const Modal = ({ visible, payment, handleCloseModal, onCreatePayment, onUpdatePa
                 )}
             </CModalBody>
             <CModalFooter>
-                {payment === null || payment === undefined ? (
-                    <>
-                        <CButton color="secondary" onClick={handleCloseModal}>Cancel</CButton>
-                        <CButton color="primary" onClick={handleCreate}>Create</CButton>
-                    </>
-                ) : (
+                {payment ? (
                     <>
                         <CButton color="danger" onClick={handleDelete}>Delete</CButton>
                         <CButton color="secondary" onClick={handleCloseModal}>Cancel</CButton>
                         <CButton color="primary" onClick={handleUpdate}>Update</CButton>
+                    </>
+                ) : (
+                    <>
+                        <CButton color="secondary" onClick={handleCloseModal}>Cancel</CButton>
+                        <CButton color="primary" onClick={handleCreate}>Create</CButton>
                     </>
                 )}
             </CModalFooter>

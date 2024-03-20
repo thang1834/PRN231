@@ -9,7 +9,7 @@ import * as postService from '../../ultils/apiServices/postServices';
 
 const Payment = () => {
     const [payments, setPayments] = useState([]);
-    const [selectedPayment, setSelectedPayment] = useState(null);
+    const [selectedPayment, setSelectedPayment] = useState({});
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [statusModal, setStatusModal] = useState('');
@@ -60,6 +60,7 @@ const Payment = () => {
         setStatusModal('view');
         setError({});
     };
+
     const handleCreatePayment = async (newPayment) => {
         try {
             const options = {
@@ -70,7 +71,7 @@ const Payment = () => {
                 method: 'POST',
                 body: JSON.stringify(newPayment),
             };
-            const response = await postService.createPayment(options);
+            const response = await postService.createPayment(newPayment, options);
             if (response.success) {
                 fetchPayments();
                 toast.success('Payment created successfully');
@@ -93,7 +94,7 @@ const Payment = () => {
                 method: 'PUT',
                 body: JSON.stringify(updatedPayment),
             };
-            const response = await postService.updatePayment(updatedPayment.id, options);
+            const response = await postService.updatePayment(updatedPayment.id, updatedPayment, options);
             if (response.success) {
                 fetchPayments();
                 toast.success('Payment updated successfully');
@@ -129,17 +130,13 @@ const Payment = () => {
 
     const handleCloseModal = () => {
         setVisible(false);
-        setSelectedPayment(null);
+        setSelectedPayment({});
         setStatusModal('');
         setError({});
     };
 
     return (
         <>
-            <CButton onClick={() =>{
-                setVisible(true)
-            }}>Create Payment</CButton>
-
             <CTable striped>
                 <CTableHead>
                     <CTableRow>

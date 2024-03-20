@@ -35,7 +35,7 @@ namespace PRN231_Project.Controllers
                         Id = item.Id,
                         Tid = item.Tid,
                         Description = item.Description,
-                        Amount = item.Amount,       
+                        Amount = item.Amount,
                         CusumBalance = item.CusumBalance,
                         When = item.When,
                         BankSubAccId = item.BankSubAccId,
@@ -61,8 +61,6 @@ namespace PRN231_Project.Controllers
                     await _context.SaveChangesAsync();
                 }
             }
-
-
             //}
             //}
             //catch (Exception)
