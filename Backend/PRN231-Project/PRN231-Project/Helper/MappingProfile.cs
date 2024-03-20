@@ -5,6 +5,7 @@ using PRN231_Project.Dto.House;
 using PRN231_Project.Dto.Role;
 using PRN231_Project.Dto.User;
 using PRN231_Project.Models;
+using PRN231_Project.Dto.Payment;
 
 namespace PRN231_Project.Helper
 {
@@ -13,6 +14,15 @@ namespace PRN231_Project.Helper
     {
         public MappingProfile()
         {
+            CreateMap<Payment, PaymentDto>();
+            CreateMap<PaymentDto, Payment>();
+
+            CreateMap<PaymentUpdateDto, Payment>();
+            CreateMap<Payment, PaymentUpdateDto>();
+
+            CreateMap<PaymentCreateDto, Payment>();
+            CreateMap<Payment, PaymentCreateDto>();
+
             CreateMap<Contract, ContractDto>();
             CreateMap<ContractDto, Contract>();
 
