@@ -15,5 +15,7 @@ namespace PRN231_Project.Repositories
         Task<bool> RemoveHouseAsync(int houseId);
         Task<List<House>> GetHouseByUserIdAsync(int userId);
 
+        Task<House> GetHouseByIdAsyncWithServices(int houseId);
+
 	}
 }

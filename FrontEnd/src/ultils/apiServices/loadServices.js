@@ -93,9 +93,6 @@ export const loadHouses = async () => {
     }
 };
 
-
-
-
 // Category
 
 export const loadCategories = async () => {
@@ -104,5 +101,36 @@ export const loadCategories = async () => {
         return res;
     } catch (error) {
         console.log(error);
+    }
+};
+
+//
+export const loadServices = async (options = {}) => {
+    try {
+        const res = await request.get('Service', options);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const loadServiceById = async (id, options = {}) => {
+    try {
+        const res = await request.get('Service/' + id, options);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const loadServicesByHouseId = async (id, options = {}) => {
+    try {
+        const res = await request.get('Service/house/' + id, options);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
     }
 };

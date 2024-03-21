@@ -17,6 +17,7 @@ import {
     cilHome,
     cilUser,
     cilWallet,
+    cilBlur,
 } from '@coreui/icons';
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react';
 
@@ -46,6 +47,12 @@ export const _nav = [
         name: 'House',
         to: '/dashboard/house',
         icon: <CIcon icon={cilHome} customClassName="nav-icon" />,
+    },
+    {
+        component: CNavItem,
+        name: 'Service',
+        to: '/dashboard/houseService',
+        icon: <CIcon icon={cilBlur} customClassName="nav-icon" />,
     },
     {
         component: CNavItem,

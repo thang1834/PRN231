@@ -63,5 +63,10 @@ namespace PRN231_Project.Repositories
 		{
 			return await _context.Houses.Where(x => x.UserId == userId).ToListAsync();
 		}
-	}
+
+        public async Task<House> GetHouseByIdAsyncWithServices(int houseId)
+        {
+            return await _context.Houses.Include(x=> x.Services).FirstOrDefaultAsync(x=> x.Id == houseId);
+        }
+    }
 }

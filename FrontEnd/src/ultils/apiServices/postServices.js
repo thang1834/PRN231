@@ -1,6 +1,5 @@
 import * as request from '../request';
 
-
 // create Payment
 
 export const createPayment = async (body, options) => {
@@ -218,6 +217,55 @@ export const deleteHouse = async (id) => {
         return res;
     } catch (error) {
         console.log(error);
+        throw error;
+    }
+};
+
+// House services
+
+export const postService = async (body, options) => {
+    try {
+        const res = await request.post('Service', body, options);
+        //console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
+export const deleteService = async (id, options = {}) => {
+    try {
+        const res = await request.del(`Service/${id}`, options);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const updateService = async (id, body, options) => {
+    try {
+        const res = await request.put(`Service/${id}`, body, options);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
+export const postServiceForHouse = async (body, options) => {
+    try {
+        const res = await request.post('Service/setService', body, options);
+        //console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
         throw error;
     }
 };
