@@ -63,7 +63,7 @@ const Users = React.lazy(() => import('./views/user/User'));
 
 //Role
 const Roles = React.lazy(() => import('./views/role/Role'));
-
+const Payment = React.lazy(() => import('./views/payments/Payment'));
 //Profile
 const Profile = React.lazy(() => import('./views/profile/Profile'));
 
@@ -119,6 +119,7 @@ const routes = [
     { path: '/widgets', name: 'Widgets', element: Widgets },
     { path: '/user', name: 'User', element: Users },
     { path: '/role', name: 'Role', element: Roles },
+    { path: '/payment', name: 'Payment', element: Payment },
     { path: '/profile', name: 'Profile', element: Profile },
     { path: '/welcome', name: 'Welcome', element: Welcome },
 ];

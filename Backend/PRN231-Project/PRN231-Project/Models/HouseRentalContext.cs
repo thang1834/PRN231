@@ -23,11 +23,16 @@ namespace PRN231_Project.Models
         public virtual DbSet<Request> Requests { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<Service> Services { get; set; } = null!;
+        public virtual DbSet<Transaction> Transactions { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=WONWOLF\\MSSQLSERVER01;uid=sa;pwd=sa;database=HouseRental;TrustServerCertificate=True;");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -158,16 +163,27 @@ namespace PRN231_Project.Models
 
                 entity.Property(e => e.Amount).HasColumnName("amount");
 
-                entity.Property(e => e.DateCreated)
-                    .HasColumnType("date")
-                    .HasColumnName("date_created");
-
-                entity.Property(e => e.Invoice)
-                    .HasMaxLength(50)
+                entity.Property(e => e.Description)
+                    .HasMaxLength(255)
                     .IsUnicode(false)
-                    .HasColumnName("invoice");
+                    .HasColumnName("description");
+
+                entity.Property(e => e.IsPaid).HasColumnName("isPaid");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(255)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.Tid)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("tid");
 
                 entity.Property(e => e.UserId).HasColumnName("userId");
+
+                entity.Property(e => e.When)
+                    .HasColumnType("datetime")
+                    .HasColumnName("when");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Payments)
@@ -223,6 +239,37 @@ namespace PRN231_Project.Models
                 entity.Property(e => e.Name)
                     .HasMaxLength(255)
                     .HasColumnName("name");
+            });
+
+            modelBuilder.Entity<Transaction>(entity =>
+            {
+                entity.ToTable("Transaction");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.BankSubAccId).HasMaxLength(100);
+
+                entity.Property(e => e.CorresponsiveAccount).HasMaxLength(100);
+
+                entity.Property(e => e.CorresponsiveBankId).HasMaxLength(100);
+
+                entity.Property(e => e.CorresponsiveBankName).HasMaxLength(100);
+
+                entity.Property(e => e.CorresponsiveName).HasMaxLength(100);
+
+                entity.Property(e => e.CusumBalance).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.SubAccId).HasMaxLength(100);
+
+                entity.Property(e => e.Tid).HasMaxLength(100);
+
+                entity.Property(e => e.VirtualAccount).HasMaxLength(100);
+
+                entity.Property(e => e.VirtualAccountName).HasMaxLength(100);
+
+                entity.Property(e => e.When).HasMaxLength(100);
             });
 
             modelBuilder.Entity<User>(entity =>
