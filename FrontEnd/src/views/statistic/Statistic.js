@@ -299,12 +299,12 @@ const Statistic = () => {
                         <CCardBody>
                             <CChartPie
                                 data={{
-                                    labels: ['Red', 'Green', 'Yellow'],
+                                    labels: ['Duplex', 'Single-Family Home', 'Multi-Family Home', '2-story house'],
                                     datasets: [
                                         {
-                                            data: [300, 50, 100],
-                                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-                                            hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                                            data: [1, 2, 2, 2],
+                                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#008000'],
+                                            hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#008000'],
                                         },
                                     ],
                                 }}
@@ -313,19 +313,7 @@ const Statistic = () => {
                     </CCard>
                 </CCol>
 
-                <CCardFooter>
-                    <CRow xs={{ cols: 1 }} md={{ cols: 5 }} className="text-center">
-                        {progressExample.map((item, index) => (
-                            <CCol className="mb-sm-2 mb-0" key={index}>
-                                <div className="text-medium-emphasis">{item.title}</div>
-                                <strong>
-                                    {item.value} ({item.percent}%)
-                                </strong>
-                                <CProgress thin className="mt-2" color={item.color} value={item.percent} />
-                            </CCol>
-                        ))}
-                    </CRow>
-                </CCardFooter>
+
 
             </CCard>
 
