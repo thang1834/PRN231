@@ -43,6 +43,7 @@ namespace PRN231_Project.Services.Impl
             try
             {
                 var payment = _mapper.Map<Payment>(PaymentDto);
+                payment.IsPaid = false;  
                 return await _repository.AddPaymentAsync(payment);
             }
             catch (Exception ex)

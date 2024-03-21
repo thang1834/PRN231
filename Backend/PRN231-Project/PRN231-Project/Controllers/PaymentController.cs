@@ -47,7 +47,7 @@ namespace PRN231_Project.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreatePaymentAsync([FromForm] PaymentCreateDto PaymentDto)
+        public async Task<IActionResult> CreatePaymentAsync([FromBody] PaymentCreateDto PaymentDto)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace PRN231_Project.Controllers
         }
 
         [HttpPut("{PaymentId}")]
-        public async Task<IActionResult> UpdatePaymentAsync(int PaymentId, [FromForm] PaymentUpdateDto PaymentDto)
+        public async Task<IActionResult> UpdatePaymentAsync(int PaymentId,  PaymentUpdateDto PaymentDto)
         {
             try
             {
