@@ -65,6 +65,12 @@ const _nav = [
         to: '/payment',
         icon: <CIcon icon={cilWallet} customClassName="nav-icon" />,
     },
+    {
+        component: CNavItem,
+        name: 'Statistic',
+        to: '/dashboard/statistic',
+        icon: <CIcon icon={cilWallet} customClassName="nav-icon" />,
+    },
 ];
 
 export default _nav;

@@ -34,21 +34,15 @@ import { getStyle, hexToRgba } from '@coreui/utils';
 
 const Statistic = () => {
   const [contracts, setContracts] = useState([]);
-  const [selectedContract, setSelectedContract] = useState({});
-  const [selectedFile, setSelectedFile] = useState();
   const [visible, setVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [statusModal, setStatusModal] = useState('');
-  const [error, setError] = useState({});
   const [accessToken, setAccessToken] = useState('');
   const [role, setRole] = useState('');
   const numberPerPage = 10;
-  const [chartData, setChartData] = useState({
-    labels: [],
-    datasets: [],
-  });
+  
 
   const [month, setMonth] = useState([])
+  const [month2, setMonth2] = useState([])
 
   useEffect(() => {
     const availableToken = localStorage.getItem('accessToken');
@@ -69,7 +63,9 @@ const Statistic = () => {
         if (decodedToken.role === 'Admin') {
           result = await loadService.loadContracts(options);
           const recordsByMonth = Array(12).fill(0);
+          const recordsByMonth2 = Array(12).fill(0);
           const contractsData = await loadService.loadContracts(options);
+          const paymentsData = await loadService.loadPayments(options);
 
           contractsData.forEach(contract => {
             contractsData.map((item) => {
@@ -78,23 +74,34 @@ const Statistic = () => {
             const date = new Date(contract.startDate);
             const monthIndex = date.getMonth();
             recordsByMonth[monthIndex]++;
+            setMonth2(recordsByMonth2)
+          });
+
+
+          paymentsData.forEach(payment => {
+            paymentsData.map((item) => {
+              item.startDate = formatDateString(item.when);
+            });
+            const date = new Date(payment.when);
+            const monthIndex = date.getMonth();
+            recordsByMonth[monthIndex]+= payment.amount;
             setMonth(recordsByMonth)
           });
 
-          setChartData({
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            datasets: [
-              {
-                label: 'Number of Contracts',
-                backgroundColor: hexToRgba('#3498db', 10),
-                borderColor: '#3498db',
-                pointHoverBackgroundColor: '#3498db',
-                borderWidth: 2,
-                data: recordsByMonth,
-                fill: true,
-              },
-            ],
-          })
+          const calculateTotalByMonth = () => {
+            const totals = {};
+            payments.forEach(payment => {
+              const month = new Date(payment.when).getMonth();
+              if (totals[month] === undefined) {
+                totals[month] = payment.number;
+              } else {
+                totals[month] += payment.number;
+              }
+            });
+            setTotalByMonth(totals);
+          };
+
+     
         }
         else result = await loadService.loadAllContractsByUserId(decodedToken.nameid, options);
         if (result) {
@@ -132,6 +139,8 @@ const Statistic = () => {
   ];
   return (
     <>
+    {console.log(month)}
+    {console.log(month2)}
       <WidgetsDropdown />
       <CCard className="mb-4">
         <CCardBody>    {/* Contract */}
@@ -167,7 +176,7 @@ const Statistic = () => {
                   pointHoverBackgroundColor: getStyle('--cui-info'),
                   borderWidth: 2,
                   data: [
-                    ...month.map((item) => {
+                    ...month2.map((item) => {
                       console.log(item);
                       return item;
                     })
@@ -237,7 +246,7 @@ const Statistic = () => {
           <CChartLine
             style={{ height: '300px', marginTop: '40px' }}
             data={{
-              labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+              labels:['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
               datasets: [
                 {
                   label: 'My First dataset',
@@ -246,41 +255,15 @@ const Statistic = () => {
                   pointHoverBackgroundColor: getStyle('--cui-info'),
                   borderWidth: 2,
                   data: [
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
+                    ...month.map((item) => {
+                      console.log(item);
+                      return item;
+                    })
                   ],
                   fill: true,
                 },
-                {
-                  label: 'My Second dataset',
-                  backgroundColor: 'transparent',
-                  borderColor: getStyle('--cui-success'),
-                  pointHoverBackgroundColor: getStyle('--cui-success'),
-                  borderWidth: 2,
-                  data: [
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                    random(50, 200),
-                  ],
-                },
-                {
-                  label: 'My Third dataset',
-                  backgroundColor: 'transparent',
-                  borderColor: getStyle('--cui-danger'),
-                  pointHoverBackgroundColor: getStyle('--cui-danger'),
-                  borderWidth: 1,
-                  borderDash: [8, 5],
-                  data: [65, 65, 65, 65, 65, 65, 65],
-                },
+               
+                
               ],
             }}
             options={{
@@ -340,21 +323,6 @@ const Statistic = () => {
             </CCardBody>
           </CCard>
         </CCol>
-
-        <CCardFooter>
-          <CRow xs={{ cols: 1 }} md={{ cols: 5 }} className="text-center">
-            {progressExample.map((item, index) => (
-              <CCol className="mb-sm-2 mb-0" key={index}>
-                <div className="text-medium-emphasis">{item.title}</div>
-                <strong>
-                  {item.value} ({item.percent}%)
-                </strong>
-                <CProgress thin className="mt-2" color={item.color} value={item.percent} />
-              </CCol>
-            ))}
-          </CRow>
-        </CCardFooter>
-
       </CCard>
 
       <CRow>
