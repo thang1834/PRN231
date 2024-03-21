@@ -72,6 +72,12 @@ export const _nav = [
         to: '/payment',
         icon: <CIcon icon={cilWallet} customClassName="nav-icon" />,
     },
+    {
+        component: CNavItem,
+        name: 'Statistic',
+        to: '/dashboard/statistic',
+        icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+    },
 ];
 
 export const _nav_normal = [

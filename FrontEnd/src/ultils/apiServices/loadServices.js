@@ -1,5 +1,5 @@
 import * as request from '../request';
-
+//Payment
 export const loadPayments = async () => {
     try {
         const res = await request.get('Payment');
