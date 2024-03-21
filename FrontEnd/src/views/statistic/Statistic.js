@@ -34,8 +34,6 @@ import { getStyle, hexToRgba } from '@coreui/utils';
 
 const Statistic = () => {
     const [contracts, setContracts] = useState([]);
-    const [selectedContract, setSelectedContract] = useState({});
-    const [selectedFile, setSelectedFile] = useState();
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [statusModal, setStatusModal] = useState('');
@@ -50,6 +48,11 @@ const Statistic = () => {
 
     const [month, setMonth] = useState([])
     const [month2, setMonth2] = useState([])
+    const [houses, setHouses] = useState([]);
+
+
+
+    // Tính toán số lượng nhà theo loại
 
     useEffect(() => {
         const availableToken = localStorage.getItem('accessToken');
@@ -70,15 +73,25 @@ const Statistic = () => {
                 if (decodedToken.role === 'Admin') {
                     result = await loadService.loadContracts(options);
                     const recordsByMonth = Array(12).fill(0);
+                    const recordsById = Array(4).fill(0);
                     const contractsData = await loadService.loadContracts(options);
                     const PaymentsData = await loadService.loadPayments(options);
+                    const data = await loadService.loadHouses();
+
+                    data.forEach(contract => {
+
+                        const index = contract.categoryId - 1;
+                        recordsById[index]++;
+                        setHouses(recordsById)
+                    });
+
                     contractsData.forEach(contract => {
                         contractsData.map((item) => {
                             item.startDate = formatDateString(item.startDate);
                         });
                         const date = new Date(contract.startDate);
                         const monthIndex = date.getMonth();
-                        recordsByMonth[monthIndex]++;
+                        recordsById[monthIndex]++;
                         setMonth(recordsByMonth)
                     });
 
@@ -92,20 +105,7 @@ const Statistic = () => {
                         setMonth2(recordsByMonth)
                     });
 
-                    setChartData({
-                        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                        datasets: [
-                            {
-                                label: 'Number of Contracts',
-                                backgroundColor: hexToRgba('#3498db', 10),
-                                borderColor: '#3498db',
-                                pointHoverBackgroundColor: '#3498db',
-                                borderWidth: 2,
-                                data: recordsByMonth,
-                                fill: true,
-                            },
-                        ],
-                    })
+
                 }
                 else result = await loadService.loadAllContractsByUserId(decodedToken.nameid, options);
                 if (result) {
@@ -302,7 +302,7 @@ const Statistic = () => {
                                     labels: ['Duplex', 'Single-Family Home', 'Multi-Family Home', '2-story house'],
                                     datasets: [
                                         {
-                                            data: [1, 2, 2, 2],
+                                            data: Object.values(houses),
                                             backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#008000'],
                                             hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#008000'],
                                         },
