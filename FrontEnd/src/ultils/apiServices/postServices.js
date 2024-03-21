@@ -1,5 +1,46 @@
 import * as request from '../request';
 
+
+// create Payment
+
+export const createPayment = async (body, options) => {
+    try {
+        const res = await request.post('Payment', body, options);
+        //console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
+// update Payment
+export const updatePayment = async (id, body, options) => {
+    try {
+        const res = await request.put(`Payment/${id}`, body, options);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
+//delete Payment
+export const deletePayment = async (id, options = {}) => {
+    try {
+        const res = await request.del(`Payment/${id}`, options);
+        //console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
 // create Contract
 
 export const postContract = async (body, options) => {
