@@ -1,0 +1,14 @@
+.CButton {
+    margin-right: 10px; /* Khoảng cách giữa các nút */
+}
+.CModalTitle {
+    font-size: 20px;
+    font-weight: bold;
+}
+.CModalBody {
+    padding: 20px;
+}
+.CModalFooter {
+    justify-content: flex-end; /* Đặt các nút ở phía bên phải */
+    padding: 20px;
+}

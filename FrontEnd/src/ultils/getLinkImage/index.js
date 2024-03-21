@@ -1,4 +1,4 @@
-const url = 'https://localhost:7080/';
+const url = 'http://localhost:5277/';
 
 export const getLinkImage = (path) => {
     return url + path;
