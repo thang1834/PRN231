@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PRN231_Project.Dto.Transaction;
 using PRN231_Project.Models;
+using PRN231_Project.Models;
 
 namespace PRN231_Project.Controllers
 {
@@ -18,7 +19,9 @@ namespace PRN231_Project.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Transaction([FromBody] TransactionResponse response)
+        public async Task<IActionResult> Transaction([FromBody] TransactionResponse response)
         {
+            var headers = Request.Headers;
             var headers = Request.Headers;
 
             //try
@@ -59,8 +62,17 @@ namespace PRN231_Project.Controllers
                         }
                     }
                     await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
                 }
             }
+
+
+            //}
+            //}
+            //catch (Exception)
+            //{
+            //    return StatusCode(StatusCodes.Status500InternalServerError);
+            //}
 
 
             //}
