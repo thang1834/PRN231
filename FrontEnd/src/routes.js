@@ -12,6 +12,9 @@ const Contract = React.lazy(() => import('./views/contract/Contract'));
 
 const House = React.lazy(() => import('./views/house/House'));
 
+//chart
+const Statistic = React.lazy(() => import('./views/statistic/Statistic'));
+
 // Base
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'));
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'));
@@ -63,14 +66,18 @@ const Users = React.lazy(() => import('./views/user/User'));
 
 //Role
 const Roles = React.lazy(() => import('./views/role/Role'));
-
+const Payment = React.lazy(() => import('./views/payments/Payment'));
 //Profile
 const Profile = React.lazy(() => import('./views/profile/Profile'));
+
+//Welcome
+const Welcome = React.lazy(() => import('./views/welcome/Welcome'));
 
 const routes = [
     { path: '/', exact: true, name: 'Home' },
     { path: '/dashboard/contract', name: 'Contract', element: Contract },
     { path: '/dashboard/house', name: 'House', element: House },
+    { path: '/dashboard/statistic', name: 'Staitstic', element: Statistic },
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/theme', name: 'Theme', element: Colors, exact: true },
     { path: '/theme/colors', name: 'Colors', element: Colors },
@@ -116,7 +123,9 @@ const routes = [
     { path: '/widgets', name: 'Widgets', element: Widgets },
     { path: '/user', name: 'User', element: Users },
     { path: '/role', name: 'Role', element: Roles },
+    { path: '/payment', name: 'Payment', element: Payment },
     { path: '/profile', name: 'Profile', element: Profile },
+    { path: '/welcome', name: 'Welcome', element: Welcome },
 ];
 
 export default routes;

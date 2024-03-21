@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.Contracts;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PRN231_Project.Models;
 
 namespace PRN231_Project.Repositories.Impl
@@ -8,11 +7,15 @@ namespace PRN231_Project.Repositories.Impl
     {
         private readonly HouseRentalContext _houseRentalContext;
         private readonly IRoleRepository _roleRepository;
+        private readonly IHouseRepository _houseRepository;
+        private readonly IContractRepository _contractRepository;
 
-        public UserRepository(HouseRentalContext houseRentalContext, IRoleRepository roleRepository)
+        public UserRepository(HouseRentalContext houseRentalContext, IRoleRepository roleRepository, IHouseRepository houseRepository, IContractRepository contractRepository)
         {
             _houseRentalContext = houseRentalContext;
             _roleRepository = roleRepository;
+            _houseRepository = houseRepository;
+            _contractRepository = contractRepository;
         }
 
         public async Task<User> AddUserAsync(User user)
@@ -24,7 +27,7 @@ namespace PRN231_Project.Repositories.Impl
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
-            return await _houseRentalContext.Users.ToListAsync();
+            return await _houseRentalContext.Users.Where(u => u.Id != 1).ToListAsync();
         }
 
         public async Task<User> GetByUsernameAsync(string username)
@@ -45,12 +48,17 @@ namespace PRN231_Project.Repositories.Impl
             if (user != null)
             {
                 await DeleteUserRolesByUserIdAsync(userId);
-                _houseRentalContext.Users.Remove(user);
+                List<House> houses = await _houseRepository.GetHouseByUserIdAsync(userId);
+                _houseRentalContext.Houses.RemoveRange(houses);
+                List<Contract> contracts = (List<Contract>)await _contractRepository.GetContractsByUserIdAsync(userId);
+                _houseRentalContext.Contracts.RemoveRange(contracts);
+				_houseRentalContext.Users.Remove(user);
                 await _houseRentalContext.SaveChangesAsync();
                 return user;
             }
             return null;
         }
+
         private async Task DeleteUserRolesByUserIdAsync(int userId)
         {
             var sql = $"DELETE FROM UserRole WHERE userId = {userId}";

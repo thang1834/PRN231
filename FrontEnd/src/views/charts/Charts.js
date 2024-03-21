@@ -42,6 +42,7 @@ const Charts = () => {
           </CCardBody>
         </CCard>
       </CCol>
+
       <CCol xs={6}>
         <CCard className="mb-4">
           <CCardHeader>Line Chart</CCardHeader>
@@ -72,6 +73,7 @@ const Charts = () => {
           </CCardBody>
         </CCard>
       </CCol>
+
       <CCol xs={6}>
         <CCard className="mb-4">
           <CCardHeader>Doughnut Chart</CCardHeader>
@@ -90,6 +92,7 @@ const Charts = () => {
           </CCardBody>
         </CCard>
       </CCol>
+
       <CCol xs={6}>
         <CCard className="mb-4">
           <CCardHeader>Pie Chart</CCardHeader>
@@ -109,6 +112,7 @@ const Charts = () => {
           </CCardBody>
         </CCard>
       </CCol>
+
       <CCol xs={6}>
         <CCard className="mb-4">
           <CCardHeader>Polar Area Chart</CCardHeader>
@@ -127,6 +131,7 @@ const Charts = () => {
           </CCardBody>
         </CCard>
       </CCol>
+
       <CCol xs={6}>
         <CCard className="mb-4">
           <CCardHeader>Radar Chart</CCardHeader>

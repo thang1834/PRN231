@@ -43,7 +43,7 @@ const Login = () => {
             if (userRoles.includes('Admin')) {
                 navigate('/dashboard');
             } else {
-                navigate('/login');
+                navigate('/welcome');
             }
         }
     }, [accessToken]);
@@ -74,7 +74,7 @@ const Login = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: username, password: password }),
         };
-        await fetch('https://localhost:7080/User/login', requestOptions)
+        await fetch('http://localhost:5277/User/login', requestOptions)
             .then((response) => {
                 console.log(response);
                 return response.json();

@@ -19,6 +19,5 @@ namespace PRN231_Project.Models
         public string? CorresponsiveAccount { get; set; }
         public string? CorresponsiveBankId { get; set; }
         public string? CorresponsiveBankName { get; set; }
-        public int? PaymentId { get; set; }
     }
 }

@@ -16,10 +16,11 @@ import {
     cilPeople,
     cilHome,
     cilUser,
+    cilWallet,
 } from '@coreui/icons';
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react';
 
-const _nav = [
+export const _nav = [
     {
         component: CNavItem,
         name: 'Dashboard',
@@ -58,6 +59,39 @@ const _nav = [
         to: '/role',
         icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
     },
+    {
+        component: CNavItem,
+        name: 'Payment',
+        to: '/payment',
+        icon: <CIcon icon={cilWallet} customClassName="nav-icon" />,
+    },
+    {
+        component: CNavItem,
+        name: 'Statistic',
+        to: '/dashboard/statistic',
+        icon: <CIcon icon={cilWallet} customClassName="nav-icon" />,
+    },
 ];
 
-export default _nav;
+export const _nav_normal = [
+    {
+        component: CNavItem,
+        name: 'Welcome',
+        to: '/welcome',
+        icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+        badge: {
+            color: 'info',
+            text: 'NEW',
+        },
+    },
+    {
+        component: CNavTitle,
+        name: 'Theme',
+    },
+    {
+        component: CNavItem,
+        name: 'Contract',
+        to: '/dashboard/contract',
+        icon: <CIcon icon={cilMap} customClassName="nav-icon" />,
+    },
+];

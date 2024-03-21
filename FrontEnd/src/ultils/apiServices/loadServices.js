@@ -1,7 +1,26 @@
 import * as request from '../request';
+//Payment
+export const loadPayments = async () => {
+    try {
+        const res = await request.get('Payment');
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const loadPaymentById = async (id) => {
+    try {
+        const res = await request.get(`Payment/${id}`);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
 
 // Contract
-
 export const loadContracts = async (options = {}) => {
     try {
         const res = await request.get('Contract', options);
@@ -73,6 +92,9 @@ export const loadHouses = async () => {
         throw error;
     }
 };
+
+
+
 
 // Category
 
