@@ -2,7 +2,7 @@ import axios from 'axios';
 import { refresh } from './Authentication';
 
 const request = axios.create({
-    baseURL: 'https://localhost:7080/',
+    baseURL: 'http://localhost:5277/',
 });
 
 export const refreshToken = async (body, headers) => {

@@ -29,6 +29,8 @@ namespace PRN231_Project
             //Add scope for reposiory
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
             //Add scope for service
             builder.Services.AddScoped<IUserService, UserService>();

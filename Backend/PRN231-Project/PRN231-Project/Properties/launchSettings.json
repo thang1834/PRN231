@@ -9,6 +9,16 @@
     }
   },
   "profiles": {
+    "Thangdz": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "http://localhost:5277",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
     "PRN231_Project": {
       "commandName": "Project",
       "dotnetRunMessages": true,
