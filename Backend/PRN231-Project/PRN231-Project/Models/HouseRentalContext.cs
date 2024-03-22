@@ -157,15 +157,12 @@ namespace PRN231_Project.Models
             {
                 entity.ToTable("payments");
 
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Amount).HasColumnName("amount");
 
                 entity.Property(e => e.Description)
                     .HasMaxLength(255)
-                    .IsUnicode(false)
                     .HasColumnName("description");
 
                 entity.Property(e => e.IsPaid).HasColumnName("isPaid");
