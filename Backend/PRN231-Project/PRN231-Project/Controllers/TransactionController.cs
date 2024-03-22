@@ -51,7 +51,7 @@ namespace PRN231_Project.Controllers
                     await _context.SaveChangesAsync();
                     foreach (var i in _context.Payments)
                     {
-                        if(transactionEntity.Description == i.Name)
+                        if(transactionEntity.Description.Substring(0, transactionEntity.Description.IndexOf('-')).Trim() == i.Name)
                         {
                             i.IsPaid = true;
                             i.When = DateTime.Now;
