@@ -1,11 +1,15 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using PRN231_Project.AuthorizationHandler;
+using PRN231_Project.Enums;
 using PRN231_Project.Models;
 using PRN231_Project.Repositories;
 using PRN231_Project.Repositories.Impl;
+using PRN231_Project.Requirement;
 using PRN231_Project.Services;
 using PRN231_Project.Services.Impl;
 
@@ -55,9 +59,17 @@ namespace PRN231_Project
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
                 };
             });
+			builder.Services.AddAuthorization(options =>
+			{
+				options.AddPolicy("ViewPolicy", policy =>
+				{
+					policy.Requirements.Add(new PermissionRequirement(PermissionEnum.View));
+				});
 
+				// Add other policies as needed for different permissions
+			});
 
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+			builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             // Contract
             builder.Services.AddScoped<IContractRepository, ContractRepository>();
             builder.Services.AddScoped<IContractService, ContractService>();
@@ -71,7 +83,9 @@ namespace PRN231_Project
             builder.Services.AddScoped<IHouseServiceRepository, HouseServiceRepository>();
             builder.Services.AddScoped<IHouseServiceService, HouseServiceService>();
 
-            var app = builder.Build();
+			builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
+			var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

@@ -7,6 +7,7 @@ using PRN231_Project.Dto.User;
 using PRN231_Project.Models;
 using PRN231_Project.Dto.Payment;
 using PRN231_Project.Dto.HouseService;
+using PRN231_Project.Dto.Permission;
 
 namespace PRN231_Project.Helper
 {
@@ -66,6 +67,8 @@ namespace PRN231_Project.Helper
             CreateMap<ServiceDto, Service>().ReverseMap();
             CreateMap<ServiceCreateDto, Service>().ReverseMap();
             CreateMap<ServiceUpdateDto, Service>().ReverseMap();
+
+            CreateMap<Permission, PermissionDto>().ReverseMap();
         }
     }
 }
