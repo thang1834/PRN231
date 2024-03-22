@@ -7,9 +7,9 @@ const Welcome = () => {
     const userName = jwtDecode(accessToken).unique_name;
 
     return (
-        <div class="hero-msg">
-            <div class="hero-msg-content">
-                <h1 class="hero-msg-tag">Welcome {userName},</h1>
+        <div className="hero-msg">
+            <div className="hero-msg-content">
+                <h1 className="hero-msg-tag">Welcome {userName},</h1>
                 <p>Manage your living space efficiently with our comprehensive building management system.</p>
                 <p>
                     Our system provides features such as facility bookings, community announcements, maintenance
@@ -23,8 +23,8 @@ const Welcome = () => {
                     If you need assistance or have any questions, please don't hesitate to reach out to our building
                     management team.
                 </p>
-                <div class="hero-actions">
-                    <button class="showcase hover-effect" onclick="">
+                <div className="hero-actions">
+                    <button className="showcase hover-effect" onClick={() => console.log("Showcase")}>
                         Showcase
                     </button>
                 </div>
