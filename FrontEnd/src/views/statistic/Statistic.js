@@ -70,6 +70,8 @@ const Statistic = () => {
                 if (decodedToken.role === 'Admin') {
                     result = await loadService.loadContracts(options);
                     const recordsByMonth = Array(12).fill(0);
+                    const recordsByMonth2 = Array(12).fill(0);
+                    const recordsById = Array(4).fill(0);
                     const contractsData = await loadService.loadContracts(options);
                     const PaymentsData = await loadService.loadPayments(options);
                     contractsData.forEach(contract => {
@@ -83,13 +85,13 @@ const Statistic = () => {
                     });
 
                     PaymentsData.forEach(contract => {
-                        contractsData.map((item) => {
+                        PaymentsData.map((item) => {
                             item.when = formatDateString(item.when);
                         });
                         const date = new Date(contract.when);
                         const monthIndex = date.getMonth();
-                        recordsByMonth[monthIndex] += contract.amount;
-                        setMonth2(recordsByMonth)
+                        recordsByMonth2[monthIndex] += contract.amount;
+                        setMonth2(recordsByMonth2)
                     });
 
                     setChartData({
