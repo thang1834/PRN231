@@ -35,6 +35,7 @@ namespace PRN231_Project
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+            builder.Services.AddScoped<INoteRepository, NoteRepository>();
 
             //Add scope for service
             builder.Services.AddScoped<IUserService, UserService>();
@@ -85,7 +86,10 @@ namespace PRN231_Project
 
 			builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
-			var app = builder.Build();
+            builder.Services.AddScoped<INoteRepository, NoteRepository>();
+            builder.Services.AddScoped<INoteService, NoteService>();
+
+            var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
