@@ -24,21 +24,24 @@ const AppSidebar = () => {
 
     useEffect(() => {
         const accessToken = localStorage.getItem('accessToken');
-        const decodedToken = jwtDecode(accessToken);
         let userRoles = [];
-        if (Array.isArray(decodedToken.role)) {
-            userRoles = decodedToken.role;
-        } else {
-            userRoles = [decodedToken.role];
-        }
+        if (accessToken) {
+            const decodedToken = jwtDecode(accessToken);
+            if (Array.isArray(decodedToken.role)) {
+                userRoles = decodedToken.role;
+            } else {
+                userRoles = [decodedToken.role];
+            }
 
-        // Kiểm tra từng role
-        if (userRoles.includes('Admin')) {
-            setNavItems(navigation._nav);
-        } else {
-            setNavItems(navigation._nav_normal);
+            // Kiểm tra từng role
+            if (userRoles.includes('Admin')) {
+                setNavItems(navigation._nav);
+            } else {
+                setNavItems(navigation._nav_normal);
+            }
         }
-    });
+    }, [navItems]);
+
     return (
         <CSidebar
             position="fixed"
