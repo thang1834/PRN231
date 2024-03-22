@@ -27,6 +27,7 @@ const Modal = ({
     role,
     houses,
     users,
+    payments
 }) => {
     return (
         <CModal size="lg" visible={visible} onClose={handleCloseModal} aria-labelledby="LiveDemoExampleLabel">
@@ -35,8 +36,8 @@ const Modal = ({
                     {statusModal === 'create'
                         ? 'Create New Contract'
                         : statusModal === 'update'
-                        ? 'Contract Details'
-                        : 'Warning'}
+                            ? 'Contract Details'
+                            : 'Warning'}
                 </CModalTitle>
             </CModalHeader>
             <CModalBody>
@@ -68,7 +69,7 @@ const Modal = ({
                             <span className="error-message">{error.price}</span>
                         </CCol>
 
-                        <CCol md={4}>
+                        {/* <CCol md={4}>
                             <CFormInput
                                 id="contract_paymentId"
                                 label="Payment ID"
@@ -77,7 +78,7 @@ const Modal = ({
                                 onChange={(event) => handleInputChange(event, 'paymentId')}
                             />
                             <span className="error-message">{error.paymentId}</span>
-                        </CCol>
+                        </CCol> */}
                         <CCol md={2}>
                             {/* <CFormInput
                                 type="text"
@@ -86,8 +87,8 @@ const Modal = ({
                                 value={selectedContract.houseId}
                                 disabled={role !== 'Admin'}
                                 onChange={(event) => handleInputChange(event, 'houseId')}
-                            /> */}
-                            <span className="error-message">{error.houseId}</span>
+                            />
+                            <span className="error-message">{error.houseId}</span> */}
                         </CCol>
                         <CRow>
                             {role === 'Admin' && (
@@ -123,8 +124,24 @@ const Modal = ({
                                     </option>
                                 ))}
                             </CFormSelect>
+                            <span className="error-message">{error.houseId}</span>
                         </CRow>
-
+                        <CRow>
+                            <CFormSelect
+                                style={{ margin: 10 }}
+                                value={selectedContract.paymentId || ''}
+                                disabled={role !== 'Admin'}
+                                onChange={(event) => handleInputChange(event, 'paymentId')}
+                            >
+                                <option value="">Select Payment</option>
+                                {payments.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                        {p.name}
+                                    </option>
+                                ))}
+                            </CFormSelect>
+                            <span className="error-message">{error.paymentId}</span>
+                        </CRow>
                         <CCol md={6}>
                             <CFormInput
                                 type="date"

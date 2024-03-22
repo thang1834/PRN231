@@ -260,7 +260,7 @@ const House = () => {
                     <CTableBody>
                         {displayedHouses.map((house, index) => (
                             <CTableRow key={index}>
-                                <CTableDataCell>{house.id}</CTableDataCell>
+                                <CTableDataCell>{index + 1}</CTableDataCell>
                                 <CTableDataCell>{house.name}</CTableDataCell>
                                 <CTableDataCell>{house.price}</CTableDataCell>
                                 <CTableDataCell>{findCategoryName(house.categoryId)}</CTableDataCell>

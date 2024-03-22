@@ -304,9 +304,9 @@ const User = () => {
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                    {displayedUsers.map((user) => (
+                    {displayedUsers.map((user, index) => (
                         <CTableRow key={user.id}>
-                            <CTableHeaderCell scope="row">{user.id}</CTableHeaderCell>
+                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                             <CTableDataCell>{user.firstName}</CTableDataCell>
                             <CTableDataCell>{user.lastName}</CTableDataCell>
                             <CTableDataCell>{user.email}</CTableDataCell>
@@ -373,8 +373,8 @@ const User = () => {
                         {statusModal === 'create'
                             ? 'Create New User'
                             : statusModal === 'update'
-                            ? 'User Details'
-                            : 'Warning'}
+                                ? 'User Details'
+                                : 'Warning'}
                     </CModalTitle>
                 </CModalHeader>
                 <CModalBody>

@@ -20,33 +20,37 @@ import {
     CTableRow,
     CPagination,
     CPaginationItem,
-    CFormCheck,
+    CFormSelect,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilDelete, cilSearch } from '@coreui/icons';
-import './Role.scss';
+import './Service.scss';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 
-const Role = () => {
-    const [selectedRole, setSelectedRole] = useState({});
+const Service = () => {
+    const [selectedService, setSelectedService] = useState({});
     const [visible, setVisible] = useState(false);
+    const [visibleManageService, setVisibleManageService] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const [roles, setRoles] = useState([]);
+    const [Services, setServices] = useState([]);
     const [accessToken, setAccessToken] = useState('');
     const [loading, setLoading] = useState(true);
     const [statusModal, setStatusModal] = useState('');
     const [error, setError] = useState({});
     const [success, setSuccess] = useState(false);
+    const [houses, setHouses] = useState([]);
+    const [selectedHouse, setSelectedHouse] = useState(0);
+    const [selectedServices, setSelectedServices] = useState([]);
     const navigate = useNavigate();
 
     const numberPerPage = 10;
 
-    const numberOfPages = Math.ceil(roles.length / numberPerPage);
+    const numberOfPages = Math.ceil(Services.length / numberPerPage);
     const startIndex = (currentPage - 1) * numberPerPage;
     const endIndex = startIndex + numberPerPage;
-    const displayedRoles = roles.slice(startIndex, endIndex);
+    const displayedServices = Services.slice(startIndex, endIndex);
 
     useEffect(() => {
         const availableToken = localStorage.getItem('accessToken');
@@ -55,7 +59,8 @@ const Role = () => {
         }
 
         if (accessToken) {
-            fetchRole();
+            fetchService();
+            fetchHouse();
         }
 
         if (success) {
@@ -65,16 +70,21 @@ const Role = () => {
 
         setLoading(false);
     }, [accessToken, loading]);
-
-    const fetchRole = async () => {
+    const fetchHouse = async () => {
+        const housesResult = await loadService.loadHouses();
+        if (housesResult) {
+            setHouses(housesResult);
+        }
+    };
+    const fetchService = async () => {
         try {
-            const list = await loadService.loadRoles({
+            const list = await loadService.loadServices({
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
             if (list) {
-                setRoles(list);
+                setServices(list);
             }
         } catch (err) {
             if (err.response.status === 403) {
@@ -84,6 +94,39 @@ const Role = () => {
             }
         }
     };
+    useEffect(() => {
+        const availableToken = localStorage.getItem('accessToken');
+        if (availableToken) {
+            setAccessToken(availableToken);
+        }
+
+        if (accessToken) {
+            const fetchServiceByHouseId = async (id) => {
+                try {
+                    if (!id) setSelectedServices([]);
+                    else {
+                        const list = await loadService.loadServicesByHouseId(id, {
+                            headers: {
+                                Authorization: `Bearer ${accessToken}`,
+                            },
+                        });
+                        if (list) {
+                            var newList = list.map((item) => item.id);
+                            setSelectedServices(newList);
+                            console.log(newList);
+                        }
+                    }
+                } catch (err) {
+                    if (err.response.status === 403) {
+                        navigate('/403');
+                    } else {
+                        toast.error('Error');
+                    }
+                }
+            };
+            fetchServiceByHouseId(selectedHouse);
+        }
+    }, [selectedHouse]);
 
     const handlePrevPage = () => {
         if (currentPage > 1) {
@@ -100,23 +143,57 @@ const Role = () => {
 
     const handleCreateNew = () => {
         setVisible(true);
-        setSelectedRole({});
+        setSelectedService({});
         setStatusModal('create');
         setError({});
     };
 
     const handleCloseModal = () => {
         setVisible(false);
-        setSelectedRole(null);
+        setSelectedService({});
         setStatusModal('');
         setError({});
     };
 
-    const handleInputChange = (event, val, pros) => {
-        const role = Object.assign({}, selectedRole);
+    const handleOpenModalManageService = () => {
+        setVisibleManageService(true);
+    };
+    const handleCloseModalManageService = () => {
+        setVisibleManageService(false);
+        setSelectedServices([]);
+        setSelectedHouse(0);
+    };
+    const handleHouseSelect = (e) => {
+        setSelectedHouse(e.target.value);
+    };
+    const handleSelectServices = (e) => {
+        const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
+        console.log(selectedOptions);
+        setSelectedServices(selectedOptions);
+    };
+    const handleSaveService = async () => {
+        var houseService = {
+            houseId: selectedHouse,
+            listServicesId: selectedServices,
+        };
+        try {
+            const res = await postService.postServiceForHouse(houseService, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            setSuccess(true);
+        } catch (err) {
+            toast.error('Error');
+        }
+        setLoading(true);
+        handleCloseModalManageService();
+    };
+    const handleInputChange = (event, pros) => {
+        const Service = Object.assign({}, selectedService);
         const err = Object.assign({}, error);
-        role[pros] = event.target.value;
-        setSelectedRole(role);
+        Service[pros] = event.target.value;
+        setSelectedService(Service);
         if (event.target.value.trim() === '') {
             err[pros] = `This field cannot be empty`;
             setError(err);
@@ -129,7 +206,7 @@ const Role = () => {
     const handleCreateOrUpdateOrDelete = async () => {
         if (statusModal === 'delete') {
             try {
-                const res = await postService.deleteRole(selectedRole.id, {
+                const res = await postService.deleteService(selectedService.id, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
@@ -149,10 +226,11 @@ const Role = () => {
 
         if (statusModal === 'create') {
             try {
-                var role = {
-                    name: selectedRole.name,
+                var Service = {
+                    name: selectedService.name,
+                    description: selectedService.description,
                 };
-                const res = await postService.postRole(role, {
+                const res = await postService.postService(Service, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
@@ -165,10 +243,11 @@ const Role = () => {
             handleCloseModal();
         } else if (statusModal === 'update') {
             try {
-                var role = {
-                    name: selectedRole.name,
+                var Service = {
+                    name: selectedService.name,
+                    description: selectedService.description,
                 };
-                const res = await postService.updateRole(selectedRole.id, role, {
+                const res = await postService.updateService(selectedService.id, Service, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
@@ -189,6 +268,14 @@ const Role = () => {
     return (
         <>
             <div style={{ display: 'flex', justifyContent: 'end', marginBottom: '10px' }}>
+                <CButton
+                    style={{ marginRight: '10px' }}
+                    onClick={handleOpenModalManageService}
+                    className="btn-create"
+                    color="secondary"
+                >
+                    Manage Service Of House
+                </CButton>
                 <CButton onClick={handleCreateNew} className="btn-create" color="secondary">
                     Create new
                 </CButton>
@@ -198,15 +285,17 @@ const Role = () => {
                     <CTableRow>
                         <CTableHeaderCell scope="col">#</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Name</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Description</CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                    {displayedRoles.map((role, index) => (
-                        <CTableRow key={role.id}>
+                    {displayedServices.map((Service, index) => (
+                        <CTableRow key={Service.id}>
                             <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                            <CTableDataCell>{role.name}</CTableDataCell>
+                            <CTableDataCell>{Service.name}</CTableDataCell>
+                            <CTableDataCell>{Service.description}</CTableDataCell>
                             <CTableDataCell>
                                 <CIcon
                                     className="icon-view"
@@ -214,7 +303,7 @@ const Role = () => {
                                     icon={cilSearch}
                                     size="xl"
                                     onClick={() => {
-                                        setSelectedRole(role);
+                                        setSelectedService(Service);
                                         setVisible(true);
                                         setStatusModal('update');
                                         setError({});
@@ -228,7 +317,7 @@ const Role = () => {
                                     icon={cilDelete}
                                     size="xl"
                                     onClick={() => {
-                                        setSelectedRole(role);
+                                        setSelectedService(Service);
                                         setVisible(true);
                                         setStatusModal('delete');
                                         setError({});
@@ -263,17 +352,17 @@ const Role = () => {
                     <CModalTitle id="LiveDemoExampleLabel">
                         <CModalTitle id="LiveDemoExampleLabel">
                             {statusModal === 'create'
-                                ? 'Create New Role'
+                                ? 'Create New Service'
                                 : statusModal === 'update'
-                                    ? 'Role Details'
+                                    ? 'Service Details'
                                     : 'Warning'}
                         </CModalTitle>
                     </CModalTitle>
                 </CModalHeader>
                 <CModalBody>
-                    {selectedRole &&
+                    {selectedService &&
                         (statusModal === 'delete' ? (
-                            <p>Are you sure to delete this role information ?</p>
+                            <p>Are you sure to delete this Service information ?</p>
                         ) : (
                             <>
                                 <CForm className="row g-3">
@@ -282,10 +371,20 @@ const Role = () => {
                                             type="text"
                                             id="name"
                                             label="Name"
-                                            value={selectedRole.name}
-                                            onChange={(event) => handleInputChange(event, selectedRole.id, 'name')}
+                                            value={selectedService.name}
+                                            onChange={(event) => handleInputChange(event, 'name')}
                                         />
                                         <span className="error-message">{error.name}</span>
+                                    </CCol>
+                                    <CCol md={12}>
+                                        <CFormInput
+                                            type="text"
+                                            id="description"
+                                            label="Description"
+                                            value={selectedService.description}
+                                            onChange={(event) => handleInputChange(event, 'description')}
+                                        />
+                                        <span className="error-message">{error.description}</span>
                                     </CCol>
                                 </CForm>
                             </>
@@ -300,9 +399,59 @@ const Role = () => {
                     </CButton>
                 </CModalFooter>
             </CModal>
+
+            <CModal
+                size="lg"
+                visible={visibleManageService}
+                onClose={handleCloseModalManageService}
+                aria-labelledby="addService"
+            >
+                <CModalHeader onClose={handleCloseModalManageService}>
+                    <CModalTitle id="addService">Add Service For House</CModalTitle>
+                </CModalHeader>
+                <CModalBody>
+                    <>
+                        <CForm className="row g-3">
+                            <CCol md={6}>
+                                <CFormSelect onChange={handleHouseSelect} label="Select House">
+                                    <option value="0">Select House</option>
+                                    {houses.map((house, index) => (
+                                        <option key={index} value={house.id}>
+                                            {house.name}
+                                        </option>
+                                    ))}
+                                </CFormSelect>
+                            </CCol>
+                            <CCol md={6}>
+                                <CFormSelect
+                                    value={selectedServices}
+                                    multiple
+                                    onChange={handleSelectServices}
+                                    label="Select Services"
+                                >
+                                    {Services.map((s, index) => (
+                                        <option key={index} value={s.id}>
+                                            {s.name}
+                                        </option>
+                                    ))}
+                                </CFormSelect>
+                            </CCol>
+                        </CForm>
+                    </>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton color="secondary" onClick={handleCloseModalManageService}>
+                        Close
+                    </CButton>
+                    <CButton color="primary" onClick={handleSaveService}>
+                        Save changes
+                    </CButton>
+                </CModalFooter>
+            </CModal>
+
             <ToastContainer />
         </>
     );
 };
 
-export default Role;
+export default Service;

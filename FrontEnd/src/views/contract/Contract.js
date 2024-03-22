@@ -37,6 +37,7 @@ const Contract = () => {
     const [role, setRole] = useState('');
     const [users, setUsers] = useState([]);
     const [houses, setHouses] = useState([]);
+    const [payments, setPayments] = useState([]);
     const numberPerPage = 10;
     useEffect(() => {
         const availableToken = localStorage.getItem('accessToken');
@@ -49,6 +50,7 @@ const Contract = () => {
             if (decodedToken.role === 'Admin') {
                 fetchHouse();
                 fetchUser();
+                fetchPayments();
             }
             fetchContract();
         }
@@ -102,7 +104,22 @@ const Contract = () => {
             console.log('error');
         }
     };
-
+    const fetchPayments = async () => {
+        const options = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        };
+        try {
+            const result = await loadService.loadPayments(options);
+            if (result) {
+                setPayments(result);
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Error loading payments');
+        }
+    };
     const numberOfPages = Math.ceil(contracts.length / numberPerPage);
     const startIndex = (currentPage - 1) * numberPerPage;
     const endIndex = startIndex + numberPerPage;
@@ -453,6 +470,7 @@ const Contract = () => {
                 role={role}
                 users={users}
                 houses={houses}
+                payments={payments}
             />
             <ToastContainer />
         </>
