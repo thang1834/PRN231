@@ -20,6 +20,7 @@ namespace PRN231_Project.Models
         public virtual DbSet<Contract> Contracts { get; set; } = null!;
         public virtual DbSet<House> Houses { get; set; } = null!;
         public virtual DbSet<Payment> Payments { get; set; } = null!;
+        public virtual DbSet<Permission> Permissions { get; set; } = null!;
         public virtual DbSet<Request> Requests { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<Service> Services { get; set; } = null!;
@@ -152,9 +153,7 @@ namespace PRN231_Project.Models
             {
                 entity.ToTable("payments");
 
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Amount).HasColumnName("amount");
 
@@ -185,6 +184,13 @@ namespace PRN231_Project.Models
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_payments_User");
+            });
+
+            modelBuilder.Entity<Permission>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Name).HasMaxLength(255);
             });
 
             modelBuilder.Entity<Request>(entity =>
@@ -219,6 +225,23 @@ namespace PRN231_Project.Models
                 entity.Property(e => e.Name)
                     .HasMaxLength(50)
                     .HasColumnName("name");
+
+                entity.HasMany(d => d.Permissions)
+                    .WithMany(p => p.Roles)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "RolePermission",
+                        l => l.HasOne<Permission>().WithMany().HasForeignKey("PermissionId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_RolePermission_Permission"),
+                        r => r.HasOne<Role>().WithMany().HasForeignKey("RoleId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_RolePermission_Role"),
+                        j =>
+                        {
+                            j.HasKey("RoleId", "PermissionId");
+
+                            j.ToTable("RolePermission");
+
+                            j.IndexerProperty<int>("RoleId").HasColumnName("roleId");
+
+                            j.IndexerProperty<int>("PermissionId").HasColumnName("permissionId");
+                        });
             });
 
             modelBuilder.Entity<Service>(entity =>

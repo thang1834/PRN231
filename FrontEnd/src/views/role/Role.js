@@ -198,6 +198,7 @@ const Role = () => {
                     <CTableRow>
                         <CTableHeaderCell scope="col">#</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Name</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Permissions</CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
                     </CTableRow>
@@ -207,6 +208,7 @@ const Role = () => {
                         <CTableRow key={role.id}>
                             <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                             <CTableDataCell>{role.name}</CTableDataCell>
+                            <CTableDataCell>{role.permissions.map(item => item.name).join(', ')}</CTableDataCell>
                             <CTableDataCell>
                                 <CIcon
                                     className="icon-view"
