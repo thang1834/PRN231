@@ -50,11 +50,10 @@ const Contract = () => {
         if (accessToken) {
             const decodedToken = jwtDecode(accessToken);
             setRole(decodedToken.role);
-            if (decodedToken.role === 'Admin') {
-                fetchHouse();
-                fetchUser();
-                fetchPayments();
-            }
+            fetchHouse();
+            fetchUser();
+            fetchPayments();
+
             fetchContract();
         }
     }, [accessToken, typeContract]);
