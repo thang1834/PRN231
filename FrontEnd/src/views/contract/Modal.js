@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+
 import * as getLinkImage from '../../ultils/getLinkImage';
 import {
     CRow,
@@ -68,27 +68,7 @@ const Modal = ({
                             />
                             <span className="error-message">{error.price}</span>
                         </CCol>
-
-                        {/* <CCol md={4}>
-                            <CFormInput
-                                id="contract_paymentId"
-                                label="Payment ID"
-                                value={selectedContract.paymentId}
-                                disabled={role !== 'Admin'}
-                                onChange={(event) => handleInputChange(event, 'paymentId')}
-                            />
-                            <span className="error-message">{error.paymentId}</span>
-                        </CCol> */}
                         <CCol md={2}>
-                            {/* <CFormInput
-                                type="text"
-                                id="contract_houseId"
-                                label="House ID"
-                                value={selectedContract.houseId}
-                                disabled={role !== 'Admin'}
-                                onChange={(event) => handleInputChange(event, 'houseId')}
-                            />
-                            <span className="error-message">{error.houseId}</span> */}
                         </CCol>
                         <CRow>
                             {role === 'Admin' && (
@@ -198,21 +178,6 @@ const Modal = ({
                             />
                             <span className="error-message">{error.description}</span>
                         </CCol>
-                        {/* <CCol md={4}>
-                        <CFormSelect id="inputState" label="State">
-                            <option>Choose...</option>
-                            <option>...</option>
-                        </CFormSelect>
-                    </CCol>
-                    <CCol md={2}>
-                        <CFormInput id="inputZip" label="Zip" />
-                    </CCol>
-                    <CCol xs={12}>
-                        <CFormCheck type="checkbox" id="gridCheck" label="Check me out" />
-                    </CCol> */}
-                        {/* <CCol xs={12}>
-                        <CButton type="submit">Sign in</CButton>
-                    </CCol> */}
                     </CForm>
                 )}
             </CModalBody>
