@@ -203,9 +203,9 @@ const Role = () => {
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                    {displayedRoles.map((role) => (
+                    {displayedRoles.map((role, index) => (
                         <CTableRow key={role.id}>
-                            <CTableHeaderCell scope="row">{role.id}</CTableHeaderCell>
+                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                             <CTableDataCell>{role.name}</CTableDataCell>
                             <CTableDataCell>
                                 <CIcon
@@ -265,8 +265,8 @@ const Role = () => {
                             {statusModal === 'create'
                                 ? 'Create New Role'
                                 : statusModal === 'update'
-                                ? 'Role Details'
-                                : 'Warning'}
+                                    ? 'Role Details'
+                                    : 'Warning'}
                         </CModalTitle>
                     </CModalTitle>
                 </CModalHeader>

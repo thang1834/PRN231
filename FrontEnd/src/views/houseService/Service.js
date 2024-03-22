@@ -291,9 +291,9 @@ const Service = () => {
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                    {displayedServices.map((Service) => (
+                    {displayedServices.map((Service, index) => (
                         <CTableRow key={Service.id}>
-                            <CTableHeaderCell scope="row">{Service.id}</CTableHeaderCell>
+                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                             <CTableDataCell>{Service.name}</CTableDataCell>
                             <CTableDataCell>{Service.description}</CTableDataCell>
                             <CTableDataCell>
@@ -354,8 +354,8 @@ const Service = () => {
                             {statusModal === 'create'
                                 ? 'Create New Service'
                                 : statusModal === 'update'
-                                ? 'Service Details'
-                                : 'Warning'}
+                                    ? 'Service Details'
+                                    : 'Warning'}
                         </CModalTitle>
                     </CModalTitle>
                 </CModalHeader>
