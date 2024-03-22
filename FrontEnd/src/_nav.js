@@ -69,7 +69,7 @@ export const _nav = [
         component: CNavItem,
         name: 'Statistic',
         to: '/dashboard/statistic',
-        icon: <CIcon icon={cilWallet} customClassName="nav-icon" />,
+        icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
     },
 ];
 
