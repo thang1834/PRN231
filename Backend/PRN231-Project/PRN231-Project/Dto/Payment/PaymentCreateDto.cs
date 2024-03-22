@@ -2,9 +2,9 @@
 {
     public class PaymentCreateDto
     {
-        public int UserId { get; set; }
+        public string Name { get; set; } = null!;
         public double Amount { get; set; }
-        public string Invoice { get; set; } = null!;
-        public DateTime DateCreated { get; set; }
+        public string? Description { get; set; }
+        public int UserId { get; set; }
     }
 }

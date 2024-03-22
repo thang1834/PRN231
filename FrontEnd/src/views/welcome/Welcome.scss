@@ -1,0 +1,55 @@
+.hero-msg {
+    background: url('https://wallpaperaccess.com/full/1802152.jpg') no-repeat;
+    background-size: 100% 100%;
+    height: 74vh;
+}
+.hero-msg-content {
+    background-color: rgba($color: #000000, $alpha: 0.6);
+    color: whitesmoke;
+    width: 100%;
+    height: 100%;
+    padding: 10%;
+}
+.hero-msg-tag {
+    margin-bottom: 3%;
+    color: #5eb0e5;
+}
+.hero-actions {
+    margin-top: 3%;
+}
+.showcase {
+    position: relative;
+    border: 2px solid #1f2020;
+    border-radius: 3px;
+    box-shadow: 3px 3px 0px #25282a;
+    padding: 0.5rem 1rem;
+    font-size: 1.4rem;
+    transition: 200ms ease;
+    z-index: 2;
+    background-color: #5eb0e5;
+}
+.showcase + .showcase {
+    margin-left: 1rem;
+}
+.showcase:active {
+    box-shadow: -2px -2px 0px #25282a;
+    transform: translate(2px, 2px);
+}
+.showcase.hover-effect::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: #1f2020;
+    transform-origin: bottom right;
+    transition: 100ms ease-in-out;
+    mix-blend-mode: screen;
+    z-index: 1;
+    clip-path: ellipse(0px 0px at bottom center);
+}
+.showcase.hover-effect:hover:before {
+    clip-path: ellipse(50% 100% at bottom center);
+}
+.showcase.hover-effect:active:before {
+    background-color: #25282a;
+    mix-blend-mode: color-dodge;
+}
