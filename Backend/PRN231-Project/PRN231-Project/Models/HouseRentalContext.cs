@@ -19,6 +19,7 @@ namespace PRN231_Project.Models
         public virtual DbSet<Category> Categories { get; set; } = null!;
         public virtual DbSet<Contract> Contracts { get; set; } = null!;
         public virtual DbSet<House> Houses { get; set; } = null!;
+        public virtual DbSet<Note> Notes { get; set; } = null!;
         public virtual DbSet<Payment> Payments { get; set; } = null!;
         public virtual DbSet<Permission> Permissions { get; set; } = null!;
         public virtual DbSet<Request> Requests { get; set; } = null!;
@@ -29,6 +30,11 @@ namespace PRN231_Project.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=(local);Database=HouseRental;User ID=sa;Password=123;Integrated Security=True;TrustServerCertificate=True;");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -149,6 +155,29 @@ namespace PRN231_Project.Models
                         });
             });
 
+            modelBuilder.Entity<Note>(entity =>
+            {
+                entity.ToTable("Note");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.CreateDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createDate")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Description).HasColumnName("description");
+
+                entity.Property(e => e.HouseId).HasColumnName("houseId");
+
+                entity.Property(e => e.Note1).HasColumnName("note");
+
+                entity.HasOne(d => d.House)
+                    .WithMany(p => p.Notes)
+                    .HasForeignKey(d => d.HouseId)
+                    .HasConstraintName("FK_Note_House");
+            });
+
             modelBuilder.Entity<Payment>(entity =>
             {
                 entity.ToTable("payments");
@@ -159,7 +188,6 @@ namespace PRN231_Project.Models
 
                 entity.Property(e => e.Description)
                     .HasMaxLength(255)
-                    .IsUnicode(false)
                     .HasColumnName("description");
 
                 entity.Property(e => e.IsPaid).HasColumnName("isPaid");

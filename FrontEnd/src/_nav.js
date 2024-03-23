@@ -50,6 +50,12 @@ export const _nav = [
     },
     {
         component: CNavItem,
+        name: 'Note',
+        to: '/dashboard/note',
+        icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+    },
+    {
+        component: CNavItem,
         name: 'Service',
         to: '/dashboard/houseService',
         icon: <CIcon icon={cilBlur} customClassName="nav-icon" />,

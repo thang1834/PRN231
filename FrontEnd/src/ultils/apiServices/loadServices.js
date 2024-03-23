@@ -134,3 +134,35 @@ export const loadServicesByHouseId = async (id, options = {}) => {
         throw error;
     }
 };
+
+//Permission
+export const loadPermissions = async (headers) => {
+    try {
+        const res = await request.get('Permission', headers);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+// Note
+export const loadNotes = async () => {
+    try {
+        const res = await request.get('Note');
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const loadNoteById = async (id) => {
+    try {
+        const res = await request.get(`Note/${id}`);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};

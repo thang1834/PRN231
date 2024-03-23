@@ -19,7 +19,19 @@ namespace PRN231_Project.Services.Impl
             _mapper = mapper;
         }
 
-        public async Task<Role> CreateRoleAsync(RoleCreateDto roleDto)
+		public async Task AddPermissionsForRoleAsync(int roleId, List<int> permissionIds)
+		{
+			try
+			{
+				await _roleRepository.AddPermissionsForRoleAsync(roleId, permissionIds);
+			}
+			catch (Exception ex)
+			{
+				throw new Exception($"Error adding roles for user: {ex.Message}");
+			}
+		}
+
+		public async Task<Role> CreateRoleAsync(RoleCreateDto roleDto)
         {
             try
             {

@@ -132,6 +132,19 @@ export const assignRole = async (options, headers) => {
     }
 };
 
+//assign permission
+export const assignPermission = async (options, headers) => {
+    try {
+        const res = await request.post(`Role/addPermissions`, options, headers);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
 //change password
 export const changePassword = async (id, options, headers) => {
     try {
@@ -266,6 +279,45 @@ export const postServiceForHouse = async (body, options) => {
     } catch (error) {
         console.log(error);
         console.log(options);
+        throw error;
+    }
+};
+
+
+
+// Create Note
+export const postNote = async (options) => {
+    try {
+        const res = await request.post('Note', options);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
+// Update Note
+export const updateNote = async (id, options) => {
+    try {
+        const res = await request.put(`Note/${id}`, options);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
+// Delete Note
+export const deleteNote = async (id) => {
+    try {
+        const res = await request.del(`Note/${id}`);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
         throw error;
     }
 };

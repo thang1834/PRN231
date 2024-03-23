@@ -35,6 +35,7 @@ namespace PRN231_Project
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+            builder.Services.AddScoped<INoteRepository, NoteRepository>();
 
             //Add scope for service
             builder.Services.AddScoped<IUserService, UserService>();
@@ -66,7 +67,20 @@ namespace PRN231_Project
 					policy.Requirements.Add(new PermissionRequirement(PermissionEnum.View));
 				});
 
-				// Add other policies as needed for different permissions
+                options.AddPolicy("UpdatePolicy", policy =>
+                {
+                    policy.Requirements.Add(new PermissionRequirement(PermissionEnum.Edit));
+                });
+
+				options.AddPolicy("DeletePolicy", policy =>
+				{
+					policy.Requirements.Add(new PermissionRequirement(PermissionEnum.Delete));
+				});
+
+				options.AddPolicy("CreatePolicy", policy =>
+				{
+					policy.Requirements.Add(new PermissionRequirement(PermissionEnum.Create));
+				});
 			});
 
 			builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -83,9 +97,16 @@ namespace PRN231_Project
             builder.Services.AddScoped<IHouseServiceRepository, HouseServiceRepository>();
             builder.Services.AddScoped<IHouseServiceService, HouseServiceService>();
 
+			//Permission
+			builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+			builder.Services.AddScoped<IPermissionService, PermissionService>();
+
 			builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
-			var app = builder.Build();
+            builder.Services.AddScoped<INoteRepository, NoteRepository>();
+            builder.Services.AddScoped<INoteService, NoteService>();
+
+            var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

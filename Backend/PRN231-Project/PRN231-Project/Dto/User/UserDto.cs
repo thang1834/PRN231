@@ -1,4 +1,6 @@
-﻿namespace PRN231_Project.Dto.User
+﻿using PRN231_Project.Dto.Role;
+
+namespace PRN231_Project.Dto.User
 {
     public class UserDto
     {
@@ -12,5 +14,6 @@
         public bool IsActive { get; set; }
         public string Password { get; set; } = null!;
         public string Username { get; set; } = null!;
-    }
+		public ICollection<RoleDto> Roles { get; set; }
+	}
 }
