@@ -188,7 +188,6 @@ namespace PRN231_Project.Models
 
                 entity.Property(e => e.Description)
                     .HasMaxLength(255)
-                    .IsUnicode(false)
                     .HasColumnName("description");
 
                 entity.Property(e => e.IsPaid).HasColumnName("isPaid");

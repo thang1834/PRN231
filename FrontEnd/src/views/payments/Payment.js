@@ -61,72 +61,6 @@ const Payment = () => {
         setError({});
     };
 
-    const handleCreatePayment = async (newPayment) => {
-        try {
-            const options = {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-                method: 'POST',
-                body: JSON.stringify(newPayment),
-            };
-            const response = await postService.createPayment(newPayment, options);
-            if (response.success) {
-                fetchPayments();
-                toast.success('Payment created successfully');
-            } else {
-                toast.error('Failed to create payment');
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error('Error creating payment');
-        }
-    };
-
-    const handleUpdatePayment = async (updatedPayment) => {
-        try {
-            const options = {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-                method: 'PUT',
-                body: JSON.stringify(updatedPayment),
-            };
-            const response = await postService.updatePayment(updatedPayment.id, updatedPayment, options);
-            if (response.success) {
-                fetchPayments();
-                toast.success('Payment updated successfully');
-            } else {
-                toast.error('Failed to update payment');
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error('Error updating payment');
-        }
-    };
-
-    const handleDeletePayment = async (paymentId) => {
-        try {
-            const options = {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                method: 'DELETE',
-            };
-            const response = await postService.deletePayment(paymentId, options);
-            if (response.success) {
-                fetchPayments();
-                toast.success('Payment deleted successfully');
-            } else {
-                toast.error('Failed to delete payment');
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error('Error deleting payment');
-        }
-    };
 
     const handleCloseModal = () => {
         setVisible(false);
@@ -178,9 +112,6 @@ const Payment = () => {
                 visible={visible}
                 payment={selectedPayment}
                 handleCloseModal={handleCloseModal}
-                onCreatePayment={handleCreatePayment}
-                onUpdatePayment={handleUpdatePayment}
-                onDeletePayment={handleDeletePayment}
             />
 
             <ToastContainer />

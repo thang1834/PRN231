@@ -31,7 +31,6 @@ namespace PRN231_Project.Controllers
                 {
                     foreach (var item in response.Data)
                     {
-                        if (item != null)
                         {
                             //Add Transaction
                             var transactionEntity = new PRN231_Project.Models.Transaction
