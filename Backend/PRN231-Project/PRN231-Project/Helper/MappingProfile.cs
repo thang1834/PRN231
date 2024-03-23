@@ -6,6 +6,9 @@ using PRN231_Project.Dto.Role;
 using PRN231_Project.Dto.User;
 using PRN231_Project.Models;
 using PRN231_Project.Dto.Payment;
+using PRN231_Project.Dto.HouseService;
+using PRN231_Project.Dto.Permission;
+using PRN231_Project.Dto.Note;
 
 namespace PRN231_Project.Helper
 {
@@ -61,6 +64,21 @@ namespace PRN231_Project.Helper
 
             CreateMap<Category, CategoryDto>();
             CreateMap<CategoryDto, Category>();
+
+            CreateMap<Note, NoteDto>();
+            CreateMap<NoteDto, Note>();
+
+            CreateMap<Note, NoteCreateDto>();
+            CreateMap<NoteCreateDto, Note>();
+
+            CreateMap<Note, NoteUpdateDto>();
+            CreateMap<NoteUpdateDto, Note>();
+
+            CreateMap<ServiceDto, Service>().ReverseMap();
+            CreateMap<ServiceCreateDto, Service>().ReverseMap();
+            CreateMap<ServiceUpdateDto, Service>().ReverseMap();
+
+            CreateMap<Permission, PermissionDto>().ReverseMap();
         }
     }
 }

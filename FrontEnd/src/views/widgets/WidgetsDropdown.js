@@ -1,4 +1,9 @@
-import React from 'react'
+import React from 'react';
+import { format } from 'date-fns';
+import { useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
+import * as loadService from '../../ultils/apiServices/loadServices';
+
 import {
   CRow,
   CCol,
@@ -14,6 +19,69 @@ import CIcon from '@coreui/icons-react'
 import { cilArrowBottom, cilArrowTop, cilOptions } from '@coreui/icons'
 
 const WidgetsDropdown = () => {
+
+  const [contracts, setContracts] = useState([]);
+  const [visible, setVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [statusModal, setStatusModal] = useState('');
+  const [error, setError] = useState({});
+  const [accessToken, setAccessToken] = useState('');
+  const [role, setRole] = useState('');
+  const numberPerPage = 10;
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [],
+  });
+
+
+  const [totalUsers, setTotalUser] = useState();
+  const [totalPayment, setTotalPayment] = useState();
+  const [totalContract, setTotalContract] = useState();
+  const [totalHouse, setTotalHouse] = useState();
+
+
+  useEffect(() => {
+    const availableToken = localStorage.getItem('accessToken');
+    if (availableToken) {
+      setAccessToken(availableToken);
+    }
+    if (accessToken) {
+      const decodedToken = jwtDecode(accessToken);
+      setRole(decodedToken.role);
+      const fetchContractApi = async () => {
+        const options = {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        };
+        const decodedToken = jwtDecode(accessToken);
+        let result = [];
+        if (decodedToken.role === 'Admin') {
+          const users = await loadService.loadUsers(options); // Gọi hàm loadUsers để lấy danh sách người dùng
+          const totalUsers = users.length;
+          setTotalUser(totalUsers);
+          const payment = await loadService.loadPayments(options);
+          let totalPayment = 0;
+          payment.forEach(contract => {
+            totalPayment += contract.amount
+
+          });
+          setTotalPayment(totalPayment)
+          const contract = await loadService.loadContracts(options);
+          const totalContract = contract.length;
+          setTotalContract(totalContract);
+          const house = await loadService.loadHouses(options);
+          const totalHouse = house.length;
+          setTotalHouse(totalHouse);
+        }
+        else result = await loadService.loadAllContractsByUserId(decodedToken.nameid, options);
+
+      };
+      fetchContractApi();
+    }
+
+  }, [accessToken]);
+
   return (
     <CRow>
       <CCol sm={6} lg={3}>
@@ -22,10 +90,10 @@ const WidgetsDropdown = () => {
           color="primary"
           value={
             <>
-              26K{' '}
-              <span className="fs-6 fw-normal">
+              {totalUsers}{' '}
+              {/* <span className="fs-6 fw-normal">
                 (-12.4% <CIcon icon={cilArrowBottom} />)
-              </span>
+              </span> */}
             </>
           }
           title="Users"
@@ -34,12 +102,12 @@ const WidgetsDropdown = () => {
               <CDropdownToggle color="transparent" caret={false} className="p-0">
                 <CIcon icon={cilOptions} className="text-high-emphasis-inverse" />
               </CDropdownToggle>
-              <CDropdownMenu>
+              {/* <CDropdownMenu>
                 <CDropdownItem>Action</CDropdownItem>
                 <CDropdownItem>Another action</CDropdownItem>
                 <CDropdownItem>Something else here...</CDropdownItem>
                 <CDropdownItem disabled>Disabled action</CDropdownItem>
-              </CDropdownMenu>
+              </CDropdownMenu> */}
             </CDropdown>
           }
           chart={
@@ -103,16 +171,18 @@ const WidgetsDropdown = () => {
           }
         />
       </CCol>
+
+
       <CCol sm={6} lg={3}>
         <CWidgetStatsA
           className="mb-4"
           color="info"
           value={
             <>
-              $6.200{' '}
-              <span className="fs-6 fw-normal">
+              ${totalPayment}{' '}
+              {/* <span className="fs-6 fw-normal">
                 (40.9% <CIcon icon={cilArrowTop} />)
-              </span>
+              </span> */}
             </>
           }
           title="Income"
@@ -121,12 +191,12 @@ const WidgetsDropdown = () => {
               <CDropdownToggle color="transparent" caret={false} className="p-0">
                 <CIcon icon={cilOptions} className="text-high-emphasis-inverse" />
               </CDropdownToggle>
-              <CDropdownMenu>
+              {/* <CDropdownMenu>
                 <CDropdownItem>Action</CDropdownItem>
                 <CDropdownItem>Another action</CDropdownItem>
                 <CDropdownItem>Something else here...</CDropdownItem>
                 <CDropdownItem disabled>Disabled action</CDropdownItem>
-              </CDropdownMenu>
+              </CDropdownMenu> */}
             </CDropdown>
           }
           chart={
@@ -189,30 +259,32 @@ const WidgetsDropdown = () => {
           }
         />
       </CCol>
+
+
       <CCol sm={6} lg={3}>
         <CWidgetStatsA
           className="mb-4"
           color="warning"
           value={
             <>
-              2.49{' '}
-              <span className="fs-6 fw-normal">
+              {totalContract}{' '}
+              {/* <span className="fs-6 fw-normal">
                 (84.7% <CIcon icon={cilArrowTop} />)
-              </span>
+              </span> */}
             </>
           }
-          title="Conversion Rate"
+          title="Contract"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="p-0">
                 <CIcon icon={cilOptions} className="text-high-emphasis-inverse" />
               </CDropdownToggle>
-              <CDropdownMenu>
+              {/* <CDropdownMenu>
                 <CDropdownItem>Action</CDropdownItem>
                 <CDropdownItem>Another action</CDropdownItem>
                 <CDropdownItem>Something else here...</CDropdownItem>
                 <CDropdownItem disabled>Disabled action</CDropdownItem>
-              </CDropdownMenu>
+              </CDropdownMenu> */}
             </CDropdown>
           }
           chart={
@@ -268,24 +340,24 @@ const WidgetsDropdown = () => {
           color="danger"
           value={
             <>
-              44K{' '}
-              <span className="fs-6 fw-normal">
+              {totalHouse}{' '}
+              {/* <span className="fs-6 fw-normal">
                 (-23.6% <CIcon icon={cilArrowBottom} />)
-              </span>
+              </span> */}
             </>
           }
-          title="Sessions"
+          title="House"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="p-0">
                 <CIcon icon={cilOptions} className="text-high-emphasis-inverse" />
               </CDropdownToggle>
-              <CDropdownMenu>
+              {/* <CDropdownMenu>
                 <CDropdownItem>Action</CDropdownItem>
                 <CDropdownItem>Another action</CDropdownItem>
                 <CDropdownItem>Something else here...</CDropdownItem>
                 <CDropdownItem disabled>Disabled action</CDropdownItem>
-              </CDropdownMenu>
+              </CDropdownMenu> */}
             </CDropdown>
           }
           chart={

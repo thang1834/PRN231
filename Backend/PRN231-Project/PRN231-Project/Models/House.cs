@@ -8,6 +8,7 @@ namespace PRN231_Project.Models
         public House()
         {
             Contracts = new HashSet<Contract>();
+            Notes = new HashSet<Note>();
             Services = new HashSet<Service>();
         }
 
@@ -22,6 +23,7 @@ namespace PRN231_Project.Models
         public virtual Category Category { get; set; } = null!;
         public virtual User User { get; set; } = null!;
         public virtual ICollection<Contract> Contracts { get; set; }
+        public virtual ICollection<Note> Notes { get; set; }
 
         public virtual ICollection<Service> Services { get; set; }
     }

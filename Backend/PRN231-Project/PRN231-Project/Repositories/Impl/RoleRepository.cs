@@ -20,7 +20,7 @@ namespace PRN231_Project.Repositories.Impl
 
         public async Task<IEnumerable<Role>> GetAllRolesAsync()
         {
-            return await _houseRentalContext.Roles.ToListAsync();
+            return await _houseRentalContext.Roles.Include(x => x.Permissions).ToListAsync();
         }
 
         public async Task<Role> GetRoleByIdAsync(int roleId)

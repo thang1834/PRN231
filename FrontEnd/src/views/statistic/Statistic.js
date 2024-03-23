@@ -29,13 +29,11 @@ import {
 import CIcon from '@coreui/icons-react';
 import { cilSearch, cilDelete, cilCloudDownload } from '@coreui/icons';
 import WidgetsDropdown from '../widgets/WidgetsDropdown';
-import { CChartLine, CChartPie } from '@coreui/react-chartjs';
+import { CChartDoughnut, CChartLine, CChartPie } from '@coreui/react-chartjs';
 import { getStyle, hexToRgba } from '@coreui/utils';
 
 const Statistic = () => {
     const [contracts, setContracts] = useState([]);
-    const [selectedContract, setSelectedContract] = useState({});
-    const [selectedFile, setSelectedFile] = useState();
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [statusModal, setStatusModal] = useState('');
@@ -43,13 +41,20 @@ const Statistic = () => {
     const [accessToken, setAccessToken] = useState('');
     const [role, setRole] = useState('');
     const numberPerPage = 10;
-    const [chartData, setChartData] = useState({
-        labels: [],
-        datasets: [],
-    });
+
+
+
+
 
     const [month, setMonth] = useState([])
     const [month2, setMonth2] = useState([])
+    const [houses, setHouses] = useState([]);
+    const [servicesName, setServiceName] = useState([]);
+    const [servicesNumber, setServiceNumber] = useState([]);
+    const [randomColors, setRandomColors] = useState([]);
+
+
+    // Tính toán số lượng nhà theo loại
 
     useEffect(() => {
         const availableToken = localStorage.getItem('accessToken');
@@ -70,9 +75,49 @@ const Statistic = () => {
                 if (decodedToken.role === 'Admin') {
                     result = await loadService.loadContracts(options);
                     const recordsByMonth = Array(12).fill(0);
+                    const recordsByMonth2 = Array(12).fill(0);
+                    const recordsById = Array(4).fill(0);
+                    let resServiceName = [];
+                    let resService = [];
+                    const colors = [];
                     const contractsData = await loadService.loadContracts(options);
                     const PaymentsData = await loadService.loadPayments(options);
-                    contractsData.forEach(contract => {
+                    const house = await loadService.loadHouses();
+                    const houseService = await loadService.loadServices(options);
+
+                    house.forEach(house => { //thong ke service theo house
+                        const abcd = loadService.loadServicesByHouseId(house.id, options);
+                        resService[abcd.id - 1]++;
+                        setServiceNumber(resService);
+                        console.log("service number: " + abcd.id - 1)
+                    });
+
+                    houseService.forEach(() => { //random color
+                        let color;
+                        do {
+                            color = '#' + Math.floor(Math.random() * 16777215).toString(16)
+                        } while (colors.includes(color));
+                        colors.push(color);
+                        setRandomColors(colors);
+                    });
+
+                    console.log("mau gi" + colors)
+
+                    houseService.forEach(house => { // list ten service
+                        const index = house.id - 1;
+                        resServiceName[index] = house.name;
+                        setServiceName(resServiceName)
+                    })
+                    console.log("service name: " + resServiceName)
+
+                    house.forEach(contract => { // thong ke house theo categoryId
+
+                        const index = contract.categoryId - 1;
+                        recordsById[index]++;
+                        setHouses(recordsById)
+                    });
+
+                    contractsData.forEach(contract => { //contract
                         contractsData.map((item) => {
                             item.startDate = formatDateString(item.startDate);
                         });
@@ -82,30 +127,17 @@ const Statistic = () => {
                         setMonth(recordsByMonth)
                     });
 
-                    PaymentsData.forEach(contract => {
-                        contractsData.map((item) => {
+                    PaymentsData.forEach(contract => { //payment
+                        PaymentsData.map((item) => {
                             item.when = formatDateString(item.when);
                         });
                         const date = new Date(contract.when);
                         const monthIndex = date.getMonth();
-                        recordsByMonth[monthIndex] += contract.amount;
-                        setMonth2(recordsByMonth)
+                        recordsByMonth2[monthIndex] += contract.amount;
+                        setMonth2(recordsByMonth2)
                     });
 
-                    setChartData({
-                        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                        datasets: [
-                            {
-                                label: 'Number of Contracts',
-                                backgroundColor: hexToRgba('#3498db', 10),
-                                borderColor: '#3498db',
-                                pointHoverBackgroundColor: '#3498db',
-                                borderWidth: 2,
-                                data: recordsByMonth,
-                                fill: true,
-                            },
-                        ],
-                    })
+
                 }
                 else result = await loadService.loadAllContractsByUserId(decodedToken.nameid, options);
                 if (result) {
@@ -144,6 +176,10 @@ const Statistic = () => {
     return (
         <>
             <WidgetsDropdown />
+
+
+
+
             <CCard className="mb-4">
                 <CCardBody>    {/* Contract */}
                     <CRow>
@@ -292,48 +328,51 @@ const Statistic = () => {
                     />
 
                 </CCardBody>
+                <CRow>
 
-                <CCol xs={6}>
-                    <CCard className="mb-4">
-                        <CCardHeader >House</CCardHeader>
-                        <CCardBody>
-                            <CChartPie
-                                data={{
-                                    labels: ['Red', 'Green', 'Yellow'],
-                                    datasets: [
-                                        {
-                                            data: [300, 50, 100],
-                                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-                                            hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-                                        },
-                                    ],
-                                }}
-                            />
-                        </CCardBody>
-                    </CCard>
-                </CCol>
+                    <CCol xs={6}>   {/* House */}
+                        <CCard className="mb-4">
+                            <CCardHeader >House</CCardHeader>
+                            <CCardBody>
+                                <CChartPie
+                                    data={{
+                                        labels: ['Duplex', 'Single-Family Home', 'Multi-Family Home', '2-story house'],
+                                        datasets: [
+                                            {
+                                                data: Object.values(houses),
+                                                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#008000'],
+                                                hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#008000'],
+                                            },
+                                        ],
+                                    }}
+                                />
+                            </CCardBody>
+                        </CCard>
+                    </CCol>
 
-                <CCardFooter>
-                    <CRow xs={{ cols: 1 }} md={{ cols: 5 }} className="text-center">
-                        {progressExample.map((item, index) => (
-                            <CCol className="mb-sm-2 mb-0" key={index}>
-                                <div className="text-medium-emphasis">{item.title}</div>
-                                <strong>
-                                    {item.value} ({item.percent}%)
-                                </strong>
-                                <CProgress thin className="mt-2" color={item.color} value={item.percent} />
-                            </CCol>
-                        ))}
-                    </CRow>
-                </CCardFooter>
 
+                    <CCol xs={6}>   {/* Service */}
+                        <CCard className="mb-4">
+                            <CCardHeader>Services</CCardHeader>
+                            <CCardBody>
+                                <CChartDoughnut
+                                    data={{
+                                        labels: Object.values(servicesName),
+                                        datasets: [
+                                            {
+                                                backgroundColor: randomColors,
+                                                data: [1, 1],
+                                            },
+                                        ],
+                                    }}
+                                />
+                            </CCardBody>
+                        </CCard>
+                    </CCol>
+                </CRow>
             </CCard>
 
-            <CRow>
-                <CCol xs>
 
-                </CCol>
-            </CRow>
 
         </>
     );

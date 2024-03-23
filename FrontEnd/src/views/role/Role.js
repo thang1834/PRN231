@@ -198,15 +198,17 @@ const Role = () => {
                     <CTableRow>
                         <CTableHeaderCell scope="col">#</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Name</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Permissions</CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                    {displayedRoles.map((role) => (
+                    {displayedRoles.map((role, index) => (
                         <CTableRow key={role.id}>
-                            <CTableHeaderCell scope="row">{role.id}</CTableHeaderCell>
+                            <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                             <CTableDataCell>{role.name}</CTableDataCell>
+                            <CTableDataCell>{role.permissions.map(item => item.name).join(', ')}</CTableDataCell>
                             <CTableDataCell>
                                 <CIcon
                                     className="icon-view"
@@ -265,8 +267,8 @@ const Role = () => {
                             {statusModal === 'create'
                                 ? 'Create New Role'
                                 : statusModal === 'update'
-                                ? 'Role Details'
-                                : 'Warning'}
+                                    ? 'Role Details'
+                                    : 'Warning'}
                         </CModalTitle>
                     </CModalTitle>
                 </CModalHeader>
