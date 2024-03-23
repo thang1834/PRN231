@@ -19,7 +19,9 @@ namespace PRN231_Project.Models
         public virtual DbSet<Category> Categories { get; set; } = null!;
         public virtual DbSet<Contract> Contracts { get; set; } = null!;
         public virtual DbSet<House> Houses { get; set; } = null!;
+        public virtual DbSet<Note> Notes { get; set; } = null!;
         public virtual DbSet<Payment> Payments { get; set; } = null!;
+        public virtual DbSet<Permission> Permissions { get; set; } = null!;
         public virtual DbSet<Request> Requests { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<Service> Services { get; set; } = null!;
@@ -28,6 +30,11 @@ namespace PRN231_Project.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=(local);Database=HouseRental;User ID=sa;Password=123;Integrated Security=True;TrustServerCertificate=True;");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -148,6 +155,29 @@ namespace PRN231_Project.Models
                         });
             });
 
+            modelBuilder.Entity<Note>(entity =>
+            {
+                entity.ToTable("Note");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.CreateDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createDate")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Description).HasColumnName("description");
+
+                entity.Property(e => e.HouseId).HasColumnName("houseId");
+
+                entity.Property(e => e.Note1).HasColumnName("note");
+
+                entity.HasOne(d => d.House)
+                    .WithMany(p => p.Notes)
+                    .HasForeignKey(d => d.HouseId)
+                    .HasConstraintName("FK_Note_House");
+            });
+
             modelBuilder.Entity<Payment>(entity =>
             {
                 entity.ToTable("payments");
@@ -184,6 +214,13 @@ namespace PRN231_Project.Models
                     .HasConstraintName("FK_payments_User");
             });
 
+            modelBuilder.Entity<Permission>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Name).HasMaxLength(255);
+            });
+
             modelBuilder.Entity<Request>(entity =>
             {
                 entity.ToTable("Request");
@@ -216,6 +253,23 @@ namespace PRN231_Project.Models
                 entity.Property(e => e.Name)
                     .HasMaxLength(50)
                     .HasColumnName("name");
+
+                entity.HasMany(d => d.Permissions)
+                    .WithMany(p => p.Roles)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "RolePermission",
+                        l => l.HasOne<Permission>().WithMany().HasForeignKey("PermissionId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_RolePermission_Permission"),
+                        r => r.HasOne<Role>().WithMany().HasForeignKey("RoleId").OnDelete(DeleteBehavior.ClientSetNull).HasConstraintName("FK_RolePermission_Role"),
+                        j =>
+                        {
+                            j.HasKey("RoleId", "PermissionId");
+
+                            j.ToTable("RolePermission");
+
+                            j.IndexerProperty<int>("RoleId").HasColumnName("roleId");
+
+                            j.IndexerProperty<int>("PermissionId").HasColumnName("permissionId");
+                        });
             });
 
             modelBuilder.Entity<Service>(entity =>

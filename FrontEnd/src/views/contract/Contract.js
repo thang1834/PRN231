@@ -20,6 +20,8 @@ import {
     CPagination,
     CPaginationItem,
     CImage,
+    CFormSelect,
+    CCol
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { ToastContainer, toast } from 'react-toastify';
@@ -37,6 +39,8 @@ const Contract = () => {
     const [role, setRole] = useState('');
     const [users, setUsers] = useState([]);
     const [houses, setHouses] = useState([]);
+    const [payments, setPayments] = useState([]);
+    const [typeContract, setTypeContract] = useState(0);
     const numberPerPage = 10;
     useEffect(() => {
         const availableToken = localStorage.getItem('accessToken');
@@ -46,13 +50,13 @@ const Contract = () => {
         if (accessToken) {
             const decodedToken = jwtDecode(accessToken);
             setRole(decodedToken.role);
-            if (decodedToken.role === 'Admin') {
-                fetchHouse();
-                fetchUser();
-            }
+            fetchHouse();
+            fetchUser();
+            fetchPayments();
+
             fetchContract();
         }
-    }, [accessToken]);
+    }, [accessToken, typeContract]);
 
     const fetchContract = async () => {
         const options = {
@@ -71,7 +75,37 @@ const Contract = () => {
                     item.endDate = formatDateString(item.endDate);
                     return item;
                 });
+                if (typeContract != 0) {
+                    result.sort((a, b) => {
+                        const dateA = new Date(a.endDate);
+                        const dateB = new Date(b.endDate);
+                        return dateA - dateB;
+                    })
+                    if (typeContract == 1)
+                        result = result.filter(item => calculateDaysToExpiration(item.endDate) <= 0
+                        )
+
+                    else {
+                        result = result.filter(item => calculateDaysToExpiration(item.endDate) <= 60)
+
+                        console.log(result)
+                    }
+                }
                 setContracts(result);
+                toast.success('Loading contracs successful');
+                if (typeContract == 0) {
+                    let numberOfContractExpireIn2Months = result.reduce((total, item) => {
+                        if (calculateDaysToExpiration(item.endDate) <= 60 && calculateDaysToExpiration(item.endDate) >= 0) {
+                            total++;
+                        }
+                        return total;
+                    }, 0);
+
+                    let messageNotice = '';
+                    if (numberOfContractExpireIn2Months == 0) messageNotice = 'No contracts will expire anytime soon'
+                    else messageNotice = `${numberOfContractExpireIn2Months} contracts will expire soon`;
+                    toast.warning(messageNotice);
+                }
             }
         } catch (error) {
             console.log(error);
@@ -102,7 +136,22 @@ const Contract = () => {
             console.log('error');
         }
     };
-
+    const fetchPayments = async () => {
+        const options = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        };
+        try {
+            const result = await loadService.loadPayments(options);
+            if (result) {
+                setPayments(result);
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Error loading payments');
+        }
+    };
     const numberOfPages = Math.ceil(contracts.length / numberPerPage);
     const startIndex = (currentPage - 1) * numberPerPage;
     const endIndex = startIndex + numberPerPage;
@@ -340,14 +389,41 @@ const Contract = () => {
         }
     };
 
+    function calculateDaysToExpiration(endDateString) {
+        const endDate = new Date(endDateString);
+        const today = new Date();
+        const diffTime = endDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    }
+    function renderDayExpired(val) {
+        if (val == 0) return 'Today';
+        if (val == 1) return 'Tomorrow';
+        if (val < 0) return 'Expired';
+        return `${val} days`;
+    }
     return (
         <>
             {role === 'Admin' ? (
-                <div style={{ display: 'flex', justifyContent: 'end', marginBottom: '10px' }}>
-                    <CButton onClick={handleCreateNew} className="btn-create" color="secondary">
-                        Create new
-                    </CButton>
-                </div>
+                <>
+                    <CCol md={3}>
+                        <CFormSelect value={typeContract} onChange={(e) => {
+                            console.log(e.target.value)
+                            setTypeContract(e.target.value)
+                        }}>
+                            <option value='0'>All</option>
+                            <option value='1'>Expired</option>
+                            <option value='2'>Expire in 2 months</option>
+                        </CFormSelect>
+                    </CCol>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+
+                        <CButton onClick={handleCreateNew} className="btn-create" color="secondary">
+                            Create new
+                        </CButton>
+                    </div></>
+
             ) : (
                 <></>
             )}
@@ -360,9 +436,10 @@ const Contract = () => {
                         <CTableHeaderCell scope="col">Price</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Start Date</CTableHeaderCell>
                         <CTableHeaderCell scope="col">End Date</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">User Id</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Payment Id</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">House Id</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Expired in</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">User</CTableHeaderCell>
+                        {/* <CTableHeaderCell scope="col">Payment Id</CTableHeaderCell> */}
+                        <CTableHeaderCell scope="col">House</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Image Contract</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Description</CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
@@ -377,9 +454,10 @@ const Contract = () => {
                             <CTableDataCell>{contract.price}</CTableDataCell>
                             <CTableDataCell>{formatDateString(contract.startDate)}</CTableDataCell>
                             <CTableDataCell>{formatDateString(contract.endDate)}</CTableDataCell>
-                            <CTableDataCell>{contract.userId}</CTableDataCell>
-                            <CTableDataCell>{contract.paymentId}</CTableDataCell>
-                            <CTableDataCell>{contract.houseId}</CTableDataCell>
+                            <CTableDataCell style={{ color: calculateDaysToExpiration(contract.endDate) <= 60 ? 'red' : calculateDaysToExpiration(contract.endDate) < 60 ? '#b1b136' : 'inherit' }}>{renderDayExpired(calculateDaysToExpiration(contract.endDate))}</CTableDataCell>
+                            <CTableDataCell>{users.find(item => item.id == contract.userId)?.username}</CTableDataCell>
+                            {/* <CTableDataCell>{contract.paymentId}</CTableDataCell> */}
+                            <CTableDataCell>{houses.find(item => item.id == contract.houseId)?.name}</CTableDataCell>
                             <CTableDataCell>
                                 <CImage
                                     className="img_contract"
@@ -453,6 +531,7 @@ const Contract = () => {
                 role={role}
                 users={users}
                 houses={houses}
+                payments={payments}
             />
             <ToastContainer />
         </>

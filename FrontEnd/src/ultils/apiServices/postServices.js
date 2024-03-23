@@ -1,6 +1,5 @@
 import * as request from '../request';
 
-
 // create Payment
 
 export const createPayment = async (body, options) => {
@@ -214,6 +213,94 @@ export const updateHouse = async (id, options) => {
 export const deleteHouse = async (id) => {
     try {
         const res = await request.del(`House/${id}`);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+// House services
+
+export const postService = async (body, options) => {
+    try {
+        const res = await request.post('Service', body, options);
+        //console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
+export const deleteService = async (id, options = {}) => {
+    try {
+        const res = await request.del(`Service/${id}`, options);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const updateService = async (id, body, options) => {
+    try {
+        const res = await request.put(`Service/${id}`, body, options);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
+export const postServiceForHouse = async (body, options) => {
+    try {
+        const res = await request.post('Service/setService', body, options);
+        //console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
+
+
+// Create Note
+export const postNote = async (options) => {
+    try {
+        const res = await request.post('Note', options);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
+// Update Note
+export const updateNote = async (id, options) => {
+    try {
+        const res = await request.put(`Note/${id}`, options);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
+// Delete Note
+export const deleteNote = async (id) => {
+    try {
+        const res = await request.del(`Note/${id}`);
         console.log(res);
         return res;
     } catch (error) {

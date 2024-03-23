@@ -1,11 +1,15 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using PRN231_Project.AuthorizationHandler;
+using PRN231_Project.Enums;
 using PRN231_Project.Models;
 using PRN231_Project.Repositories;
 using PRN231_Project.Repositories.Impl;
+using PRN231_Project.Requirement;
 using PRN231_Project.Services;
 using PRN231_Project.Services.Impl;
 
@@ -31,6 +35,7 @@ namespace PRN231_Project
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+            builder.Services.AddScoped<INoteRepository, NoteRepository>();
 
             //Add scope for service
             builder.Services.AddScoped<IUserService, UserService>();
@@ -55,9 +60,17 @@ namespace PRN231_Project
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
                 };
             });
+			builder.Services.AddAuthorization(options =>
+			{
+				options.AddPolicy("ViewPolicy", policy =>
+				{
+					policy.Requirements.Add(new PermissionRequirement(PermissionEnum.View));
+				});
 
+				// Add other policies as needed for different permissions
+			});
 
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+			builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             // Contract
             builder.Services.AddScoped<IContractRepository, ContractRepository>();
             builder.Services.AddScoped<IContractService, ContractService>();
@@ -67,6 +80,14 @@ namespace PRN231_Project
             // Category
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+            builder.Services.AddScoped<IHouseServiceRepository, HouseServiceRepository>();
+            builder.Services.AddScoped<IHouseServiceService, HouseServiceService>();
+
+			builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
+            builder.Services.AddScoped<INoteRepository, NoteRepository>();
+            builder.Services.AddScoped<INoteService, NoteService>();
 
             var app = builder.Build();
 
