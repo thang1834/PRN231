@@ -6,10 +6,12 @@ namespace PRN231_Project.Repositories.Impl
     public class RoleRepository : IRoleRepository
     {
         private readonly HouseRentalContext _houseRentalContext;
+        private readonly IPermissionRepository _permissionRepository;
 
-        public RoleRepository(HouseRentalContext houseRentalContext)
+        public RoleRepository(HouseRentalContext houseRentalContext, IPermissionRepository permissionRepository)
         {
             _houseRentalContext = houseRentalContext;
+            _permissionRepository = permissionRepository;
         }
         public async Task<Role> AddRoleAsync(Role role)
         {
@@ -57,5 +59,29 @@ namespace PRN231_Project.Repositories.Impl
             await _houseRentalContext.SaveChangesAsync();
             return role;
         }
-    }
+
+		public async Task AddPermissionsForRoleAsync(int roleId, List<int> permissionIds)
+		{
+			var role = await _houseRentalContext.Roles
+				.Include(u => u.Permissions)
+				.FirstOrDefaultAsync(u => u.Id == roleId);
+
+			if (role == null)
+			{
+				throw new ArgumentException("User not found");
+			}
+
+			var existingPermissionIds = role.Permissions.Select(r => r.Id).ToList();
+			var newPermissionIds = permissionIds.Except(existingPermissionIds).ToList();
+
+			var newPermissions = await _permissionRepository.GetPermissionsByIdsAsync(newPermissionIds);
+
+			foreach (var permission in newPermissions)
+			{
+				role.Permissions.Add(permission);
+			}
+
+			await _houseRentalContext.SaveChangesAsync();
+		}
+	}
 }

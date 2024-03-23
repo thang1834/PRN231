@@ -135,6 +135,16 @@ export const loadServicesByHouseId = async (id, options = {}) => {
     }
 };
 
+//Permission
+export const loadPermissions = async (headers) => {
+    try {
+        const res = await request.get('Permission', headers);
+        return res;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
 
 // Note
 export const loadNotes = async () => {

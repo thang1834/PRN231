@@ -10,5 +10,6 @@ namespace PRN231_Project.Repositories
         Task<Role> UpdateRoleAsync(Role role);
         Task<Role> AddRoleAsync(Role role);
         Task<Role> RemoveRoleAsync(int roleId);
-    }
+		Task AddPermissionsForRoleAsync(int roleId, List<int> permissionIds);
+	}
 }

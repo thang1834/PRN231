@@ -132,6 +132,19 @@ export const assignRole = async (options, headers) => {
     }
 };
 
+//assign permission
+export const assignPermission = async (options, headers) => {
+    try {
+        const res = await request.post(`Role/addPermissions`, options, headers);
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        console.log(options);
+        throw error;
+    }
+};
+
 //change password
 export const changePassword = async (id, options, headers) => {
     try {

@@ -11,5 +11,6 @@ namespace PRN231_Project.Services
         Task<Role> CreateRoleAsync(RoleCreateDto roleDto);
         Task<Role> UpdateRoleAsync(int roleId, RoleUpdateDto roleDto);
         Task<Role> RemoveRoleAsync(int roleId);
-    }
+		Task AddPermissionsForRoleAsync(int roleId, List<int> permissionIds);
+	}
 }
