@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PRN231_Project.Dto.Role;
+using PRN231_Project.Dto.RolePermission;
 using PRN231_Project.Dto.User;
+using PRN231_Project.Dto.UserRole;
 using PRN231_Project.Services;
 using PRN231_Project.Services.Impl;
 
@@ -83,5 +85,20 @@ namespace PRN231_Project.Controllers
                 return BadRequest(ex.Message);
             }
         }
-    }
+
+		[Authorize(Roles = "Admin")]
+		[HttpPost("addPermissions")]
+		public async Task<IActionResult> AddPermissionsForUser(RolePermission rolePermission)
+		{
+			try
+			{
+				await _roleService.AddPermissionsForRoleAsync(rolePermission.RoleId, rolePermission.PermissionIds);
+				return Ok("Permissions added successfully.");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest($"Failed to add permissions: {ex.Message}");
+			}
+		}
+	}
 }

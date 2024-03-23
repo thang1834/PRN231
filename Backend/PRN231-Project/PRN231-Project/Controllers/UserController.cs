@@ -63,7 +63,7 @@ namespace PRN231_Project.Controllers
         }
 
 
-        [Authorize(Roles = "Admin", Policy = "ViewPolicy")]
+        [Authorize(Policy = "ViewPolicy")]
         [HttpGet]
         public async Task<IActionResult> GetAllUsersAsync()
         {

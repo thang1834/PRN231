@@ -67,7 +67,20 @@ namespace PRN231_Project
 					policy.Requirements.Add(new PermissionRequirement(PermissionEnum.View));
 				});
 
-				// Add other policies as needed for different permissions
+                options.AddPolicy("UpdatePolicy", policy =>
+                {
+                    policy.Requirements.Add(new PermissionRequirement(PermissionEnum.Edit));
+                });
+
+				options.AddPolicy("DeletePolicy", policy =>
+				{
+					policy.Requirements.Add(new PermissionRequirement(PermissionEnum.Delete));
+				});
+
+				options.AddPolicy("CreatePolicy", policy =>
+				{
+					policy.Requirements.Add(new PermissionRequirement(PermissionEnum.Create));
+				});
 			});
 
 			builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -83,6 +96,10 @@ namespace PRN231_Project
 
             builder.Services.AddScoped<IHouseServiceRepository, HouseServiceRepository>();
             builder.Services.AddScoped<IHouseServiceService, HouseServiceService>();
+
+			//Permission
+			builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+			builder.Services.AddScoped<IPermissionService, PermissionService>();
 
 			builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 

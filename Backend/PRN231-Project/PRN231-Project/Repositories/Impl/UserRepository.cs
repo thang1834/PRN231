@@ -27,7 +27,7 @@ namespace PRN231_Project.Repositories.Impl
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
-            return await _houseRentalContext.Users.Where(u => u.Id != 1).ToListAsync();
+            return await _houseRentalContext.Users.Include(x => x.Roles).Where(u => u.Id != 1).ToListAsync();
         }
 
         public async Task<User> GetByUsernameAsync(string username)
