@@ -64,7 +64,6 @@ const User = () => {
 
         if (accessToken) {
             fetchUser();
-            fetchRole();
         }
 
         if (success) {
@@ -143,7 +142,8 @@ const User = () => {
         setError({});
     };
 
-    const handleAddRole = () => {
+    const handleAddRole = async () => {
+        await fetchRole();
         setIsAddRole(true);
         setSelectedUser({});
         setError({});
@@ -299,6 +299,7 @@ const User = () => {
                         <CTableHeaderCell scope="col">Is Active</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Password</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Username</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Roles</CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
                         <CTableHeaderCell scope="col"></CTableHeaderCell>
                     </CTableRow>
@@ -316,6 +317,7 @@ const User = () => {
                             <CTableDataCell>{user.isActive ? 'true' : 'false'}</CTableDataCell>
                             <CTableDataCell>{user.password}</CTableDataCell>
                             <CTableDataCell>{user.username}</CTableDataCell>
+                            <CTableDataCell>{user.roles.map(item => item.name).join(', ')}</CTableDataCell>
                             <CTableDataCell>
                                 <CIcon
                                     className="icon-view"

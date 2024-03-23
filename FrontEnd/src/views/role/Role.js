@@ -21,6 +21,7 @@ import {
     CPagination,
     CPaginationItem,
     CFormCheck,
+    CFormSelect,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilDelete, cilSearch } from '@coreui/icons';
@@ -34,11 +35,14 @@ const Role = () => {
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [roles, setRoles] = useState([]);
+    const [permissions, setPermissions] = useState([]);
     const [accessToken, setAccessToken] = useState('');
     const [loading, setLoading] = useState(true);
     const [statusModal, setStatusModal] = useState('');
     const [error, setError] = useState({});
     const [success, setSuccess] = useState(false);
+    const [isAddPermission, setIsAddPermission] = useState(false);
+    const [selectedPermissions, setSelectedPermissions] = useState([]);
     const navigate = useNavigate();
 
     const numberPerPage = 10;
@@ -75,6 +79,25 @@ const Role = () => {
             });
             if (list) {
                 setRoles(list);
+            }
+        } catch (err) {
+            if (err.response.status === 403) {
+                navigate('/403');
+            } else {
+                toast.error('Error');
+            }
+        }
+    };
+
+    const fetchPermission = async () => {
+        try {
+            const list = await loadService.loadPermissions({
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            if (list) {
+                setPermissions(list);
             }
         } catch (err) {
             if (err.response.status === 403) {
@@ -182,6 +205,48 @@ const Role = () => {
         }
     };
 
+    const handleAddPermission = async () => {
+        await fetchPermission();
+        setIsAddPermission(true);
+        setSelectedRole({});
+        setError({});
+    }
+
+    const handleCloseAddPermissionModal = () => {
+        setIsAddPermission(false);
+        setSelectedRole(null);
+        setError({});
+    };
+
+    const handleSelectRole = (e) => {
+        setSelectedRole(e.target.value);
+    }
+
+    const handleSavePermission = async () => {
+        var rolePermission = {
+            roleId: selectedRole,
+            permissionIds: selectedPermissions,
+        };
+        try {
+            const res = await postService.assignPermission(rolePermission, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            setSuccess(true);
+        } catch (err) {
+            toast.error('Error');
+        }
+        setLoading(true);
+        handleCloseAddPermissionModal();
+    };
+
+    const handleSelectPermissions = (e) => {
+        const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
+        setSelectedPermissions(selectedOptions);
+    }
+
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -189,6 +254,9 @@ const Role = () => {
     return (
         <>
             <div style={{ display: 'flex', justifyContent: 'end', marginBottom: '10px' }}>
+                <CButton onClick={handleAddPermission} className="btn-add_role" color="secondary" style={{ marginRight: 20 }}>
+                    Assign permissions
+                </CButton>
                 <CButton onClick={handleCreateNew} className="btn-create" color="secondary">
                     Create new
                 </CButton>
@@ -299,6 +367,45 @@ const Role = () => {
                     </CButton>
                     <CButton onClick={handleCreateOrUpdateOrDelete} color="primary">
                         {statusModal === 'delete' ? 'Yes' : 'Save'}
+                    </CButton>
+                </CModalFooter>
+            </CModal>
+
+            <CModal size="lg" visible={isAddPermission} onClose={handleCloseAddPermissionModal} aria-labelledby="addRole">
+                <CModalHeader onClose={handleCloseAddPermissionModal}>
+                    <CModalTitle id="addPermission">Add Permission For Role</CModalTitle>
+                </CModalHeader>
+                <CModalBody>
+                    <>
+                        <CForm className="row g-3">
+                            <CCol md={6}>
+                                <CFormSelect onChange={handleSelectRole} label="Select Role">
+                                    <option value="">Select Role</option>
+                                    {roles.map((role, index) => (
+                                        <option key={index} value={role.id}>
+                                            {role.name}
+                                        </option>
+                                    ))}
+                                </CFormSelect>
+                            </CCol>
+                            <CCol md={6}>
+                                <CFormSelect multiple onChange={handleSelectPermissions} label="Select Permissions">
+                                    {permissions.map((permission, index) => (
+                                        <option key={index} value={permission.id}>
+                                            {permission.name}
+                                        </option>
+                                    ))}
+                                </CFormSelect>
+                            </CCol>
+                        </CForm>
+                    </>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton color="secondary" onClick={handleCloseAddPermissionModal}>
+                        Close
+                    </CButton>
+                    <CButton color="primary" onClick={handleSavePermission}>
+                        Save changes
                     </CButton>
                 </CModalFooter>
             </CModal>
