@@ -1,53 +1,85 @@
-import React from 'react';
-import { CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CButton } from '@coreui/react';
+import React, { useState, useEffect } from 'react';
 
-const Modal = ({ visible, payment, handleCloseModal, onCreatePayment, onUpdatePayment, onDeletePayment }) => {
-    const handleCreate = () => {
-        onCreatePayment(payment);
-        handleCloseModal();
+const Modal = ({ visible, onClose, payment, statusModal, onCreate, onUpdate }) => {
+    const [formData, setFormData] = useState({
+        name: '',
+        amount: 0,
+        description: '',
+        userId: 0, // Chỉ cần cho tạo mới
+    });
+
+    useEffect(() => {
+        if (statusModal === 'update' && payment) {
+            setFormData({
+                name: payment.name,
+                amount: payment.amount,
+                description: payment.description,
+                // Không cần userId cho cập nhật
+            });
+        }
+    }, [payment, statusModal]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            [name]: value,
+        }));
     };
 
-    const handleUpdate = () => {
-        onUpdatePayment(payment);
-        handleCloseModal();
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (statusModal === 'create') {
+            onCreate(formData);
+        } else if (statusModal === 'update') {
+            onUpdate({ ...formData, id: payment.id });
+        }
     };
 
-    const handleDelete = () => {
-        onDeletePayment(payment.id);
-        handleCloseModal();
-    };
+    if (!visible) return null;
 
     return (
-        <CModal size="lg" visible={visible} onClose={handleCloseModal}>
-            <CModalHeader closeButton>
-                <CModalTitle>{payment ? 'Edit Payment' : 'Create Payment'}</CModalTitle>
-            </CModalHeader>
-            <CModalBody>
-                {payment ? (
-                    <div>
-                        <p>Amount: {payment.amount}</p>
-                        <p>Date: {payment.date}</p>
-                        <p>Description: {payment.description}</p>
-                    </div>
-                ) : (
-                    <p>Form for creating new payment goes here</p>
+        <div className="modal">
+            {/* Modal content */}
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Name"
+                    required
+                />
+                <input
+                    type="number"
+                    name="amount"
+                    value={formData.amount}
+                    onChange={handleChange}
+                    placeholder="Amount"
+                    required
+                />
+                <input
+                    type="text"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Description"
+                    required
+                />
+                {statusModal === 'create' && (
+                    <input
+                        type="number"
+                        name="userId"
+                        value={formData.userId}
+                        onChange={handleChange}
+                        placeholder="User ID"
+                        required
+                    />
                 )}
-            </CModalBody>
-            <CModalFooter>
-                {payment ? (
-                    <>
-                        <CButton color="danger" onClick={handleDelete}>Delete</CButton>
-                        <CButton color="secondary" onClick={handleCloseModal}>Cancel</CButton>
-                        <CButton color="primary" onClick={handleUpdate}>Update</CButton>
-                    </>
-                ) : (
-                    <>
-                        <CButton color="secondary" onClick={handleCloseModal}>Cancel</CButton>
-                        <CButton color="primary" onClick={handleCreate}>Create</CButton>
-                    </>
-                )}
-            </CModalFooter>
-        </CModal>
+                <button type="submit">Submit</button>
+            </form>
+            <button onClick={onClose}>Close</button>
+        </div>
     );
 };
 
